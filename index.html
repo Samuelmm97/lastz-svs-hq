@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>SvS Capital — HQ slot reservations</title>
+<style>
+  :root{--bg:#14161a;--panel:#1d2026;--line:#33383f;--fg:#e8eaee;--dim:#9aa2ad;
+        --r20:#4ade80;--r24:#a3e635;--r28:#38bdf8;--r32:#818cf8;--taken:#fb923c;--bad:#f87171;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+    font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+  header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;
+    background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  header h1{font-size:16px;margin:0 8px 0 0;font-weight:650}
+  .pill{font-size:12.5px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+  .spacer{flex:1}
+  main{display:flex;height:calc(100% - 54px);min-height:0}
+  #wrap{position:relative;flex:1;min-width:0}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
+  #hint{position:absolute;left:10px;bottom:10px;font-size:12.5px;color:var(--dim);
+    background:#000a;border:1px solid var(--line);border-radius:8px;padding:6px 9px;pointer-events:none}
+  aside{width:320px;flex:none;border-left:1px solid var(--line);background:var(--panel);
+    display:flex;flex-direction:column;min-height:0}
+  aside .stats{padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim)}
+  aside .btns{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
+  #list{list-style:none;margin:0;padding:6px 0 40px;overflow:auto;flex:1}
+  #list li{display:flex;gap:8px;align-items:center;padding:6px 12px;border-bottom:1px solid #262a30;font-size:13.5px}
+  #list li b{color:var(--taken);font-weight:600}
+  #list li span.c{color:var(--dim);font-variant-numeric:tabular-nums}
+  button{font:inherit;font-size:13px;color:var(--fg);background:#2a2f37;border:1px solid var(--line);
+    border-radius:8px;padding:6px 10px;cursor:pointer}
+  button:hover{background:#333a44}
+  button.on{background:#2f6b46;border-color:#3f8a5b}
+  button.primary{background:#2f6b46;border-color:#3f8a5b;font-weight:600}
+  button.danger{background:#5a2626;border-color:#8a3f3f}
+  .modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;
+    padding:14px;z-index:20}
+  .modal.hidden{display:none}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;width:min(460px,100%)}
+  .card h2{margin:0 0 4px;font-size:17px}
+  .card .meta{color:var(--dim);font-size:13px;margin-bottom:10px;font-variant-numeric:tabular-nums}
+  .card label{display:block;font-size:13px;color:var(--dim);margin:8px 0 4px}
+  .card input,.card textarea{width:100%;background:#12141a;color:var(--fg);border:1px solid var(--line);
+    border-radius:8px;padding:9px;font:inherit}
+  .card textarea{height:150px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  .card .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .warn{color:var(--bad);font-size:13px;min-height:17px;margin-top:6px}
+  .ok{color:var(--r20)}
+  #legend{position:absolute;right:10px;top:10px;background:#000a;border:1px solid var(--line);
+    border-radius:8px;padding:7px 9px;font-size:12px;color:var(--dim);line-height:1.5}
+  #legend i{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:5px;vertical-align:middle}
+  @media(max-width:820px){
+    main{flex-direction:column;height:auto}
+    #wrap{height:58vh}
+    aside{width:auto;border-left:none;border-top:1px solid var(--line);max-height:42vh}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>SvS Capital — HQ slots</h1>
+  <span class="pill" id="pillFree">–</span>
+  <span class="pill" id="pillTaken">–</span>
+  <span class="pill" id="pillShared">shared: connecting…</span>
+  <span class="spacer"></span>
+  <button id="btnSync" title="pull the latest list from the shared sign-up sheet">⟳ sync</button>
+  <button id="btnGrid" title="show/hide the tile grid">grid</button>
+  <button id="btnNames" title="show/hide the names on the map">names</button>
+  <button id="btnFlip" title="flip N/S if the map looks mirrored compared to the game">flip N/S</button>
+  <button id="btnTest" title="highlight the tiles to verify in game">verify tiles</button>
+  <button id="btnFit">fit</button>
+</header>
+
+<main>
+  <div id="wrap">
+    <canvas id="map"></canvas>
+    <div id="legend">
+      <i style="background:var(--r20)"></i>inner ring (closest to capital)<br>
+      <i style="background:var(--r24)"></i>ring 24 &nbsp; <i style="background:var(--r28)"></i>ring 28<br>
+      <i style="background:var(--r32)"></i>ring 32 &nbsp; <i style="background:var(--taken)"></i>reserved
+    </div>
+    <div id="hint">tap a dot to reserve · drag to pan · wheel / pinch to zoom</div>
+  </div>
+  <aside>
+    <div class="stats" id="stats">reservations are stored in this browser</div>
+    <div class="btns">
+      <button id="btnExport">export JSON</button>
+      <button id="btnCopy">copy list</button>
+      <button id="btnImport">import</button>
+      <button id="btnHelp">how to share</button>
+      <button id="btnReset" class="danger">reset</button>
+    </div>
+    <ol id="list"></ol>
+  </aside>
+</main>
+
+<!-- reserve / release card -->
+<div class="modal hidden" id="sheet">
+  <div class="card">
+    <h2 id="shTitle">Spot</h2>
+    <div class="meta" id="shMeta"></div>
+    <label for="shName">Your name / alliance tag</label>
+    <input id="shName" maxlength="28" placeholder="e.g. Ahmed [Tj]">
+    <div class="warn" id="shWarn"></div>
+    <div class="row">
+      <button class="primary" id="shTake">reserve this spot</button>
+      <button class="danger hidden" id="shRelease">release</button>
+      <button id="shCopy">copy X/Y</button>
+      <button id="shClose">close</button>
+    </div>
+  </div>
+</div>
+
+<!-- import / export / help card -->
+<div class="modal hidden" id="io">
+  <div class="card">
+    <h2 id="ioTitle">Import</h2>
+    <div class="meta" id="ioMeta"></div>
+    <textarea id="ioText" spellcheck="false"></textarea>
+    <div class="row">
+      <button class="primary" id="ioDo">import</button>
+      <button id="ioClose">close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================== CORE (pure, testable) ============================== */
+const HQCore = (() => {
+  const SPOTS = [{"n":1,"ring":20,"clock":1,"X":506,"Y":480},{"n":2,"ring":20,"clock":1,"X":510,"Y":480},{"n":3,"ring":20,"clock":1,"X":512,"Y":484},{"n":4,"ring":20,"clock":2,"X":514,"Y":488},{"n":5,"ring":20,"clock":2,"X":516,"Y":492},{"n":6,"ring":20,"clock":3,"X":518,"Y":504},{"n":7,"ring":20,"clock":3,"X":518,"Y":496},{"n":8,"ring":20,"clock":3,"X":520,"Y":500},{"n":9,"ring":20,"clock":4,"X":514,"Y":512},{"n":10,"ring":20,"clock":4,"X":516,"Y":508},{"n":11,"ring":20,"clock":5,"X":506,"Y":520},{"n":12,"ring":20,"clock":5,"X":510,"Y":520},{"n":13,"ring":20,"clock":5,"X":512,"Y":516},{"n":14,"ring":20,"clock":6,"X":498,"Y":520},{"n":15,"ring":20,"clock":6,"X":502,"Y":520},{"n":16,"ring":20,"clock":7,"X":488,"Y":516},{"n":17,"ring":20,"clock":7,"X":490,"Y":520},{"n":18,"ring":20,"clock":7,"X":494,"Y":520},{"n":19,"ring":20,"clock":8,"X":484,"Y":508},{"n":20,"ring":20,"clock":8,"X":486,"Y":512},{"n":21,"ring":20,"clock":9,"X":480,"Y":500},{"n":22,"ring":20,"clock":9,"X":482,"Y":504},{"n":23,"ring":20,"clock":9,"X":482,"Y":496},{"n":24,"ring":20,"clock":10,"X":484,"Y":492},{"n":25,"ring":20,"clock":10,"X":486,"Y":488},{"n":26,"ring":20,"clock":11,"X":488,"Y":484},{"n":27,"ring":20,"clock":11,"X":490,"Y":480},{"n":28,"ring":20,"clock":11,"X":494,"Y":480},{"n":29,"ring":20,"clock":12,"X":498,"Y":480},{"n":30,"ring":20,"clock":12,"X":502,"Y":480},{"n":31,"ring":24,"clock":1,"X":508,"Y":476},{"n":32,"ring":24,"clock":1,"X":512,"Y":476},{"n":33,"ring":24,"clock":1,"X":514,"Y":480},{"n":34,"ring":24,"clock":2,"X":516,"Y":484},{"n":35,"ring":24,"clock":2,"X":518,"Y":488},{"n":36,"ring":24,"clock":2,"X":520,"Y":492},{"n":37,"ring":24,"clock":3,"X":522,"Y":504},{"n":38,"ring":24,"clock":3,"X":522,"Y":496},{"n":39,"ring":24,"clock":3,"X":524,"Y":500},{"n":40,"ring":24,"clock":4,"X":516,"Y":516},{"n":41,"ring":24,"clock":4,"X":518,"Y":512},{"n":42,"ring":24,"clock":4,"X":520,"Y":508},{"n":43,"ring":24,"clock":5,"X":508,"Y":524},{"n":44,"ring":24,"clock":5,"X":512,"Y":524},{"n":45,"ring":24,"clock":5,"X":514,"Y":520},{"n":46,"ring":24,"clock":6,"X":496,"Y":524},{"n":47,"ring":24,"clock":6,"X":500,"Y":524},{"n":48,"ring":24,"clock":6,"X":504,"Y":524},{"n":49,"ring":24,"clock":7,"X":486,"Y":520},{"n":50,"ring":24,"clock":7,"X":488,"Y":524},{"n":51,"ring":24,"clock":7,"X":492,"Y":524},{"n":52,"ring":24,"clock":8,"X":480,"Y":508},{"n":53,"ring":24,"clock":8,"X":482,"Y":512},{"n":54,"ring":24,"clock":8,"X":484,"Y":516},{"n":55,"ring":24,"clock":9,"X":476,"Y":500},{"n":56,"ring":24,"clock":9,"X":478,"Y":504},{"n":57,"ring":24,"clock":9,"X":478,"Y":496},{"n":58,"ring":24,"clock":10,"X":480,"Y":492},{"n":59,"ring":24,"clock":10,"X":482,"Y":488},{"n":60,"ring":24,"clock":10,"X":484,"Y":484},{"n":61,"ring":24,"clock":11,"X":486,"Y":480},{"n":62,"ring":24,"clock":11,"X":488,"Y":476},{"n":63,"ring":24,"clock":11,"X":492,"Y":476},{"n":64,"ring":24,"clock":12,"X":496,"Y":476},{"n":65,"ring":24,"clock":12,"X":500,"Y":476},{"n":66,"ring":24,"clock":12,"X":504,"Y":476},{"n":67,"ring":28,"clock":1,"X":510,"Y":472},{"n":68,"ring":28,"clock":1,"X":514,"Y":472},{"n":69,"ring":28,"clock":1,"X":516,"Y":476},{"n":70,"ring":28,"clock":1,"X":518,"Y":480},{"n":71,"ring":28,"clock":2,"X":520,"Y":484},{"n":72,"ring":28,"clock":2,"X":522,"Y":488},{"n":73,"ring":28,"clock":2,"X":524,"Y":492},{"n":74,"ring":28,"clock":3,"X":526,"Y":504},{"n":75,"ring":28,"clock":3,"X":526,"Y":496},{"n":76,"ring":28,"clock":3,"X":528,"Y":500},{"n":77,"ring":28,"clock":4,"X":520,"Y":516},{"n":78,"ring":28,"clock":4,"X":522,"Y":512},{"n":79,"ring":28,"clock":4,"X":524,"Y":508},{"n":80,"ring":28,"clock":5,"X":510,"Y":528},{"n":81,"ring":28,"clock":5,"X":514,"Y":528},{"n":82,"ring":28,"clock":5,"X":516,"Y":524},{"n":83,"ring":28,"clock":5,"X":518,"Y":520},{"n":84,"ring":28,"clock":6,"X":494,"Y":528},{"n":85,"ring":28,"clock":6,"X":498,"Y":528},{"n":86,"ring":28,"clock":6,"X":502,"Y":528},{"n":87,"ring":28,"clock":6,"X":506,"Y":528},{"n":88,"ring":28,"clock":7,"X":482,"Y":520},{"n":89,"ring":28,"clock":7,"X":484,"Y":524},{"n":90,"ring":28,"clock":7,"X":486,"Y":528},{"n":91,"ring":28,"clock":7,"X":490,"Y":528},{"n":92,"ring":28,"clock":8,"X":476,"Y":508},{"n":93,"ring":28,"clock":8,"X":478,"Y":512},{"n":94,"ring":28,"clock":8,"X":480,"Y":516},{"n":95,"ring":28,"clock":9,"X":472,"Y":500},{"n":96,"ring":28,"clock":9,"X":474,"Y":504},{"n":97,"ring":28,"clock":9,"X":474,"Y":496},{"n":98,"ring":28,"clock":10,"X":476,"Y":492},{"n":99,"ring":28,"clock":10,"X":478,"Y":488},{"n":100,"ring":28,"clock":10,"X":480,"Y":484},{"n":101,"ring":28,"clock":11,"X":482,"Y":480},{"n":102,"ring":28,"clock":11,"X":484,"Y":476},{"n":103,"ring":28,"clock":11,"X":486,"Y":472},{"n":104,"ring":28,"clock":11,"X":490,"Y":472},{"n":105,"ring":28,"clock":12,"X":494,"Y":472},{"n":106,"ring":28,"clock":12,"X":498,"Y":472},{"n":107,"ring":28,"clock":12,"X":502,"Y":472},{"n":108,"ring":28,"clock":12,"X":506,"Y":472},{"n":109,"ring":32,"clock":1,"X":512,"Y":468},{"n":110,"ring":32,"clock":1,"X":516,"Y":468},{"n":111,"ring":32,"clock":1,"X":518,"Y":472},{"n":112,"ring":32,"clock":1,"X":520,"Y":476},{"n":113,"ring":32,"clock":2,"X":522,"Y":480},{"n":114,"ring":32,"clock":2,"X":524,"Y":484},{"n":115,"ring":32,"clock":2,"X":526,"Y":488},{"n":116,"ring":32,"clock":2,"X":528,"Y":492},{"n":117,"ring":32,"clock":3,"X":530,"Y":504},{"n":118,"ring":32,"clock":3,"X":530,"Y":496},{"n":119,"ring":32,"clock":3,"X":532,"Y":500},{"n":120,"ring":32,"clock":4,"X":522,"Y":520},{"n":121,"ring":32,"clock":4,"X":524,"Y":516},{"n":122,"ring":32,"clock":4,"X":526,"Y":512},{"n":123,"ring":32,"clock":4,"X":528,"Y":508},{"n":124,"ring":32,"clock":5,"X":512,"Y":532},{"n":125,"ring":32,"clock":5,"X":516,"Y":532},{"n":126,"ring":32,"clock":5,"X":518,"Y":528},{"n":127,"ring":32,"clock":5,"X":520,"Y":524},{"n":128,"ring":32,"clock":6,"X":492,"Y":532},{"n":129,"ring":32,"clock":6,"X":496,"Y":532},{"n":130,"ring":32,"clock":6,"X":500,"Y":532},{"n":131,"ring":32,"clock":6,"X":504,"Y":532},{"n":132,"ring":32,"clock":6,"X":508,"Y":532},{"n":133,"ring":32,"clock":7,"X":480,"Y":524},{"n":134,"ring":32,"clock":7,"X":482,"Y":528},{"n":135,"ring":32,"clock":7,"X":484,"Y":532},{"n":136,"ring":32,"clock":7,"X":488,"Y":532},{"n":137,"ring":32,"clock":8,"X":472,"Y":508},{"n":138,"ring":32,"clock":8,"X":474,"Y":512},{"n":139,"ring":32,"clock":8,"X":476,"Y":516},{"n":140,"ring":32,"clock":8,"X":478,"Y":520},{"n":141,"ring":32,"clock":9,"X":468,"Y":500},{"n":142,"ring":32,"clock":9,"X":470,"Y":504},{"n":143,"ring":32,"clock":9,"X":470,"Y":496},{"n":144,"ring":32,"clock":10,"X":472,"Y":492},{"n":145,"ring":32,"clock":10,"X":474,"Y":488},{"n":146,"ring":32,"clock":10,"X":476,"Y":484},{"n":147,"ring":32,"clock":10,"X":478,"Y":480},{"n":148,"ring":32,"clock":11,"X":480,"Y":476},{"n":149,"ring":32,"clock":11,"X":482,"Y":472},{"n":150,"ring":32,"clock":11,"X":484,"Y":468},{"n":151,"ring":32,"clock":11,"X":488,"Y":468},{"n":152,"ring":32,"clock":12,"X":492,"Y":468},{"n":153,"ring":32,"clock":12,"X":496,"Y":468},{"n":154,"ring":32,"clock":12,"X":500,"Y":468},{"n":155,"ring":32,"clock":12,"X":504,"Y":468},{"n":156,"ring":32,"clock":12,"X":508,"Y":468}];
+  const CENTER = {x:500, y:500};
+  const OUTER_R = 35;        // buildable hexagon radius, tiles (your 6 corner taps)
+  const INNER_R = 18;        // no-build hexagon radius, tiles (~half the width)
+  const SQUASH  = 0.695;     // the game draws the map squashed vertically
+  const RING_COLOR = {20:'#4ade80', 24:'#a3e635', 28:'#38bdf8', 32:'#818cf8'};
+
+  // tiles to verify by hand in game: [X, Y, ring, expected]
+  const TEST_TILES = [
+    {X:465,Y:500, r:35, t:'outer W corner (buildable edge)', ok:true},
+    {X:482,Y:465, r:35, t:'outer top-left corner',            ok:true},
+    {X:535,Y:500, r:35, t:'outer E corner',                   ok:true},
+    {X:482,Y:500, r:18, t:'no-build hexagon W corner',        ok:false},
+    {X:509,Y:518, r:18, t:'no-build hexagon SE corner',       ok:false},
+    {X:491,Y:482, r:18, t:'no-build hexagon NW corner',       ok:false},
+    {X:480,Y:500, r:20, t:'innermost legal spot (#21)',       ok:true},
+    {X:532,Y:500, r:32, t:'outer band spot (#119)',           ok:true},
+    {X:519,Y:500, r:19, t:'grey zone: 1 tile off no-build',   ok:null},
+    {X:481,Y:500, r:19, t:'grey zone: 1 tile off no-build',   ok:null}
+  ];
+
+  const hexDist = (a, b) => {
+    const da = a[0]-b[0], db = a[1]-b[1];
+    return (Math.abs(da) + Math.abs(db) + Math.abs(da+db)) / 2;
+  };
+  // map coords -> tile (i,j):  X = Cx + i + j/2 , Y = Cy + j
+  const toGrid = (X, Y) => [ (X-CENTER.x) - (Y-CENTER.y)/2, (Y-CENTER.y) ];
+  const toMap  = (i, j) => [ CENTER.x + i + j/2, CENTER.y + j ];
+
+  const toPx = (X, Y, v) => [ v.ox + (X-CENTER.x)*v.scale,
+                              v.oy - (Y-CENTER.y)*v.scale*SQUASH*v.flip ];
+  const fromPx = (px, py, v) => [ CENTER.x + (px-v.ox)/v.scale,
+                                  CENTER.y + (v.oy-py)/(v.scale*SQUASH*v.flip) ];
+  const zonePoly = (R, v) => [[1,0],[0.5,1],[-0.5,1],[-1,0],[-0.5,-1],[0.5,-1]]
+        .map(([a,b]) => toPx(CENTER.x+R*a, CENTER.y+R*b, v));
+  const tileCell = (X, Y, v) => [[0.75,0.5],[0,1],[-0.75,0.5],[-0.75,-0.5],[0,-1],[0.75,-0.5]]
+        .map(([a,b]) => toPx(X+a, Y+b, v));
+
+  function hitTest(px, py, v, maxPx){
+    let best = null, bd = maxPx || Math.max(18, v.scale*0.8);
+    for (const s of SPOTS){
+      const p = toPx(s.X, s.Y, v), d = Math.hypot(p[0]-px, p[1]-py);
+      if (d < bd){ bd = d; best = s; }
+    }
+    return best;
+  }
+
+  // ---- sharing format: "# comment" or "<spotNumber> <name>" lines, or JSON ----
+  function formatShare(res){
+    const lines = ["# SvS HQ picks — " + Object.keys(res).length + " spot(s)"];
+    Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(n => lines.push(n + " " + res[n].name));
+    return lines.join("\n");
+  }
+  function parseShare(text){
+    const out = [];
+    const t = (text||"").trim();
+    if (!t) return out;
+    if (t[0] === "{"){
+      let j = null;
+      try { j = JSON.parse(t); } catch(e){ return out; }
+      const src = j.spots || j;
+      for (const k of Object.keys(src)){
+        const v = src[k];
+        if (typeof v === "string") out.push({n:Number(k), name:v});
+        else if (v && typeof v.name === "string") out.push({n:Number(k), name:v.name});
+      }
+      return out.filter(o => o.n > 0 && o.name);
+    }
+    for (const raw of t.split(/\r?\n/)){
+      const line = raw.replace(/^\s*#.*$/, "").trim();
+      if (!line) continue;
+      const m = line.match(/^(\d{1,4})\s*[\s:,\-–—]+\s*(.+?)\s*$/);
+      if (m) out.push({n:Number(m[1]), name:m[2]});
+    }
+    return out;
+  }
+  function fitView(w, h, pad){
+    pad = pad || 24;
+    const spanX = OUTER_R*2 + 2, spanY = (OUTER_R*2 + 2)*SQUASH;
+    const scale = Math.min((w-pad*2)/spanX, (h-pad*2)/spanY);
+    return {scale, ox:w/2, oy:h/2, flip:1};
+  }
+  return {SPOTS, TEST_TILES, CENTER, OUTER_R, INNER_R, SQUASH, RING_COLOR,
+          hexDist, toGrid, toMap, toPx, fromPx, zonePoly, tileCell, hitTest,
+          formatShare, parseShare, fitView};
+})();
+if (typeof globalThis !== "undefined") globalThis.HQCore = HQCore;
+
+/* ================================== UI ================================== */
+function initUI(){
+  const C = HQCore;
+  const KEY = "hqmap.reservations.v1", NAMEKEY = "hqmap.myname";
+  // ---- shared sign-up sheet (public JSON store, no account; anyone with the page can edit) ----
+  const BACKEND = "https://store.zapier.com/api/records?secret=2e3f3b9d-2a24-48b7-81ee-46a917ef38f0";
+  const $ = id => document.getElementById(id);
+  const cv = $("map"), ctx = cv.getContext("2d");
+
+  let res = {};                                   // { spotNumber: {name, ts} }
+  try { res = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ res = {}; }
+  const saveRes = () => { try { localStorage.setItem(KEY, JSON.stringify(res)); } catch(e){} };
+
+  let pending = [];                               // ops not yet accepted by the shared sheet
+  let sharedState = "connecting";                 // connecting | connected | offline | local
+  const remoteKeys = new Set();
+
+  let view = {scale:12, ox:0, oy:0, flip:-1};     // flip -1: in game +Y goes DOWN the screen
+  let showGrid = true, showNames = true, showTest = false;
+  let hover = null, sel = null, W = 0, H = 0, dpr = 1, confirmCount = 0;
+
+  /* ---------- rendering ---------- */
+  function resize(){
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    const r = cv.getBoundingClientRect();
+    W = Math.max(200, r.width); H = Math.max(200, r.height);
+    cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    draw();
+  }
+  function fit(){ const v = C.fitView(W, H); v.flip = view.flip; view = v; draw(); }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = "#191c21"; ctx.fillRect(0,0,W,H);
+
+    // outer zone
+    poly(C.zonePoly(C.OUTER_R, view), "#3a2f21", "#c4a46a", 3);
+    // inner no-build zone
+    poly(C.zonePoly(C.INNER_R, view), "#5c2727", "#d96060", 2.5);
+
+    // tile grid
+    if (showGrid && view.scale > 5){
+      ctx.strokeStyle = "#2f3339"; ctx.lineWidth = 1;
+      const R = C.OUTER_R;
+      for (let j=-R-1; j<=R+1; j++){
+        for (let i=-R-1; i<=R+1; i++){
+          if (C.hexDist([i,j],[0,0]) > R) continue;
+          const [x,y] = C.toMap(i,j);
+          const p = C.tileCell(x,y,view);
+          ctx.beginPath(); ctx.moveTo(p[0][0],p[0][1]);
+          for (let k=1;k<6;k++) ctx.lineTo(p[k][0],p[k][1]);
+          ctx.closePath(); ctx.stroke();
+        }
+      }
+    }
+
+    // capital marker
+    const cp = C.toPx(C.CENTER.x, C.CENTER.y, view);
+    ctx.fillStyle = "#e8e2d0";
+    ctx.beginPath(); ctx.arc(cp[0], cp[1], Math.max(3, view.scale*0.45), 0, 7); ctx.fill();
+    if (view.scale > 7){
+      ctx.fillStyle = "#e8e2d0"; ctx.font = "600 12px system-ui";
+      ctx.textAlign = "center"; ctx.fillText("CAPITAL", cp[0], cp[1] - view.scale*0.8);
+      ctx.textAlign = "left";
+    }
+
+    // spots
+    for (const s of C.SPOTS){
+      const p = C.toPx(s.X, s.Y, view);
+      if (p[0] < -30 || p[1] < -30 || p[0] > W+30 || p[1] > H+30) continue;
+      const taken = res[s.n];
+      const r = Math.max(4, view.scale*0.32);
+      if (taken){
+        ctx.fillStyle = "#fb923c"; ctx.strokeStyle = "#fff7ed"; ctx.lineWidth = 1.5;
+      } else {
+        ctx.fillStyle = C.RING_COLOR[s.ring] || "#4ade80"; ctx.strokeStyle = "#0b0d10"; ctx.lineWidth = 1;
+      }
+      ctx.beginPath(); ctx.arc(p[0], p[1], taken ? r*1.15 : r, 0, 7); ctx.fill(); ctx.stroke();
+      if (showNames && taken && view.scale > 7){
+        label(p[0], p[1] - r*1.5, taken.name, "#fb923c");
+      } else if (view.scale > 22){
+        ctx.fillStyle = "#c9ced6"; ctx.font = "10px system-ui"; ctx.textAlign = "center";
+        ctx.fillText(s.n, p[0], p[1] + 3.5); ctx.textAlign = "left";
+      }
+      if (sel === s){ ring(p[0], p[1], r + 5, "#fff"); }
+      else if (hover === s){ ring(p[0], p[1], r + 4, "#ffffff88"); }
+    }
+
+    // verification tiles
+    if (showTest){
+      for (const t of C.TEST_TILES){
+        const p = C.toPx(t.X, t.Y, view);
+        const col = t.ok === false ? "#f87171" : (t.ok === true ? "#4ade80" : "#e879f9");
+        ring(p[0], p[1], Math.max(9, view.scale*0.62), col);
+        if (view.scale > 6){
+          ctx.fillStyle = col; ctx.font = "11px system-ui"; ctx.textAlign = "center";
+          ctx.fillText("#" + t.X + "/" + t.Y, p[0], p[1] - Math.max(12, view.scale*0.8));
+          ctx.textAlign = "left";
+        }
+      }
+    }
+  }
+  function poly(pts, fill, stroke, lw){
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    if (fill){ ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = lw || 2; ctx.stroke(); }
+  }
+  function ring(x, y, r, col){
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
+  }
+  function label(cx, cy, text, col){
+    ctx.font = "600 11px system-ui"; ctx.textAlign = "center";
+    const w = ctx.measureText(text).width;
+    ctx.fillStyle = "#000000b0";
+    ctx.fillRect(cx - w/2 - 4, cy - 10, w + 8, 14);
+    ctx.fillStyle = col; ctx.fillText(text, cx, cy + 1);
+    ctx.textAlign = "left";
+  }
+
+  /* ---------- interaction ---------- */
+  let ptrs = new Map(), dragging = false, moved = 0, pinch = 0, last = null;
+  const pos = e => { const r = cv.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; };
+
+  cv.addEventListener("pointerdown", e => {
+    cv.setPointerCapture(e.pointerId);
+    ptrs.set(e.pointerId, pos(e));
+    dragging = true; moved = 0; last = pos(e);
+    if (ptrs.size === 2){
+      moved = 999;                       // a pinch must never count as a tap
+      const [a,b] = [...ptrs.values()];
+      pinch = Math.hypot(a[0]-b[0], a[1]-b[1]);
+    }
+  });
+  cv.addEventListener("pointermove", e => {
+    const p = pos(e);
+    if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, p);
+    if (dragging && ptrs.size === 1){
+      const dx = p[0]-last[0], dy = p[1]-last[1];
+      moved += Math.hypot(dx,dy);
+      view.ox += dx; view.oy += dy; last = p;
+      if (moved > 4) draw();
+    } else if (ptrs.size === 2){
+      const [a,b] = [...ptrs.values()];
+      const d = Math.hypot(a[0]-b[0], a[1]-b[1]);
+      if (pinch > 0) zoomAt((a[0]+b[0])/2, (a[1]+b[1])/2, d/pinch);
+      pinch = d;
+    } else {
+      const h = C.hitTest(p[0], p[1], view);
+      if (h !== hover){ hover = h; draw(); }
+    }
+  });
+  cv.addEventListener("pointerup", e => {
+    const p = pos(e);
+    ptrs.delete(e.pointerId);
+    if (ptrs.size < 2) pinch = 0;
+    if (dragging && moved < 6){
+      const s = C.hitTest(p[0], p[1], view);
+      if (s){ sel = s; openSheet(s); } else { sel = null; }
+      draw();
+    }
+    if (ptrs.size === 0) dragging = false;
+  });
+  cv.addEventListener("pointercancel", e => { ptrs.delete(e.pointerId); dragging = false; });
+  cv.addEventListener("wheel", e => {
+    e.preventDefault();
+    const [x,y] = pos(e);
+    zoomAt(x, y, e.deltaY < 0 ? 1.15 : 1/1.15);
+  }, {passive:false});
+
+  function zoomAt(x, y, k){
+    const before = C.fromPx(x, y, view);
+    view.scale = Math.max(3, Math.min(90, view.scale*k));
+    const after = C.toPx(before[0], before[1], view);
+    view.ox += x - after[0]; view.oy += y - after[1];
+    draw();
+  }
+
+  /* ---------- reserve sheet ---------- */
+  function openSheet(s){
+    sel = s;                                     // the sheet always owns the current selection
+    const taken = res[s.n];
+    $("shTitle").textContent = "Spot #" + s.n + "  (X:" + s.X + " Y:" + s.Y + ")";
+    $("shMeta").textContent = (s.ring === 20 ? "innermost ring — closest to the capital"
+                              : "ring " + s.ring) + " · " + s.clock + ":00 · " +
+        (taken ? "reserved by " + taken.name : "free");
+    $("shName").value = taken ? taken.name : (localStorage.getItem(NAMEKEY) || "");
+    $("shWarn").className = "warn";
+    $("shWarn").textContent = "";
+    confirmCount = 0;
+    $("shRelease").classList.toggle("hidden", !taken);
+    $("shTake").textContent = taken ? "reassign spot" : "reserve this spot";
+    $("sheet").classList.remove("hidden");
+  }
+  function closeSheet(){ $("sheet").classList.add("hidden"); }
+
+  $("shTake").onclick = () => {
+    const name = $("shName").value.trim();
+    if (!name){ $("shWarn").className = "warn"; $("shWarn").textContent = "enter a name first"; return; }
+    if (!sel) return;
+    const holder = res[sel.n];
+    const mine = Object.keys(res).map(Number).find(n => res[n].name === name && n !== sel.n);
+    let warn = "";
+    if (holder && holder.name !== name) warn = "spot #" + sel.n + " is held by " + holder.name + " — tap again to take it over";
+    else if (mine) warn = name + " already holds spot #" + mine + " — tap again to reserve a second spot";
+    if (warn && confirmCount === 0){
+      confirmCount = 1; $("shWarn").className = "warn"; $("shWarn").textContent = warn; return;
+    }
+    localStorage.setItem(NAMEKEY, name);
+    queueOp({op:"set", n:sel.n, name});
+    closeSheet();
+  };
+  $("shRelease").onclick = () => { if (sel){ queueOp({op:"del", n:sel.n}); closeSheet(); } };
+  $("shCopy").onclick = () => {
+    if (!sel) return;
+    copy("X:" + sel.X + " Y:" + sel.Y);
+    $("shWarn").className = "warn ok"; $("shWarn").textContent = "copied X:" + sel.X + " Y:" + sel.Y;
+  };
+  $("shClose").onclick = () => { $("shWarn").className = "warn"; closeSheet(); };
+
+  /* ---------- io ---------- */
+  function copy(text){
+    navigator.clipboard ? navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text)) : fallbackCopy(text);
+  }
+  function fallbackCopy(text){
+    const ta = document.createElement("textarea"); ta.value = text;
+    document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); }catch(e){}
+    ta.remove();
+  }
+  $("btnExport").onclick = () => {
+    const blob = new Blob([JSON.stringify({meta:{outer:35, inner:18, spots:C.SPOTS.length},
+      spots:res, exported:new Date().toISOString()}, null, 1)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "svs-hq-reservations.json"; a.click();
+  };
+  $("btnCopy").onclick = () => { copy(C.formatShare(res)); flash("copied the list — paste it in Discord"); };
+  $("btnImport").onclick = () => openIO("import");
+  $("btnHelp").onclick = () => openIO("help");
+  $("btnReset").onclick = () => {
+    if (confirm("Clear the reservations cached in this browser?\n(The shared sheet and other players are not affected.)")){
+      res = {}; saveRes(); refresh(); pull();
+    }
+  };
+  function openIO(mode){
+    const help = mode === "help";
+    $("ioTitle").textContent = help ? "How to share" : "Import reservations";
+    $("ioMeta").textContent = help
+      ? "This page keeps reservations in the browser that opens it. To collect everyone's picks:"
+      : "Paste an export (JSON) or lines like \"12 Ahmed\". Existing spots not in the paste are kept.";
+    $("ioText").value = help
+      ? "Shared sign-up sheet: this page writes every reservation straight to a public JSON store\n" +
+        "(a free Zapier \"Storage\" record — no account, no server of ours). Anyone who opens this\n" +
+        "page sees the same list within ~10 seconds; the badge top-right shows shared ✓ / ⚠ offline.\n" +
+        "The sheet is public and anyone holding the page can edit it — it is a sign-up list, not\n" +
+        "something secure. Clear a spot by opening it and tapping release.\n\n" +
+        "If the badge shows ⚠ offline your picks are kept in this browser and pushed automatically\n" +
+        "as soon as the connection comes back.\n\n" +
+        "Manual merge still works: \"copy list\" gives lines like \"12 Ahmed\" to paste in Discord,\n" +
+        "\"export JSON\" gives a file, and \"import\" merges a paste into this browser AND the shared sheet.\n\n" +
+        "Opening the page with  ?load=https://…/list.json  also pulls that JSON on top of everything."
+      : C.formatShare(res);
+    $("ioDo").classList.toggle("hidden", help);
+    $("io").classList.remove("hidden");
+  }
+  $("ioDo").onclick = () => {
+    const items = C.parseShare($("ioText").value);
+    if (!items.length){ alert("nothing recognised — paste the export or lines like \"12 Ahmed\""); return; }
+    let n = 0;
+    for (const it of items){
+      if (!C.SPOTS.some(s => s.n === it.n)) continue;
+      const op = {op:"set", n:it.n, name:it.name};
+      pending = pending.filter(p => p.n !== it.n);
+      pending.push(op); applyOp(op);                 // publish them to the shared sheet too
+      n++;
+    }
+    saveRes(); refresh(); flush();
+    $("io").classList.add("hidden");
+    flash("imported " + n + " reservation(s)");
+  };
+  $("ioClose").onclick = () => $("io").classList.add("hidden");
+  $("sheet").onclick = e => { if (e.target.id === "sheet") closeSheet(); };
+  $("io").onclick = e => { if (e.target.id === "io") $("io").classList.add("hidden"); };
+
+  function flash(msg){
+    const el = $("stats"); const old = el.textContent;
+    el.textContent = msg; setTimeout(()=>{ el.textContent = old; }, 2500);
+  }
+
+  /* ---------- panel ---------- */
+  function refresh(){
+    const nums = Object.keys(res).map(Number).sort((a,b)=>a-b);
+    $("pillFree").textContent  = (C.SPOTS.length - nums.length) + " free of " + C.SPOTS.length;
+    $("pillTaken").textContent = nums.length + " reserved";
+    $("stats").textContent = nums.length
+      ? "reserved: " + nums.length + " · stored in this browser"
+      : "no reservations yet — tap a dot on the map";
+    const ul = $("list"); ul.innerHTML = "";
+    for (const n of nums){
+      const s = C.SPOTS.find(x => x.n === n); if (!s) continue;
+      const li = document.createElement("li");
+      li.innerHTML = "<span class='c'>#" + n + "</span><b></b>" +
+                     "<span class='c'>X:" + s.X + " Y:" + s.Y + "</span>" +
+                     "<span class='spacer'></span><span class='c'>r" + s.ring + " " + s.clock + ":00</span>";
+      li.querySelector("b").textContent = res[n].name;
+      li.onclick = () => {
+        sel = s;
+        view.ox += (W/2) - C.toPx(s.X,s.Y,view)[0];
+        view.oy += (H/2) - C.toPx(s.X,s.Y,view)[1];
+        draw(); openSheet(s);
+      };
+      ul.appendChild(li);
+    }
+    draw();
+  }
+
+  /* ---------- shared sign-up sheet ---------- */
+  async function pull(){
+    if (!BACKEND){ sharedState = "local"; updateSharedPill(); return; }
+    try{
+      const r = await fetch(BACKEND, {cache:"no-store"});
+      if (!r.ok) throw new Error("http " + r.status);
+      const obj = await r.json();
+      const fresh = {};
+      remoteKeys.clear();
+      for (const k of Object.keys(obj || {})){
+        const n = Number(String(k).replace(/^s/, ""));
+        const name = String(obj[k] == null ? "" : obj[k]).trim();
+        if (!n || !name || !C.SPOTS.some(s => s.n === n)) continue;
+        fresh[n] = {name, ts: (res[n] && res[n].name === name) ? res[n].ts : Date.now()};
+        remoteKeys.add(n);
+      }
+      res = fresh;                                  // when reachable the sheet is the truth
+      for (const op of pending) applyOp(op);         // keep my in-flight picks visible
+      sharedState = "connected";
+      saveRes(); refresh();
+    }catch(e){ sharedState = "offline"; }
+    updateSharedPill();
+  }
+  function applyOp(op){
+    if (op.op === "set") res[op.n] = {name:op.name, ts:Date.now()};
+    else delete res[op.n];
+  }
+  function queueOp(op){
+    pending = pending.filter(p => p.n !== op.n);
+    pending.push(op); applyOp(op); saveRes(); refresh(); flush();
+  }
+  async function flush(){
+    if (!BACKEND || !pending.length) return;
+    const left = [];
+    for (const op of pending){
+      try{
+        const url = op.op === "set" ? BACKEND : BACKEND + "&key=s" + op.n;
+        const init = op.op === "set"
+          ? {method:"POST", headers:{"Content-Type":"application/json"},
+             body: JSON.stringify({["s" + op.n]: op.name})}
+          : {method:"DELETE"};
+        const r = await fetch(url, init);
+        if (!r.ok) throw new Error("http " + r.status);
+        sharedState = "connected";
+        if (op.op === "set") remoteKeys.add(op.n); else remoteKeys.delete(op.n);
+      }catch(e){ sharedState = "offline"; left.push(op); }
+    }
+    pending = left;
+    updateSharedPill();
+  }
+  function updateSharedPill(){
+    const el = $("pillShared"), n = remoteKeys.size;
+    if (sharedState === "connected") el.textContent = "shared ✓ " + n + " spot" + (n === 1 ? "" : "s");
+    else if (sharedState === "offline") el.textContent = "shared ⚠ offline" +
+      (pending.length ? " (" + pending.length + " queued)" : " — retrying");
+    else if (sharedState === "local") el.textContent = "local only";
+    else el.textContent = "shared: connecting…";
+  }
+  function startPolling(){
+    if (!BACKEND) return;
+    pull();
+    setInterval(() => {
+      if (document.hidden) return;
+      if (pending.length) flush(); else pull();
+    }, 10000);
+    window.addEventListener("online", () => { flush(); pull(); });
+  }
+
+  /* ---------- buttons ---------- */
+  $("btnGrid").onclick  = e => { showGrid  = !showGrid;  e.target.classList.toggle("on", showGrid);  draw(); };
+  $("btnNames").onclick = e => { showNames = !showNames; e.target.classList.toggle("on", showNames); draw(); };
+  $("btnTest").onclick  = e => { showTest  = !showTest;  e.target.classList.toggle("on", showTest);  draw(); };
+  $("btnFlip").onclick  = e => { view.flip = -view.flip; e.target.classList.toggle("on", view.flip<0); draw(); };
+  $("btnFit").onclick   = () => fit();
+  window.addEventListener("resize", resize);
+  async function loadRemote(){
+    const m = location.search.match(/[?&]load=([^&]+)/); if (!m) return;
+    try {
+      const r = await fetch(decodeURIComponent(m[1]), {cache:"no-store"});
+      const txt = await r.text();
+      const items = C.parseShare(txt);
+      let n = 0;
+      for (const it of items) if (C.SPOTS.some(s => s.n === it.n)){ res[it.n] = {name:it.name, ts:Date.now()}; n++; }
+      if (n){ saveRes(); refresh(); flash("loaded " + n + " shared reservation(s)"); }
+    } catch(e){ flash("could not load shared list"); }
+  }
+
+  $("btnGrid").classList.add("on"); $("btnNames").classList.add("on");
+  $("btnFlip").classList.toggle("on", view.flip < 0);
+  $("btnSync").onclick = () => { pull(); flash("syncing with the shared sheet…"); };
+  resize(); fit(); refresh(); startPolling(); loadRemote();
+  // small debug hook (console): HQTest.sheet(12) opens spot 12, HQTest.state() shows what the page holds
+  globalThis.HQTest = { sheet: openSheet, state: () => ({ res, pending, sharedState, view, remote: [...remoteKeys] }),
+                        pull, flush, core: C };
+}
+if (typeof document !== "undefined" && document.getElementById && document.getElementById("map")) initUI();
+</script>
+</body>
+</html>
