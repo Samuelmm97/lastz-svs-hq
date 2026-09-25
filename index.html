@@ -23,6 +23,11 @@
   aside{width:320px;flex:none;border-left:1px solid var(--line);background:var(--panel);
     display:flex;flex-direction:column;min-height:0}
   aside .stats{padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim)}
+  .padbar{padding:9px 12px 10px;border-bottom:1px solid var(--line)}
+  .padlbl{display:block;font-size:12.5px;color:var(--dim);margin-bottom:6px;letter-spacing:.02em}
+  .padbtns{display:flex;gap:6px}
+  .padbtns button{width:38px;padding:6px 0;text-align:center;font-variant-numeric:tabular-nums}
+  .padhint{margin-top:6px;font-size:12px;color:var(--dim);line-height:1.45}
   aside .btns{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
   #list{list-style:none;margin:0;padding:6px 0 40px;overflow:auto;flex:1}
   #list li{display:flex;gap:8px;align-items:center;padding:6px 12px;border-bottom:1px solid #262a30;font-size:13.5px}
@@ -83,6 +88,11 @@
     <div id="hint">tap a dot to reserve · drag to pan · wheel / pinch to zoom</div>
   </div>
   <aside>
+    <div class="padbar">
+      <span class="padlbl">space between HQs</span>
+      <span id="padBtns" class="padbtns"></span>
+      <div class="padhint" id="padHint"></div>
+    </div>
     <div class="stats" id="stats">reservations are stored in this browser</div>
     <div class="btns">
       <button id="btnExport">export JSON</button>
@@ -128,7 +138,8 @@
 <script>
 /* ============================== CORE (pure, testable) ============================== */
 const HQCore = (() => {
-  const SPOTS = [{"n":1,"ring":20,"clock":1,"X":506,"Y":480},{"n":2,"ring":20,"clock":1,"X":510,"Y":480},{"n":3,"ring":20,"clock":1,"X":512,"Y":484},{"n":4,"ring":20,"clock":2,"X":514,"Y":488},{"n":5,"ring":20,"clock":2,"X":516,"Y":492},{"n":6,"ring":20,"clock":3,"X":518,"Y":504},{"n":7,"ring":20,"clock":3,"X":518,"Y":496},{"n":8,"ring":20,"clock":3,"X":520,"Y":500},{"n":9,"ring":20,"clock":4,"X":514,"Y":512},{"n":10,"ring":20,"clock":4,"X":516,"Y":508},{"n":11,"ring":20,"clock":5,"X":506,"Y":520},{"n":12,"ring":20,"clock":5,"X":510,"Y":520},{"n":13,"ring":20,"clock":5,"X":512,"Y":516},{"n":14,"ring":20,"clock":6,"X":498,"Y":520},{"n":15,"ring":20,"clock":6,"X":502,"Y":520},{"n":16,"ring":20,"clock":7,"X":488,"Y":516},{"n":17,"ring":20,"clock":7,"X":490,"Y":520},{"n":18,"ring":20,"clock":7,"X":494,"Y":520},{"n":19,"ring":20,"clock":8,"X":484,"Y":508},{"n":20,"ring":20,"clock":8,"X":486,"Y":512},{"n":21,"ring":20,"clock":9,"X":480,"Y":500},{"n":22,"ring":20,"clock":9,"X":482,"Y":504},{"n":23,"ring":20,"clock":9,"X":482,"Y":496},{"n":24,"ring":20,"clock":10,"X":484,"Y":492},{"n":25,"ring":20,"clock":10,"X":486,"Y":488},{"n":26,"ring":20,"clock":11,"X":488,"Y":484},{"n":27,"ring":20,"clock":11,"X":490,"Y":480},{"n":28,"ring":20,"clock":11,"X":494,"Y":480},{"n":29,"ring":20,"clock":12,"X":498,"Y":480},{"n":30,"ring":20,"clock":12,"X":502,"Y":480},{"n":31,"ring":24,"clock":1,"X":508,"Y":476},{"n":32,"ring":24,"clock":1,"X":512,"Y":476},{"n":33,"ring":24,"clock":1,"X":514,"Y":480},{"n":34,"ring":24,"clock":2,"X":516,"Y":484},{"n":35,"ring":24,"clock":2,"X":518,"Y":488},{"n":36,"ring":24,"clock":2,"X":520,"Y":492},{"n":37,"ring":24,"clock":3,"X":522,"Y":504},{"n":38,"ring":24,"clock":3,"X":522,"Y":496},{"n":39,"ring":24,"clock":3,"X":524,"Y":500},{"n":40,"ring":24,"clock":4,"X":516,"Y":516},{"n":41,"ring":24,"clock":4,"X":518,"Y":512},{"n":42,"ring":24,"clock":4,"X":520,"Y":508},{"n":43,"ring":24,"clock":5,"X":508,"Y":524},{"n":44,"ring":24,"clock":5,"X":512,"Y":524},{"n":45,"ring":24,"clock":5,"X":514,"Y":520},{"n":46,"ring":24,"clock":6,"X":496,"Y":524},{"n":47,"ring":24,"clock":6,"X":500,"Y":524},{"n":48,"ring":24,"clock":6,"X":504,"Y":524},{"n":49,"ring":24,"clock":7,"X":486,"Y":520},{"n":50,"ring":24,"clock":7,"X":488,"Y":524},{"n":51,"ring":24,"clock":7,"X":492,"Y":524},{"n":52,"ring":24,"clock":8,"X":480,"Y":508},{"n":53,"ring":24,"clock":8,"X":482,"Y":512},{"n":54,"ring":24,"clock":8,"X":484,"Y":516},{"n":55,"ring":24,"clock":9,"X":476,"Y":500},{"n":56,"ring":24,"clock":9,"X":478,"Y":504},{"n":57,"ring":24,"clock":9,"X":478,"Y":496},{"n":58,"ring":24,"clock":10,"X":480,"Y":492},{"n":59,"ring":24,"clock":10,"X":482,"Y":488},{"n":60,"ring":24,"clock":10,"X":484,"Y":484},{"n":61,"ring":24,"clock":11,"X":486,"Y":480},{"n":62,"ring":24,"clock":11,"X":488,"Y":476},{"n":63,"ring":24,"clock":11,"X":492,"Y":476},{"n":64,"ring":24,"clock":12,"X":496,"Y":476},{"n":65,"ring":24,"clock":12,"X":500,"Y":476},{"n":66,"ring":24,"clock":12,"X":504,"Y":476},{"n":67,"ring":28,"clock":1,"X":510,"Y":472},{"n":68,"ring":28,"clock":1,"X":514,"Y":472},{"n":69,"ring":28,"clock":1,"X":516,"Y":476},{"n":70,"ring":28,"clock":1,"X":518,"Y":480},{"n":71,"ring":28,"clock":2,"X":520,"Y":484},{"n":72,"ring":28,"clock":2,"X":522,"Y":488},{"n":73,"ring":28,"clock":2,"X":524,"Y":492},{"n":74,"ring":28,"clock":3,"X":526,"Y":504},{"n":75,"ring":28,"clock":3,"X":526,"Y":496},{"n":76,"ring":28,"clock":3,"X":528,"Y":500},{"n":77,"ring":28,"clock":4,"X":520,"Y":516},{"n":78,"ring":28,"clock":4,"X":522,"Y":512},{"n":79,"ring":28,"clock":4,"X":524,"Y":508},{"n":80,"ring":28,"clock":5,"X":510,"Y":528},{"n":81,"ring":28,"clock":5,"X":514,"Y":528},{"n":82,"ring":28,"clock":5,"X":516,"Y":524},{"n":83,"ring":28,"clock":5,"X":518,"Y":520},{"n":84,"ring":28,"clock":6,"X":494,"Y":528},{"n":85,"ring":28,"clock":6,"X":498,"Y":528},{"n":86,"ring":28,"clock":6,"X":502,"Y":528},{"n":87,"ring":28,"clock":6,"X":506,"Y":528},{"n":88,"ring":28,"clock":7,"X":482,"Y":520},{"n":89,"ring":28,"clock":7,"X":484,"Y":524},{"n":90,"ring":28,"clock":7,"X":486,"Y":528},{"n":91,"ring":28,"clock":7,"X":490,"Y":528},{"n":92,"ring":28,"clock":8,"X":476,"Y":508},{"n":93,"ring":28,"clock":8,"X":478,"Y":512},{"n":94,"ring":28,"clock":8,"X":480,"Y":516},{"n":95,"ring":28,"clock":9,"X":472,"Y":500},{"n":96,"ring":28,"clock":9,"X":474,"Y":504},{"n":97,"ring":28,"clock":9,"X":474,"Y":496},{"n":98,"ring":28,"clock":10,"X":476,"Y":492},{"n":99,"ring":28,"clock":10,"X":478,"Y":488},{"n":100,"ring":28,"clock":10,"X":480,"Y":484},{"n":101,"ring":28,"clock":11,"X":482,"Y":480},{"n":102,"ring":28,"clock":11,"X":484,"Y":476},{"n":103,"ring":28,"clock":11,"X":486,"Y":472},{"n":104,"ring":28,"clock":11,"X":490,"Y":472},{"n":105,"ring":28,"clock":12,"X":494,"Y":472},{"n":106,"ring":28,"clock":12,"X":498,"Y":472},{"n":107,"ring":28,"clock":12,"X":502,"Y":472},{"n":108,"ring":28,"clock":12,"X":506,"Y":472},{"n":109,"ring":32,"clock":1,"X":512,"Y":468},{"n":110,"ring":32,"clock":1,"X":516,"Y":468},{"n":111,"ring":32,"clock":1,"X":518,"Y":472},{"n":112,"ring":32,"clock":1,"X":520,"Y":476},{"n":113,"ring":32,"clock":2,"X":522,"Y":480},{"n":114,"ring":32,"clock":2,"X":524,"Y":484},{"n":115,"ring":32,"clock":2,"X":526,"Y":488},{"n":116,"ring":32,"clock":2,"X":528,"Y":492},{"n":117,"ring":32,"clock":3,"X":530,"Y":504},{"n":118,"ring":32,"clock":3,"X":530,"Y":496},{"n":119,"ring":32,"clock":3,"X":532,"Y":500},{"n":120,"ring":32,"clock":4,"X":522,"Y":520},{"n":121,"ring":32,"clock":4,"X":524,"Y":516},{"n":122,"ring":32,"clock":4,"X":526,"Y":512},{"n":123,"ring":32,"clock":4,"X":528,"Y":508},{"n":124,"ring":32,"clock":5,"X":512,"Y":532},{"n":125,"ring":32,"clock":5,"X":516,"Y":532},{"n":126,"ring":32,"clock":5,"X":518,"Y":528},{"n":127,"ring":32,"clock":5,"X":520,"Y":524},{"n":128,"ring":32,"clock":6,"X":492,"Y":532},{"n":129,"ring":32,"clock":6,"X":496,"Y":532},{"n":130,"ring":32,"clock":6,"X":500,"Y":532},{"n":131,"ring":32,"clock":6,"X":504,"Y":532},{"n":132,"ring":32,"clock":6,"X":508,"Y":532},{"n":133,"ring":32,"clock":7,"X":480,"Y":524},{"n":134,"ring":32,"clock":7,"X":482,"Y":528},{"n":135,"ring":32,"clock":7,"X":484,"Y":532},{"n":136,"ring":32,"clock":7,"X":488,"Y":532},{"n":137,"ring":32,"clock":8,"X":472,"Y":508},{"n":138,"ring":32,"clock":8,"X":474,"Y":512},{"n":139,"ring":32,"clock":8,"X":476,"Y":516},{"n":140,"ring":32,"clock":8,"X":478,"Y":520},{"n":141,"ring":32,"clock":9,"X":468,"Y":500},{"n":142,"ring":32,"clock":9,"X":470,"Y":504},{"n":143,"ring":32,"clock":9,"X":470,"Y":496},{"n":144,"ring":32,"clock":10,"X":472,"Y":492},{"n":145,"ring":32,"clock":10,"X":474,"Y":488},{"n":146,"ring":32,"clock":10,"X":476,"Y":484},{"n":147,"ring":32,"clock":10,"X":478,"Y":480},{"n":148,"ring":32,"clock":11,"X":480,"Y":476},{"n":149,"ring":32,"clock":11,"X":482,"Y":472},{"n":150,"ring":32,"clock":11,"X":484,"Y":468},{"n":151,"ring":32,"clock":11,"X":488,"Y":468},{"n":152,"ring":32,"clock":12,"X":492,"Y":468},{"n":153,"ring":32,"clock":12,"X":496,"Y":468},{"n":154,"ring":32,"clock":12,"X":500,"Y":468},{"n":155,"ring":32,"clock":12,"X":504,"Y":468},{"n":156,"ring":32,"clock":12,"X":508,"Y":468}];
+  // "1 tile between HQs" list — verified in game, numbering frozen (the page always uses this exact list for spacing 1)
+  const SPOTS_PAD1 = [{"n":1,"ring":20,"clock":1,"X":506,"Y":480},{"n":2,"ring":20,"clock":1,"X":510,"Y":480},{"n":3,"ring":20,"clock":1,"X":512,"Y":484},{"n":4,"ring":20,"clock":2,"X":514,"Y":488},{"n":5,"ring":20,"clock":2,"X":516,"Y":492},{"n":6,"ring":20,"clock":3,"X":518,"Y":504},{"n":7,"ring":20,"clock":3,"X":518,"Y":496},{"n":8,"ring":20,"clock":3,"X":520,"Y":500},{"n":9,"ring":20,"clock":4,"X":514,"Y":512},{"n":10,"ring":20,"clock":4,"X":516,"Y":508},{"n":11,"ring":20,"clock":5,"X":506,"Y":520},{"n":12,"ring":20,"clock":5,"X":510,"Y":520},{"n":13,"ring":20,"clock":5,"X":512,"Y":516},{"n":14,"ring":20,"clock":6,"X":498,"Y":520},{"n":15,"ring":20,"clock":6,"X":502,"Y":520},{"n":16,"ring":20,"clock":7,"X":488,"Y":516},{"n":17,"ring":20,"clock":7,"X":490,"Y":520},{"n":18,"ring":20,"clock":7,"X":494,"Y":520},{"n":19,"ring":20,"clock":8,"X":484,"Y":508},{"n":20,"ring":20,"clock":8,"X":486,"Y":512},{"n":21,"ring":20,"clock":9,"X":480,"Y":500},{"n":22,"ring":20,"clock":9,"X":482,"Y":504},{"n":23,"ring":20,"clock":9,"X":482,"Y":496},{"n":24,"ring":20,"clock":10,"X":484,"Y":492},{"n":25,"ring":20,"clock":10,"X":486,"Y":488},{"n":26,"ring":20,"clock":11,"X":488,"Y":484},{"n":27,"ring":20,"clock":11,"X":490,"Y":480},{"n":28,"ring":20,"clock":11,"X":494,"Y":480},{"n":29,"ring":20,"clock":12,"X":498,"Y":480},{"n":30,"ring":20,"clock":12,"X":502,"Y":480},{"n":31,"ring":24,"clock":1,"X":508,"Y":476},{"n":32,"ring":24,"clock":1,"X":512,"Y":476},{"n":33,"ring":24,"clock":1,"X":514,"Y":480},{"n":34,"ring":24,"clock":2,"X":516,"Y":484},{"n":35,"ring":24,"clock":2,"X":518,"Y":488},{"n":36,"ring":24,"clock":2,"X":520,"Y":492},{"n":37,"ring":24,"clock":3,"X":522,"Y":504},{"n":38,"ring":24,"clock":3,"X":522,"Y":496},{"n":39,"ring":24,"clock":3,"X":524,"Y":500},{"n":40,"ring":24,"clock":4,"X":516,"Y":516},{"n":41,"ring":24,"clock":4,"X":518,"Y":512},{"n":42,"ring":24,"clock":4,"X":520,"Y":508},{"n":43,"ring":24,"clock":5,"X":508,"Y":524},{"n":44,"ring":24,"clock":5,"X":512,"Y":524},{"n":45,"ring":24,"clock":5,"X":514,"Y":520},{"n":46,"ring":24,"clock":6,"X":496,"Y":524},{"n":47,"ring":24,"clock":6,"X":500,"Y":524},{"n":48,"ring":24,"clock":6,"X":504,"Y":524},{"n":49,"ring":24,"clock":7,"X":486,"Y":520},{"n":50,"ring":24,"clock":7,"X":488,"Y":524},{"n":51,"ring":24,"clock":7,"X":492,"Y":524},{"n":52,"ring":24,"clock":8,"X":480,"Y":508},{"n":53,"ring":24,"clock":8,"X":482,"Y":512},{"n":54,"ring":24,"clock":8,"X":484,"Y":516},{"n":55,"ring":24,"clock":9,"X":476,"Y":500},{"n":56,"ring":24,"clock":9,"X":478,"Y":504},{"n":57,"ring":24,"clock":9,"X":478,"Y":496},{"n":58,"ring":24,"clock":10,"X":480,"Y":492},{"n":59,"ring":24,"clock":10,"X":482,"Y":488},{"n":60,"ring":24,"clock":10,"X":484,"Y":484},{"n":61,"ring":24,"clock":11,"X":486,"Y":480},{"n":62,"ring":24,"clock":11,"X":488,"Y":476},{"n":63,"ring":24,"clock":11,"X":492,"Y":476},{"n":64,"ring":24,"clock":12,"X":496,"Y":476},{"n":65,"ring":24,"clock":12,"X":500,"Y":476},{"n":66,"ring":24,"clock":12,"X":504,"Y":476},{"n":67,"ring":28,"clock":1,"X":510,"Y":472},{"n":68,"ring":28,"clock":1,"X":514,"Y":472},{"n":69,"ring":28,"clock":1,"X":516,"Y":476},{"n":70,"ring":28,"clock":1,"X":518,"Y":480},{"n":71,"ring":28,"clock":2,"X":520,"Y":484},{"n":72,"ring":28,"clock":2,"X":522,"Y":488},{"n":73,"ring":28,"clock":2,"X":524,"Y":492},{"n":74,"ring":28,"clock":3,"X":526,"Y":504},{"n":75,"ring":28,"clock":3,"X":526,"Y":496},{"n":76,"ring":28,"clock":3,"X":528,"Y":500},{"n":77,"ring":28,"clock":4,"X":520,"Y":516},{"n":78,"ring":28,"clock":4,"X":522,"Y":512},{"n":79,"ring":28,"clock":4,"X":524,"Y":508},{"n":80,"ring":28,"clock":5,"X":510,"Y":528},{"n":81,"ring":28,"clock":5,"X":514,"Y":528},{"n":82,"ring":28,"clock":5,"X":516,"Y":524},{"n":83,"ring":28,"clock":5,"X":518,"Y":520},{"n":84,"ring":28,"clock":6,"X":494,"Y":528},{"n":85,"ring":28,"clock":6,"X":498,"Y":528},{"n":86,"ring":28,"clock":6,"X":502,"Y":528},{"n":87,"ring":28,"clock":6,"X":506,"Y":528},{"n":88,"ring":28,"clock":7,"X":482,"Y":520},{"n":89,"ring":28,"clock":7,"X":484,"Y":524},{"n":90,"ring":28,"clock":7,"X":486,"Y":528},{"n":91,"ring":28,"clock":7,"X":490,"Y":528},{"n":92,"ring":28,"clock":8,"X":476,"Y":508},{"n":93,"ring":28,"clock":8,"X":478,"Y":512},{"n":94,"ring":28,"clock":8,"X":480,"Y":516},{"n":95,"ring":28,"clock":9,"X":472,"Y":500},{"n":96,"ring":28,"clock":9,"X":474,"Y":504},{"n":97,"ring":28,"clock":9,"X":474,"Y":496},{"n":98,"ring":28,"clock":10,"X":476,"Y":492},{"n":99,"ring":28,"clock":10,"X":478,"Y":488},{"n":100,"ring":28,"clock":10,"X":480,"Y":484},{"n":101,"ring":28,"clock":11,"X":482,"Y":480},{"n":102,"ring":28,"clock":11,"X":484,"Y":476},{"n":103,"ring":28,"clock":11,"X":486,"Y":472},{"n":104,"ring":28,"clock":11,"X":490,"Y":472},{"n":105,"ring":28,"clock":12,"X":494,"Y":472},{"n":106,"ring":28,"clock":12,"X":498,"Y":472},{"n":107,"ring":28,"clock":12,"X":502,"Y":472},{"n":108,"ring":28,"clock":12,"X":506,"Y":472},{"n":109,"ring":32,"clock":1,"X":512,"Y":468},{"n":110,"ring":32,"clock":1,"X":516,"Y":468},{"n":111,"ring":32,"clock":1,"X":518,"Y":472},{"n":112,"ring":32,"clock":1,"X":520,"Y":476},{"n":113,"ring":32,"clock":2,"X":522,"Y":480},{"n":114,"ring":32,"clock":2,"X":524,"Y":484},{"n":115,"ring":32,"clock":2,"X":526,"Y":488},{"n":116,"ring":32,"clock":2,"X":528,"Y":492},{"n":117,"ring":32,"clock":3,"X":530,"Y":504},{"n":118,"ring":32,"clock":3,"X":530,"Y":496},{"n":119,"ring":32,"clock":3,"X":532,"Y":500},{"n":120,"ring":32,"clock":4,"X":522,"Y":520},{"n":121,"ring":32,"clock":4,"X":524,"Y":516},{"n":122,"ring":32,"clock":4,"X":526,"Y":512},{"n":123,"ring":32,"clock":4,"X":528,"Y":508},{"n":124,"ring":32,"clock":5,"X":512,"Y":532},{"n":125,"ring":32,"clock":5,"X":516,"Y":532},{"n":126,"ring":32,"clock":5,"X":518,"Y":528},{"n":127,"ring":32,"clock":5,"X":520,"Y":524},{"n":128,"ring":32,"clock":6,"X":492,"Y":532},{"n":129,"ring":32,"clock":6,"X":496,"Y":532},{"n":130,"ring":32,"clock":6,"X":500,"Y":532},{"n":131,"ring":32,"clock":6,"X":504,"Y":532},{"n":132,"ring":32,"clock":6,"X":508,"Y":532},{"n":133,"ring":32,"clock":7,"X":480,"Y":524},{"n":134,"ring":32,"clock":7,"X":482,"Y":528},{"n":135,"ring":32,"clock":7,"X":484,"Y":532},{"n":136,"ring":32,"clock":7,"X":488,"Y":532},{"n":137,"ring":32,"clock":8,"X":472,"Y":508},{"n":138,"ring":32,"clock":8,"X":474,"Y":512},{"n":139,"ring":32,"clock":8,"X":476,"Y":516},{"n":140,"ring":32,"clock":8,"X":478,"Y":520},{"n":141,"ring":32,"clock":9,"X":468,"Y":500},{"n":142,"ring":32,"clock":9,"X":470,"Y":504},{"n":143,"ring":32,"clock":9,"X":470,"Y":496},{"n":144,"ring":32,"clock":10,"X":472,"Y":492},{"n":145,"ring":32,"clock":10,"X":474,"Y":488},{"n":146,"ring":32,"clock":10,"X":476,"Y":484},{"n":147,"ring":32,"clock":10,"X":478,"Y":480},{"n":148,"ring":32,"clock":11,"X":480,"Y":476},{"n":149,"ring":32,"clock":11,"X":482,"Y":472},{"n":150,"ring":32,"clock":11,"X":484,"Y":468},{"n":151,"ring":32,"clock":11,"X":488,"Y":468},{"n":152,"ring":32,"clock":12,"X":492,"Y":468},{"n":153,"ring":32,"clock":12,"X":496,"Y":468},{"n":154,"ring":32,"clock":12,"X":500,"Y":468},{"n":155,"ring":32,"clock":12,"X":504,"Y":468},{"n":156,"ring":32,"clock":12,"X":508,"Y":468}];
   const CENTER = {x:500, y:500};
   const OUTER_R = 35;        // buildable hexagon radius, tiles (your 6 corner taps)
   const INNER_R = 18;        // no-build hexagon radius, tiles (~half the width)
@@ -166,9 +177,137 @@ const HQCore = (() => {
   const tileCell = (X, Y, v) => [[0.75,0.5],[0,1],[-0.75,0.5],[-0.75,-0.5],[0,-1],[0.75,-0.5]]
         .map(([a,b]) => toPx(X+a, Y+b, v));
 
-  function hitTest(px, py, v, maxPx){
+  /* ---------- packing the band for any spacing ----------
+     "space between HQs" = number of EMPTY tiles between two HQ footprints (pad).
+     0 -> the two 7-tile footprints touch edge-to-edge  (centre distance 3)
+     1 -> one empty tile between them                  (centre distance 4)  <- verified plan
+     k -> centre distance k+3.  The HQ footprint also keeps the same pad from the
+     no-build hexagon, so the usable band moves in as pad grows. */
+  const FOOT = 1;
+  const MIN_DIST = pad => 2*FOOT + 1 + pad;
+  const bandFor  = pad => [INNER_R + FOOT + pad, OUTER_R - FOOT - pad];
+
+  function bandTiles(lo, hi, wholeOnly){
+    const out = [];
+    for (let j = -hi-1; j <= hi+1; j++){
+      // X = i + j/2, so an odd row sits on a half step — the game's coordinate pill cannot
+      // show that, so generated lists keep to whole-coordinate tiles only.
+      if (wholeOnly && (j % 2 !== 0)) continue;
+      for (let i = -hi-1; i <= hi+1; i++){
+        const d = hexDist([i,j], [0,0]);
+        if (d >= lo && d <= hi) out.push([i,j]);
+      }
+    }
+    return out;
+  }
+  const OFFS_CACHE = {};
+  function offsetsBelow(D){                        // every offset closer than D, for O(1) blocking
+    if (OFFS_CACHE[D]) return OFFS_CACHE[D];
+    const o = [], span = D;
+    for (let j = -span; j <= span; j++)
+      for (let i = -span; i <= span; i++){
+        const d = hexDist([i,j], [0,0]);
+        if (d > 0 && d < D) o.push([i,j]);
+      }
+    return (OFFS_CACHE[D] = o);
+  }
+  function mulberry32(a){                           // small deterministic PRNG (same idea as the seed in plan_hq.py)
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function packBand(lo, hi, D, wholeOnly){
+    const tiles = bandTiles(lo, hi, wholeOnly);
+    if (!tiles.length) return [];
+    const key = t => t[0] + "," + t[1];
+    const offs = offsetsBelow(D);
+    // 1) densest sub-lattice of pitch D that fits the band (same search the offline planner uses)
+    const bases = [[D,0,0,D], [D,0,Math.floor(D/2),D], [0,D,D,D]];
+    let best = [];
+    for (const [b1,b2,b3,b4] of bases){
+      const det = b1*b4 - b3*b2;
+      if (!det) continue;
+      for (let oi = 0; oi < D; oi++) for (let oj = 0; oj < D; oj++){
+        const sub = [];
+        for (const [i,j] of tiles){
+          const u = (i-oi)*b4 - (j-oj)*b2, v = -(i-oi)*b3 + (j-oj)*b1;
+          if (u % det === 0 && v % det === 0) sub.push([i,j]);
+        }
+        if (sub.length > best.length) best = sub;
+      }
+    }
+    if (!best.length) return [];
+    const bestKeys = new Set(best.map(key));
+    // 2) greedy top-up: place a seed set, then sweep a candidate order, blocking everything too close
+    function topUp(seeds, order){
+      const blocked = new Set(), cur = [];
+      const put = t => {
+        cur.push(t); blocked.add(key(t));
+        for (let k = 0; k < offs.length; k++)
+          blocked.add((t[0]+offs[k][0]) + "," + (t[1]+offs[k][1]));
+      };
+      for (const t of seeds) put(t);
+      for (const t of order) if (!blocked.has(key(t))) put(t);
+      return cur;
+    }
+    const rnd = mulberry32(11);
+    const shuffle = a => {
+      for (let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(rnd() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    };
+    const ringAsc = tiles.slice().sort((a,b) => hexDist(a,[0,0]) - hexDist(b,[0,0]));
+    let res = topUp(best, tiles.filter(t => !bestKeys.has(key(t))));   // lattice + inner-ring-first
+    const keep = cur => { if (cur.length > res.length) res = cur; };
+    keep(topUp([], ringAsc));                                          // pure inner-ring-first greedy
+    // 2a) deterministic sweeps, eight angular rotations
+    for (let k = 0; k < 8; k++){
+      const off = k * (Math.PI/4);
+      const order = ringAsc.slice().sort((a,b) =>
+        (Math.atan2(a[0]+a[1]/2, -a[1]) + off) - (Math.atan2(b[0]+b[1]/2, -b[1]) + off));
+      keep(topUp(best, order));
+    }
+    // 2b) seeded random restarts off the lattice (the offline planner's trick, deterministic here)
+    for (let it = 0; it < 40; it++){
+      const seeds = best.filter(() => rnd() < 0.85);
+      const seedKeys = new Set(seeds.map(key));
+      keep(topUp(seeds, shuffle(tiles.filter(t => !seedKeys.has(key(t))))));
+    }
+    // 2c) climb: reseed from the current best and keep every improvement (drops 15% now and then for diversity)
+    for (let it = 0; it < 800; it++){
+      const seeds = (it % 4 === 3) ? res.filter(() => rnd() < 0.85) : res;
+      const seedKeys = new Set(seeds.map(key));
+      keep(topUp(seeds, shuffle(tiles.filter(t => !seedKeys.has(key(t))))));
+    }
+    return res;
+  }
+  function clockOf(i, j){
+    const [x, y] = toMap(i, j);
+    const ang = (Math.atan2(x-CENTER.x, -(y-CENTER.y)) * 180/Math.PI + 360) % 360;
+    const h = Math.round(ang/30) % 12;
+    return h === 0 ? 12 : h;
+  }
+  const spotsCache = {};
+  function spotList(pad){
+    if (pad === 1) return SPOTS_PAD1;             // verified in game — numbering frozen
+    const [lo, hi] = bandFor(pad), D = MIN_DIST(pad);
+    const out = packBand(lo, hi, D, true).map(([i,j]) => {
+      const [x, y] = toMap(i, j);
+      return { i, j, X: Math.round(x), Y: Math.round(y), ring: hexDist([i,j],[0,0]), clock: clockOf(i,j) };
+    });
+    out.sort((a,b) => (a.ring - b.ring) || (a.clock - b.clock));
+    out.forEach((s, k) => { s.n = k + 1; });
+    return out;
+  }
+  const spots = pad => (spotsCache[pad] || (spotsCache[pad] = spotList(pad)));
+
+  function hitTest(px, py, v, list, maxPx){
     let best = null, bd = maxPx || Math.max(18, v.scale*0.8);
-    for (const s of SPOTS){
+    for (const s of (list || SPOTS_PAD1)){
       const p = toPx(s.X, s.Y, v), d = Math.hypot(p[0]-px, p[1]-py);
       if (d < bd){ bd = d; best = s; }
     }
@@ -210,7 +349,8 @@ const HQCore = (() => {
     const scale = Math.min((w-pad*2)/spanX, (h-pad*2)/spanY);
     return {scale, ox:w/2, oy:h/2, flip:1};
   }
-  return {SPOTS, TEST_TILES, CENTER, OUTER_R, INNER_R, SQUASH, RING_COLOR,
+  return {SPOTS_PAD1, spots, FOOT, MIN_DIST, bandFor, bandTiles, packBand, clockOf,
+          TEST_TILES, CENTER, OUTER_R, INNER_R, SQUASH, RING_COLOR,
           hexDist, toGrid, toMap, toPx, fromPx, zonePoly, tileCell, hitTest,
           formatShare, parseShare, fitView};
 })();
@@ -225,9 +365,37 @@ function initUI(){
   const $ = id => document.getElementById(id);
   const cv = $("map"), ctx = cv.getContext("2d");
 
-  let res = {};                                   // { spotNumber: {name, ts} }
+  // reservations are keyed by the shared-sheet key ("p<pad>n<spot>") — every spacing has its own list
+  let res = {};                                   // { "p1n12": {name, ts} }
   try { res = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ res = {}; }
   const saveRes = () => { try { localStorage.setItem(KEY, JSON.stringify(res)); } catch(e){} };
+
+  /* ---------- spacing between HQs ---------- */
+  const PADKEY = "hqmap.spacing", PADS = [0,1,2,3];
+  const rkey = (n, p) => "p" + p + "n" + n;
+  const parseKey = k => {
+    const a = /^p(\d+)n(\d+)$/.exec(k); if (a) return [Number(a[1]), Number(a[2])];
+    const b = /^s(\d+)$/.exec(k);       if (b) return [1, Number(b[1])];   // older keys
+    return null;
+  };
+  let pad = 1;                                    // empty tiles between HQs; 1 = the plan verified in game
+  try {
+    const u = (location.search.match(/[?&]pad=(\d+)/) || [])[1];
+    const s = localStorage.getItem(PADKEY);
+    pad = Number(u != null ? u : (s != null ? s : 1));
+  } catch(e){}
+  if (PADS.indexOf(pad) < 0) pad = 1;
+  let spots = C.spots(pad);                       // spot list for the current spacing
+  const resAt = n => res[rkey(n, pad)];
+  const resFor = p => {
+    const o = {}, list = C.spots(p);
+    for (const k of Object.keys(res)){
+      const pk = parseKey(k);
+      if (pk && pk[0] === p && list.some(x => x.n === pk[1])) o[pk[1]] = res[k];
+    }
+    return o;
+  };
+  const nReserved = p => Object.keys(resFor(p)).length;
 
   let pending = [];                               // ops not yet accepted by the shared sheet
   let sharedState = "connecting";                 // connecting | connected | offline | local
@@ -284,10 +452,10 @@ function initUI(){
     }
 
     // spots
-    for (const s of C.SPOTS){
+    for (const s of spots){
       const p = C.toPx(s.X, s.Y, view);
       if (p[0] < -30 || p[1] < -30 || p[0] > W+30 || p[1] > H+30) continue;
-      const taken = res[s.n];
+      const taken = resAt(s.n);
       const r = Math.max(4, view.scale*0.32);
       if (taken){
         ctx.fillStyle = "#fb923c"; ctx.strokeStyle = "#fff7ed"; ctx.lineWidth = 1.5;
@@ -366,7 +534,7 @@ function initUI(){
       if (pinch > 0) zoomAt((a[0]+b[0])/2, (a[1]+b[1])/2, d/pinch);
       pinch = d;
     } else {
-      const h = C.hitTest(p[0], p[1], view);
+      const h = C.hitTest(p[0], p[1], view, spots);
       if (h !== hover){ hover = h; draw(); }
     }
   });
@@ -375,7 +543,7 @@ function initUI(){
     ptrs.delete(e.pointerId);
     if (ptrs.size < 2) pinch = 0;
     if (dragging && moved < 6){
-      const s = C.hitTest(p[0], p[1], view);
+      const s = C.hitTest(p[0], p[1], view, spots);
       if (s){ sel = s; openSheet(s); } else { sel = null; }
       draw();
     }
@@ -399,11 +567,11 @@ function initUI(){
   /* ---------- reserve sheet ---------- */
   function openSheet(s){
     sel = s;                                     // the sheet always owns the current selection
-    const taken = res[s.n];
+    const taken = resAt(s.n);
     $("shTitle").textContent = "Spot #" + s.n + "  (X:" + s.X + " Y:" + s.Y + ")";
     $("shMeta").textContent = (s.ring === 20 ? "innermost ring — closest to the capital"
-                              : "ring " + s.ring) + " · " + s.clock + ":00 · " +
-        (taken ? "reserved by " + taken.name : "free");
+                              : "ring " + s.ring) + " · " + s.clock + ":00 · spacing " + pad +
+        " · " + (taken ? "reserved by " + taken.name : "free");
     $("shName").value = taken ? taken.name : (localStorage.getItem(NAMEKEY) || "");
     $("shWarn").className = "warn";
     $("shWarn").textContent = "";
@@ -418,8 +586,8 @@ function initUI(){
     const name = $("shName").value.trim();
     if (!name){ $("shWarn").className = "warn"; $("shWarn").textContent = "enter a name first"; return; }
     if (!sel) return;
-    const holder = res[sel.n];
-    const mine = Object.keys(res).map(Number).find(n => res[n].name === name && n !== sel.n);
+    const holder = resAt(sel.n);
+    const mine = Object.keys(resFor(pad)).map(Number).find(n => resFor(pad)[n].name === name && n !== sel.n);
     let warn = "";
     if (holder && holder.name !== name) warn = "spot #" + sel.n + " is held by " + holder.name + " — tap again to take it over";
     else if (mine) warn = name + " already holds spot #" + mine + " — tap again to reserve a second spot";
@@ -427,10 +595,10 @@ function initUI(){
       confirmCount = 1; $("shWarn").className = "warn"; $("shWarn").textContent = warn; return;
     }
     localStorage.setItem(NAMEKEY, name);
-    queueOp({op:"set", n:sel.n, name});
+    queueOp({op:"set", p:pad, n:sel.n, name});
     closeSheet();
   };
-  $("shRelease").onclick = () => { if (sel){ queueOp({op:"del", n:sel.n}); closeSheet(); } };
+  $("shRelease").onclick = () => { if (sel){ queueOp({op:"del", p:pad, n:sel.n}); closeSheet(); } };
   $("shCopy").onclick = () => {
     if (!sel) return;
     copy("X:" + sel.X + " Y:" + sel.Y);
@@ -448,12 +616,12 @@ function initUI(){
     ta.remove();
   }
   $("btnExport").onclick = () => {
-    const blob = new Blob([JSON.stringify({meta:{outer:35, inner:18, spots:C.SPOTS.length},
-      spots:res, exported:new Date().toISOString()}, null, 1)], {type:"application/json"});
+    const blob = new Blob([JSON.stringify({meta:{outer:35, inner:18, spacing:pad, spots:spots.length},
+      spots:resFor(pad), exported:new Date().toISOString()}, null, 1)], {type:"application/json"});
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "svs-hq-reservations.json"; a.click();
+    a.href = URL.createObjectURL(blob); a.download = "svs-hq-reservations-spacing" + pad + ".json"; a.click();
   };
-  $("btnCopy").onclick = () => { copy(C.formatShare(res)); flash("copied the list — paste it in Discord"); };
+  $("btnCopy").onclick = () => { copy(C.formatShare(resFor(pad))); flash("copied the list — paste it in Discord"); };
   $("btnImport").onclick = () => openIO("import");
   $("btnHelp").onclick = () => openIO("help");
   $("btnReset").onclick = () => {
@@ -468,7 +636,12 @@ function initUI(){
       ? "This page keeps reservations in the browser that opens it. To collect everyone's picks:"
       : "Paste an export (JSON) or lines like \"12 Ahmed\". Existing spots not in the paste are kept.";
     $("ioText").value = help
-      ? "Shared sign-up sheet: this page writes every reservation straight to a public JSON store\n" +
+      ? "Spacing: \"space between HQs\" (buttons on the right / bottom) sets how many EMPTY tiles\n" +
+        "sit between two HQ footprints. 0 = the 7-tile footprints touch edge-to-edge; 1 = one empty\n" +
+        "tile (this is the plan verified in game, 156 spots); 2, 3 = roomier and fewer spots.\n" +
+        "Each spacing has its own spot list and its own reservations, so switching never loses picks.\n" +
+        "Share the link with ?pad=N to make everyone open the same spacing (e.g. …?pad=0).\n\n" +
+        "Shared sign-up sheet: this page writes every reservation straight to a public JSON store\n" +
         "(a free Zapier \"Storage\" record — no account, no server of ours). Anyone who opens this\n" +
         "page sees the same list within ~10 seconds; the badge top-right shows shared ✓ / ⚠ offline.\n" +
         "The sheet is public and anyone holding the page can edit it — it is a sign-up list, not\n" +
@@ -476,9 +649,10 @@ function initUI(){
         "If the badge shows ⚠ offline your picks are kept in this browser and pushed automatically\n" +
         "as soon as the connection comes back.\n\n" +
         "Manual merge still works: \"copy list\" gives lines like \"12 Ahmed\" to paste in Discord,\n" +
-        "\"export JSON\" gives a file, and \"import\" merges a paste into this browser AND the shared sheet.\n\n" +
+        "\"export JSON\" gives a file, and \"import\" merges a paste into this browser AND the shared sheet\n" +
+        "(into the spacing you are currently viewing).\n\n" +
         "Opening the page with  ?load=https://…/list.json  also pulls that JSON on top of everything."
-      : C.formatShare(res);
+      : C.formatShare(resFor(pad));
     $("ioDo").classList.toggle("hidden", help);
     $("io").classList.remove("hidden");
   }
@@ -487,15 +661,15 @@ function initUI(){
     if (!items.length){ alert("nothing recognised — paste the export or lines like \"12 Ahmed\""); return; }
     let n = 0;
     for (const it of items){
-      if (!C.SPOTS.some(s => s.n === it.n)) continue;
-      const op = {op:"set", n:it.n, name:it.name};
-      pending = pending.filter(p => p.n !== it.n);
+      if (!spots.some(s => s.n === it.n)) continue;
+      const op = {op:"set", p:pad, n:it.n, name:it.name};
+      pending = pending.filter(q => !(q.p === pad && q.n === it.n));
       pending.push(op); applyOp(op);                 // publish them to the shared sheet too
       n++;
     }
     saveRes(); refresh(); flush();
     $("io").classList.add("hidden");
-    flash("imported " + n + " reservation(s)");
+    flash("imported " + n + " reservation(s) into spacing " + pad);
   };
   $("ioClose").onclick = () => $("io").classList.add("hidden");
   $("sheet").onclick = e => { if (e.target.id === "sheet") closeSheet(); };
@@ -508,20 +682,22 @@ function initUI(){
 
   /* ---------- panel ---------- */
   function refresh(){
-    const nums = Object.keys(res).map(Number).sort((a,b)=>a-b);
-    $("pillFree").textContent  = (C.SPOTS.length - nums.length) + " free of " + C.SPOTS.length;
+    const cur = resFor(pad);
+    const nums = Object.keys(cur).map(Number).sort((a,b)=>a-b);
+    $("pillFree").textContent  = (spots.length - nums.length) + " free of " + spots.length;
     $("pillTaken").textContent = nums.length + " reserved";
     $("stats").textContent = nums.length
-      ? "reserved: " + nums.length + " · stored in this browser"
-      : "no reservations yet — tap a dot on the map";
+      ? "reserved: " + nums.length + " · spacing " + pad + " · same list for everyone"
+      : "no reservations yet at spacing " + pad + " — tap a dot on the map";
+    renderPadBar();
     const ul = $("list"); ul.innerHTML = "";
     for (const n of nums){
-      const s = C.SPOTS.find(x => x.n === n); if (!s) continue;
+      const s = spots.find(x => x.n === n); if (!s) continue;
       const li = document.createElement("li");
       li.innerHTML = "<span class='c'>#" + n + "</span><b></b>" +
                      "<span class='c'>X:" + s.X + " Y:" + s.Y + "</span>" +
                      "<span class='spacer'></span><span class='c'>r" + s.ring + " " + s.clock + ":00</span>";
-      li.querySelector("b").textContent = res[n].name;
+      li.querySelector("b").textContent = cur[n].name;
       li.onclick = () => {
         sel = s;
         view.ox += (W/2) - C.toPx(s.X,s.Y,view)[0];
@@ -531,6 +707,41 @@ function initUI(){
       ul.appendChild(li);
     }
     draw();
+  }
+
+  /* ---------- spacing control ---------- */
+  function renderPadBar(){
+    const bar = $("padBtns");
+    if (!bar.children.length){
+      for (const p of PADS){
+        const b = document.createElement("button");
+        b.dataset.pad = p; b.textContent = p;
+        b.onclick = () => setPad(p);
+        bar.appendChild(b);
+      }
+    }
+    for (const b of bar.children){
+      const p = Number(b.dataset.pad), cnt = C.spots(p).length;
+      b.title = cnt + " spots with " + p + " empty tile" + (p===1?"":"s") + " between HQs";
+      b.classList.toggle("on", p === pad);
+    }
+    const hint = $("padHint");
+    hint.textContent = pad === 0
+      ? "0 = footprints touch edge-to-edge · " + spots.length + " spots (rings " + C.bandFor(0)[0] + "–" + C.bandFor(0)[1] + ")"
+      : pad === 1
+      ? "1 = one empty tile between HQs · " + spots.length + " spots — the plan verified in game"
+      : pad + " = " + pad + " empty tiles between HQs · " + spots.length + " spots (rings " +
+        C.bandFor(pad)[0] + "–" + C.bandFor(pad)[1] + ")";
+    hint.textContent += " · every spot reads as a whole X/Y in game";
+    const others = PADS.filter(p => p !== pad && nReserved(p));
+    if (others.length) hint.textContent += " · also reserved: " +
+      others.map(p => p + " → " + nReserved(p)).join(", ");
+  }
+  function setPad(p){
+    if (PADS.indexOf(p) < 0 || p === pad) return;
+    pad = p; spots = C.spots(pad); sel = null; hover = null;
+    try { localStorage.setItem(PADKEY, String(pad)); } catch(e){}
+    refresh();
   }
 
   /* ---------- shared sign-up sheet ---------- */
@@ -543,11 +754,13 @@ function initUI(){
       const fresh = {};
       remoteKeys.clear();
       for (const k of Object.keys(obj || {})){
-        const n = Number(String(k).replace(/^s/, ""));
+        const pk = parseKey(k);
         const name = String(obj[k] == null ? "" : obj[k]).trim();
-        if (!n || !name || !C.SPOTS.some(s => s.n === n)) continue;
-        fresh[n] = {name, ts: (res[n] && res[n].name === name) ? res[n].ts : Date.now()};
-        remoteKeys.add(n);
+        if (!pk || !name) continue;
+        const [op2, n] = pk;
+        if (op2 < 0 || op2 > 6 || !C.spots(op2).some(s => s.n === n)) continue;
+        fresh[k] = {name, ts: (res[k] && res[k].name === name) ? res[k].ts : Date.now()};
+        remoteKeys.add(k);
       }
       res = fresh;                                  // when reachable the sheet is the truth
       for (const op of pending) applyOp(op);         // keep my in-flight picks visible
@@ -557,27 +770,29 @@ function initUI(){
     updateSharedPill();
   }
   function applyOp(op){
-    if (op.op === "set") res[op.n] = {name:op.name, ts:Date.now()};
-    else delete res[op.n];
+    const k = rkey(op.n, op.p);
+    if (op.op === "set") res[k] = {name:op.name, ts:Date.now()};
+    else delete res[k];
   }
   function queueOp(op){
-    pending = pending.filter(p => p.n !== op.n);
+    pending = pending.filter(q => !(q.n === op.n && q.p === op.p));
     pending.push(op); applyOp(op); saveRes(); refresh(); flush();
   }
   async function flush(){
     if (!BACKEND || !pending.length) return;
     const left = [];
     for (const op of pending){
+      const k = rkey(op.n, op.p);
       try{
-        const url = op.op === "set" ? BACKEND : BACKEND + "&key=s" + op.n;
+        const url = op.op === "set" ? BACKEND : BACKEND + "&key=" + k;
         const init = op.op === "set"
           ? {method:"POST", headers:{"Content-Type":"application/json"},
-             body: JSON.stringify({["s" + op.n]: op.name})}
+             body: JSON.stringify({[k]: op.name})}
           : {method:"DELETE"};
         const r = await fetch(url, init);
         if (!r.ok) throw new Error("http " + r.status);
         sharedState = "connected";
-        if (op.op === "set") remoteKeys.add(op.n); else remoteKeys.delete(op.n);
+        if (op.op === "set") remoteKeys.add(k); else remoteKeys.delete(k);
       }catch(e){ sharedState = "offline"; left.push(op); }
     }
     pending = left;
@@ -585,7 +800,7 @@ function initUI(){
   }
   function updateSharedPill(){
     const el = $("pillShared"), n = remoteKeys.size;
-    if (sharedState === "connected") el.textContent = "shared ✓ " + n + " spot" + (n === 1 ? "" : "s");
+    if (sharedState === "connected") el.textContent = "shared ✓ " + n + " pick" + (n === 1 ? "" : "s");
     else if (sharedState === "offline") el.textContent = "shared ⚠ offline" +
       (pending.length ? " (" + pending.length + " queued)" : " — retrying");
     else if (sharedState === "local") el.textContent = "local only";
@@ -615,7 +830,7 @@ function initUI(){
       const txt = await r.text();
       const items = C.parseShare(txt);
       let n = 0;
-      for (const it of items) if (C.SPOTS.some(s => s.n === it.n)){ res[it.n] = {name:it.name, ts:Date.now()}; n++; }
+      for (const it of items) if (spots.some(s => s.n === it.n)){ res[rkey(it.n, pad)] = {name:it.name, ts:Date.now()}; n++; }
       if (n){ saveRes(); refresh(); flash("loaded " + n + " shared reservation(s)"); }
     } catch(e){ flash("could not load shared list"); }
   }
@@ -625,7 +840,8 @@ function initUI(){
   $("btnSync").onclick = () => { pull(); flash("syncing with the shared sheet…"); };
   resize(); fit(); refresh(); startPolling(); loadRemote();
   // small debug hook (console): HQTest.sheet(12) opens spot 12, HQTest.state() shows what the page holds
-  globalThis.HQTest = { sheet: openSheet, state: () => ({ res, pending, sharedState, view, remote: [...remoteKeys] }),
+  globalThis.HQTest = { sheet: openSheet, setPad, spots: () => spots,
+                        state: () => ({ res, pending, sharedState, view, pad, spots: spots.length, remote: [...remoteKeys] }),
                         pull, flush, core: C };
 }
 if (typeof document !== "undefined" && document.getElementById && document.getElementById("map")) initUI();
