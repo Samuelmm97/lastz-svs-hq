@@ -5,6 +5,29 @@ tap a dot, type your name, and it is reserved on the shared sheet in real time.
 
 Live page: https://samuelmm97.github.io/lastz-svs-hq/
 
+## Proposed 2,000 player placement
+
+`placement.html` shows a read-only placement proposal built by `generate_placement.py`
+from the State 798 Field Atlas. The script removes exact repeated name-and-alliance
+records, then ranks plausible HQ records with readable levels by level. Prior
+capital-area location and atlas ID break ties. It uses the 181 published spacing-1 mud spots,
+and packs the rest across the grass out to ring 119. Grass HQ centers stay at least
+four hex tiles apart. The known top 13 alliance tags get angular sections sized
+separately in mud and grass to keep members near each other. Within each section,
+higher HQ levels lead each priority group. HQs recorded inside the 100-tile capital
+area last time get first placement priority; HQs recorded outside go later in grass.
+This location is only a proxy for attendance. Players marked unshielded in the
+September 26 atlas scan are assigned last in grass.
+
+The plan is a proposal and does not change shared sign-up reservations. The
+`placement-plan.csv` download includes player, alliance, level, shield reading,
+proposed X/Y and prior atlas X/Y for review. OCR readings, shield observations,
+and section boundaries need review before anyone teleports. To regenerate:
+
+```
+python generate_placement.py --atlas PATH_TO_FIELD_ATLAS_REPOSITORY
+```
+
 * outer hexagon = buildable dirt zone (35 tiles from the capital centre)
 * inner hexagon = no-build zone (18 tiles)
 * each HQ is a centre tile + 6 neighbours = 7 tiles

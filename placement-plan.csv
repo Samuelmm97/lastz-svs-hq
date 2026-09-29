@@ -1,0 +1,2001 @@
+﻿id,name,tag,hq,shield,highRisk,attendanceProxy,priority,section,zone,spot,x,y,ring,oldX,oldY
+2970,MR AHN,Helm,27,not_applicable,False,inside_capital_area,0,Helm,mud,2,513,486,20,482,485
+2988,Smokingh0t,Helm,27,not_applicable,False,inside_capital_area,0,Helm,mud,1,509,480,20,481,491
+3383,Maj-42,Helm,27,not_applicable,False,inside_capital_area,0,Helm,mud,16,503,480,20,483,493
+3388,Myricle,Helm,27,not_applicable,False,inside_capital_area,0,Helm,mud,3,518,504,20,480,497
+3484,Imperial XXI,Helm,27,not_applicable,False,inside_capital_area,0,Helm,mud,18,517,492,21,488,485
+2919,2Ballz1Chin,Helm,26,not_applicable,False,inside_capital_area,0,Helm,mud,17,512,482,21,480,477
+2920,ABADDØN,Helm,26,not_applicable,False,inside_capital_area,0,Helm,mud,19,520,498,21,474,505
+2932,CaliCloud9,Helm,26,not_applicable,False,inside_capital_area,0,Helm,mud,25,506,478,22,486,488
+2984,Scranton6,Helm,26,not_applicable,False,inside_capital_area,0,Helm,mud,26,521,502,22,483,495
+3483,Samuelm,Helm,26,not_applicable,False,inside_capital_area,0,Helm,mud,32,500,478,22,481,510
+2935,cb,Helm,25,not_applicable,False,inside_capital_area,0,Helm,mud,34,517,488,23,481,473
+2975,P D O T,Helm,25,not_applicable,False,inside_capital_area,0,Helm,mud,35,520,494,23,486,480
+2980,Rayyy,Helm,25,not_applicable,False,inside_capital_area,0,Helm,mud,33,512,478,23,468,503
+2929,BLACKxWlDOW,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,42,509,476,24,475,481
+2930,bLakE,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,43,524,500,24,483,505
+2931,BrOmieYEOl,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,53,503,476,24,479,486
+2934,Catal L,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,55,517,484,25,476,488
+2936,CheekSqueak,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,56,520,490,25,483,479
+2937,Chrisless84,Helm,24,shielded,False,inside_capital_area,0,Helm,mud,54,515,480,25,488,459
+2939,cållmeSnK,Helm,24,shielded,False,inside_capital_area,0,Helm,mud,57,523,496,25,473,462
+2948,FireQueenAelin,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,69,512,474,26,477,477
+2950,Fätima Zohra,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,78,506,474,26,481,488
+2952,Hankscorpi0725,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,70,524,504,26,470,496
+2953,Herre in chains,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,77,500,474,26,510,527
+2956,Joan Lane,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,80,520,486,27,476,503
+2957,JOhnd03,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,81,523,492,27,484,482
+2958,Jonan71,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,79,515,476,27,473,509
+2959,KHEN,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,91,527,498,28,470,500
+2960,kltrinill,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,90,509,472,28,486,483
+2964,LORDSOUTH8314,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,92,527,502,28,478,492
+2965,lWlE,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,101,503,472,28,479,502
+2966,M3aly,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,104,520,482,29,478,495
+2967,McBear,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,105,523,488,29,484,489
+2973,muzafer-cigo,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,103,518,478,29,478,507
+2974,oronl 23,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,106,526,494,29,473,501
+2976,Papadk,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,102,515,472,29,472,491
+2979,PSG Farm,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,122,512,470,30,472,512
+2986,Skywalker Tony,Helm,24,shielded,False,inside_capital_area,0,Helm,mud,130,506,470,30,494,445
+2987,sly Peeler,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,129,500,470,30,479,489
+2989,StK Clarky,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,132,523,484,31,481,481
+2992,that girl again,Helm,24,shielded,False,inside_capital_area,0,Helm,mud,133,526,490,31,478,441
+2997,WTMF,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,131,518,474,31,484,486
+3387,TunaTy9,Helm,24,not_applicable,False,inside_capital_area,0,Helm,mud,134,528,506,31,476,497
+2922,AKIPSLAYER,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,146,515,468,32,468,496
+2926,asrte,Helm,23,shielded,False,inside_capital_area,0,Helm,mud,147,530,496,32,478,453
+2944,DrG420,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,145,509,468,32,477,521
+2955,JBugg,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,158,503,468,32,475,494
+2962,lm Mary,Helm,23,shielded,False,inside_capital_area,0,Helm,mud,161,523,480,33,485,454
+2963,LOGing6691,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,162,526,486,33,479,483
+2968,MilesDavis,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,160,521,476,33,469,493
+2978,Phoenix Saint,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,159,518,470,33,471,504
+2993,Theswagginborne,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,163,529,492,33,467,499
+2995,VindexMaximus,Helm,23,not_applicable,False,inside_capital_area,0,Helm,mud,165,533,500,33,487,462
+3175,Rsshunter,SWT,27,not_applicable,False,inside_capital_area,0,SWT,mud,4,516,508,20,516,480
+3147,Burak006,SWT,24,not_applicable,False,inside_capital_area,0,SWT,mud,20,515,512,21,521,481
+3151,COMMANDER FLAME,SWT,24,not_applicable,False,inside_capital_area,0,SWT,mud,21,512,518,21,518,471
+3180,SuMvorisme,SWT,24,not_applicable,False,inside_capital_area,0,SWT,mud,37,515,516,23,515,492
+3183,The WILDCARD,SWT,24,not_applicable,False,inside_capital_area,0,SWT,mud,44,521,506,24,518,475
+3189,XTYALA MTN,SWT,24,not_applicable,False,inside_capital_area,0,SWT,mud,58,518,514,25,515,484
+3192,Zaid 90,SWT,24,not_applicable,False,inside_capital_area,0,SWT,mud,59,520,510,25,520,483
+3386,butt hunter,SWT,24,not_applicable,False,inside_capital_area,0,SWT,mud,60,515,520,25,532,496
+3158,Göttin Josie,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,83,518,518,27,511,484
+3160,MandriL99,SWT,23,shielded,False,inside_capital_area,0,SWT,mud,82,515,524,27,532,485
+3161,Mavi9 ipok,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,107,521,516,29,513,481
+3162,Maxwin100,SWT,23,shielded,False,inside_capital_area,0,SWT,mud,108,523,512,29,525,475
+3164,MechaSauce,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,111,518,522,29,520,476
+3167,Muhammed 798,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,109,525,508,29,513,488
+3173,Pump,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,135,521,520,31,521,485
+3174,Rraccoon,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,136,518,526,31,519,486
+3177,Sfalsamento,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,166,524,518,33,525,484
+3179,Spandam2,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,167,526,514,33,530,494
+3185,tomebila 2,SWT,23,shielded,False,inside_capital_area,0,SWT,mud,170,521,524,33,522,467
+3190,XxTlNxX,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,168,528,510,33,526,493
+3363,EL30MDa,SWT,23,shielded,False,inside_capital_area,0,SWT,mud,169,518,530,33,530,470
+3275,Jun9006,WRtH,26,not_applicable,False,inside_capital_area,0,WRtH,mud,7,503,520,20,489,520
+3285,MOSTWANTED,WRtH,25,not_applicable,False,inside_capital_area,0,WRtH,mud,6,497,520,20,497,526
+3301,Shodak2,WRtH,25,not_applicable,False,inside_capital_area,0,WRtH,mud,5,509,520,20,480,512
+3311,Zaph42,WRtH,25,not_applicable,False,inside_capital_area,0,WRtH,mud,8,491,520,20,487,517
+3245,2Mad4Rouge,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,28,500,522,22,485,516
+3254,bartl,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,27,506,522,22,487,523
+3259,FluffyMeowMeow,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,29,494,522,22,482,522
+3264,ghzawi,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,36,512,522,23,496,520
+3265,Groovy 1188,WRtH,24,shielded,False,inside_capital_area,0,WRtH,mud,39,488,522,23,461,530
+3272,Jongos Ghufron,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,47,503,524,24,483,525
+3278,Lodmir,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,46,497,524,24,493,523
+3286,Mr coqui,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,45,509,524,24,492,520
+3287,MSchuster I,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,48,491,524,24,499,520
+3288,Mørphz,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,73,500,526,26,499,523
+3299,Rockso Clown,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,74,506,526,26,490,523
+3303,SupaHero,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,72,494,526,26,486,520
+3305,TappamWah,WRtH,24,shielded,False,inside_capital_area,0,WRtH,mud,71,512,526,26,497,536
+3307,Tläløcån,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,75,488,526,26,487,511
+3313,Zx1085,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,95,503,528,28,496,523
+3405,Elbadawi,WRtH,24,not_applicable,False,inside_capital_area,0,WRtH,mud,94,497,528,28,487,514
+3246,90Ji,WRtH,23,shielded,False,inside_capital_area,0,WRtH,mud,93,509,528,28,471,528
+3250,ArRaaa,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,96,491,528,28,502,528
+3252,Ata70th,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,110,515,528,29,491,526
+3258,Diehlerman,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,113,485,528,29,485,522
+3270,JaggerMeister,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,125,500,530,30,483,512
+3273,JOY BOY,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,126,506,530,30,483,509
+3276,Karar Yass,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,124,494,530,30,488,526
+3291,Obaida 798,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,123,512,530,30,486,508
+3297,RElHERMAT,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,127,488,530,30,502,530
+3312,Zunny1,WRtH,23,not_applicable,False,inside_capital_area,0,WRtH,mud,151,503,532,32,501,518
+3020,Bitter9teel,mERC,24,not_applicable,False,inside_capital_area,0,mERC,mud,9,486,512,20,490,478
+3049,MD,mERC,24,not_applicable,False,inside_capital_area,0,mERC,mud,22,488,518,21,495,475
+3058,Schmed,mERC,24,shielded,False,inside_capital_area,0,mERC,mud,38,485,516,23,470,475
+3021,Bob Ueker,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,61,485,520,25,497,480
+3024,CircusAnimal,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,86,482,518,27,489,472
+3030,EMP Bomb S,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,84,485,524,27,492,473
+3039,John henry,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,112,482,522,29,485,472
+3044,LadyBadAzz,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,137,482,526,31,484,476
+3045,LFG903,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,140,479,520,31,487,474
+3059,shams2,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,171,479,524,33,495,478
+3070,Zenosyne,mERC,23,not_applicable,False,inside_capital_area,0,mERC,mud,172,482,530,33,516,468
+2786,di10934,aTam,25,not_applicable,False,inside_capital_area,0,aTam,mud,30,483,510,22,525,481
+2789,GanjiWanlea,aTam,25,not_applicable,False,inside_capital_area,0,aTam,mud,63,482,514,25,514,509
+2800,KACAN BILGE,aTam,25,not_applicable,False,inside_capital_area,0,aTam,mud,85,479,512,27,520,498
+2796,Jaya002,aTam,24,not_applicable,False,inside_capital_area,0,aTam,mud,115,479,516,29,520,501
+2784,ceto,aTam,23,not_applicable,False,inside_capital_area,0,aTam,mud,139,476,514,31,522,493
+2787,DJ • MARCOPOLO,aTam,23,not_applicable,False,inside_capital_area,0,aTam,mud,174,476,518,33,520,495
+2793,help gate bomb,aTam,23,shielded,False,inside_capital_area,0,aTam,mud,173,473,512,33,551,496
+2700,Legionnairee,4NG,24,not_applicable,False,inside_capital_area,0,4NG,mud,10,480,500,20,518,504
+2693,Ju1io Santos,4NG,23,not_applicable,False,inside_capital_area,0,4NG,mud,23,482,506,21,519,507
+2678,B-51,4NG,22,shielded,False,inside_capital_area,0,4NG,mud,40,479,504,23,543,534
+2679,Balagrul,4NG,22,shielded,False,inside_capital_area,0,4NG,mud,65,476,502,25,536,533
+2686,enffzz,4NG,22,not_applicable,False,inside_capital_area,0,4NG,mud,62,479,508,25,528,511
+2688,High bull,4NG,22,shielded,False,inside_capital_area,0,4NG,mud,88,476,506,27,540,506
+2696,Khegg,4NG,22,not_applicable,False,inside_capital_area,0,4NG,mud,87,473,500,27,531,506
+2701,LSF1986,4NG,22,shielded,False,inside_capital_area,0,4NG,mud,117,473,504,29,535,521
+2702,Maj 4,4NG,22,shielded,False,inside_capital_area,0,4NG,mud,114,476,510,29,532,510
+2708,Ognjen 4 Ever,4NG,22,not_applicable,False,inside_capital_area,0,4NG,mud,138,473,508,31,516,507
+2711,Ralnbow866668,4NG,22,shielded,False,inside_capital_area,0,4NG,mud,142,470,502,31,535,524
+2719,Tessebel,4NG,22,shielded,False,inside_capital_area,0,4NG,mud,177,470,506,33,531,518
+3226,Cre7zu01,UpS,24,not_applicable,False,inside_capital_area,0,UpS,mud,64,476,498,25,472,485
+3221,BB42,UpS,23,not_applicable,False,inside_capital_area,0,UpS,mud,116,473,496,29,504,474
+3229,Lev7392026,UpS,23,not_applicable,False,inside_capital_area,0,UpS,mud,141,470,498,31,470,488
+3230,Lex Talionis,UpS,23,shielded,False,inside_capital_area,0,UpS,mud,176,470,494,33,494,457
+2818,Ayaaaa19,Ayaa,26,not_applicable,False,inside_capital_area,0,Ayaa,mud,11,482,496,20,481,500
+2829,Cyclops pops,Ayaa,23,not_applicable,False,inside_capital_area,0,Ayaa,mud,49,479,494,24,481,503
+2879,LJMK,E45Y,23,not_applicable,False,inside_capital_area,0,E45Y,mud,118,475,492,29,505,520
+3442,SteelHaus,E45Y,23,shielded,False,inside_capital_area,0,E45Y,mud,178,472,490,33,511,541
+2759,rAz 798,7cie,24,not_applicable,False,inside_capital_area,0,7cie,mud,12,484,492,20,524,505
+2764,Tachebleu59,7cie,24,not_applicable,False,inside_capital_area,0,7cie,mud,66,480,490,25,515,513
+2734,Béthuel le BG,7cie,23,not_applicable,False,inside_capital_area,0,7cie,mud,119,477,488,29,523,502
+2741,Elouuu,7cie,23,not_applicable,False,inside_capital_area,0,7cie,mud,179,474,486,33,522,505
+2898,DeathDealer-USA,ELY,30,shielded,False,inside_capital_area,0,Other,mud,14,491,480,20,493,539
+2900,Porkchop91,ELY,26,shielded,False,inside_capital_area,0,Other,mud,15,497,480,20,520,540
+2665,mzaBeyy,,25,not_applicable,False,inside_capital_area,0,Other,mud,13,486,488,20,515,476
+3074,Stueyyyy,MiMS,25,shielded,False,inside_capital_area,0,Other,mud,24,487,484,21,478,461
+2659,aaJTapThis,,24,shielded,False,inside_capital_area,0,Other,mud,31,494,478,22,464,501
+2902,xRAVENx,ELY,24,shielded,False,inside_capital_area,0,Other,mud,41,487,480,23,485,549
+2906,DaDagger,FJs,24,shielded,False,inside_capital_area,0,Other,mud,51,491,476,24,501,536
+2908,FightPart2,FJs,24,shielded,False,inside_capital_area,0,Other,mud,50,483,486,24,495,564
+3001,ArchiL,IDNx,24,shielded,False,inside_capital_area,0,Other,mud,52,497,476,24,518,537
+3314,Choppp800,X7X,24,shielded,False,inside_capital_area,0,Other,mud,68,487,476,25,526,478
+3319,Joggi84,X7X,24,shielded,False,inside_capital_area,0,Other,mud,67,484,482,25,522,471
+3322,Mr PandA,X7X,24,not_applicable,False,inside_capital_area,0,Other,mud,76,494,474,26,463,493
+3327,UnForgiven24,X7X,24,shielded,False,inside_capital_area,0,Other,mud,89,484,478,27,463,490
+3330,HiddenAssassin,MiMS,24,review,False,inside_capital_area,0,Other,mud,98,487,472,28,471,445
+3454,JustARandom,CRWN,24,shielded,False,inside_capital_area,0,Other,mud,99,491,472,28,477,549
+3473,Tigerbloodz,CRWN,24,shielded,False,inside_capital_area,0,Other,mud,97,480,484,28,476,560
+2663,Imltmarbs,,23,not_applicable,False,inside_capital_area,0,Other,mud,100,497,472,28,481,494
+2668,rnER,,23,not_applicable,False,inside_capital_area,0,Other,mud,121,484,474,29,487,465
+2852,Black Sabath,CRWN,23,shielded,False,inside_capital_area,0,Other,mud,120,481,480,29,484,558
+2857,Lqmpy,CRWN,23,shielded,False,inside_capital_area,0,Other,mud,128,494,470,30,470,519
+2860,RamonessZ,CRWN,23,shielded,False,inside_capital_area,0,Other,mud,144,484,470,31,472,535
+2862,SUB ZERO,CRWN,23,shielded,False,inside_capital_area,0,Other,mud,143,481,476,31,469,543
+2901,PresidentCoffe,ELY,23,shielded,False,inside_capital_area,0,Other,mud,155,487,468,32,489,551
+3003,El cuento,IDNx,23,shielded,False,inside_capital_area,0,Other,mud,156,491,468,32,475,551
+3013,umboro F,KWP,23,not_applicable,False,inside_capital_area,0,Other,mud,154,477,482,32,531,491
+3073,MystOs,MiMS,23,shielded,False,inside_capital_area,0,Other,mud,157,497,468,32,537,474
+3321,lnyiäk,X7X,23,shielded,False,inside_capital_area,0,Other,mud,181,481,472,33,542,481
+3456,DeadAim13,CRWN,23,shielded,False,inside_capital_area,0,Other,mud,180,478,478,33,472,550
+3378,Fog of war,SWT,23,not_applicable,False,inside_capital_area,0,SWT,mud,149,515,532,32,528,485
+2801,Lord Defender,aTam,23,shielded,False,inside_capital_area,0,aTam,mud,152,485,532,32,543,511
+3232,Maneraki,UpS,23,not_applicable,False,inside_capital_area,0,UpS,mud,153,491,532,32,470,508
+3234,Mentiscope,UpS,23,shielded,False,inside_capital_area,0,UpS,mud,150,497,532,32,459,488
+2747,Karma-L,7cie,23,shielded,False,inside_capital_area,0,7cie,mud,148,509,532,32,548,491
+3092,slow-R-08,movR,23,shielded,False,inside_capital_area,0,movR,mud,175,467,500,33,524,525
+3469,joseluisv44,CRWN,23,shielded,False,inside_capital_area,0,Other,mud,164,531,504,33,478,557
+2923,Alexandre32,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,502,463,37,495,448
+2924,Aphrodite,Helm,22,not_applicable,False,inside_capital_area,0,Helm,grass,,504,459,41,477,480
+2925,aqiyan,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,511,457,43,480,451
+2938,CJpoli67,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,503,455,45,466,512
+2941,Dav1c016,Helm,22,not_applicable,False,inside_capital_area,0,Helm,grass,,509,453,47,473,498
+2943,Dinasty 936,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,505,451,49,483,448
+2945,Dårth Vapér,Helm,22,not_applicable,False,inside_capital_area,0,Helm,grass,,500,451,49,478,474
+2946,Elder4,Helm,22,not_applicable,False,inside_capital_area,0,Helm,grass,,513,451,49,478,511
+2949,fr3ecola,Helm,22,not_applicable,False,inside_capital_area,0,Helm,grass,,507,447,53,503,470
+2954,IrishGuy,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,511,447,53,501,451
+2969,Minismokes,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,502,447,53,496,460
+2972,MrRaykov,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,515,445,55,494,453
+2982,Reapers-Gurl-91,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,507,443,57,500,459
+2996,Vurre,Helm,22,shielded,False,inside_capital_area,0,Helm,grass,,510,441,59,496,455
+2999,yeezypaid,Helm,22,not_applicable,False,inside_capital_area,0,Helm,grass,,505,439,61,481,467
+3409,DarkKnightJoker,Helm,22,not_applicable,False,inside_capital_area,0,Helm,grass,,516,439,61,476,518
+2927,Axtus,Helm,21,shielded,False,inside_capital_area,0,Helm,grass,,500,439,61,486,460
+2942,Deaths mile2,Helm,21,shielded,False,inside_capital_area,0,Helm,grass,,508,437,63,459,468
+2947,EnriqueZv,Helm,21,shielded,False,inside_capital_area,0,Helm,grass,,513,437,63,488,446
+2981,Reacher1357,Helm,21,not_applicable,False,inside_capital_area,0,Helm,grass,,501,435,65,476,491
+2983,Remote Survivor,Helm,21,not_applicable,False,inside_capital_area,0,Helm,grass,,510,433,67,483,470
+2998,XenoxAut,Helm,21,shielded,False,inside_capital_area,0,Helm,grass,,504,433,67,490,448
+2990,Sunny7516,Helm,20,not_applicable,False,inside_capital_area,0,Helm,grass,,517,433,67,490,465
+3140,1uvacowboyXXX,SWT,22,shielded,False,inside_capital_area,0,SWT,grass,,519,465,37,536,470
+3141,2TOne,SWT,22,not_applicable,False,inside_capital_area,0,SWT,grass,,522,471,37,526,489
+3145,BeYLeR BeYi,SWT,22,shielded,False,inside_capital_area,0,SWT,grass,,510,463,37,542,477
+3146,Brodiww,SWT,22,shielded,False,inside_capital_area,0,SWT,grass,,515,461,39,535,491
+3150,Chickito,SWT,22,not_applicable,False,inside_capital_area,0,SWT,grass,,522,463,41,520,489
+3156,Flopped,SWT,22,shielded,False,inside_capital_area,0,SWT,grass,,524,467,41,533,468
+3166,Monkey d Levo,SWT,22,not_applicable,False,inside_capital_area,0,SWT,grass,,521,459,42,527,497
+3172,Pkeogh,SWT,22,shielded,False,inside_capital_area,0,SWT,grass,,516,455,45,538,481
+3182,Tekra,SWT,22,not_applicable,False,inside_capital_area,0,SWT,grass,,528,465,46,530,460
+3349,Viking29,SWT,22,not_applicable,False,inside_capital_area,0,SWT,grass,,524,455,47,525,459
+3365,Primespawn,SWT,22,not_applicable,False,inside_capital_area,0,SWT,grass,,520,453,47,522,473
+3372,WUlOfK,SWT,22,not_applicable,False,inside_capital_area,0,SWT,grass,,527,461,47,519,480
+3142,Azarok,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,523,451,49,548,475
+3144,beboki,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,528,457,50,526,469
+3152,Dark Samael,SWT,21,not_applicable,False,inside_capital_area,0,SWT,grass,,517,449,51,511,477
+3153,deluluzlonal,SWT,21,not_applicable,False,inside_capital_area,0,SWT,grass,,528,451,53,517,526
+3154,Eagle0047,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,524,447,53,537,495
+3155,evilmaster73,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,532,457,54,555,490
+3163,MDTeez,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,528,447,55,538,489
+3168,MyShowTime,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,520,445,55,545,478
+3170,No won•ies bro,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,531,449,57,535,480
+3171,NyanMG,SWT,21,not_applicable,False,inside_capital_area,0,SWT,grass,,526,441,59,513,512
+3178,Shakhawan 89,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,521,441,59,541,494
+3181,SuNivor813Ryb,SWT,21,not_applicable,False,inside_capital_area,0,SWT,grass,,535,453,59,517,465
+3184,TheRango,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,531,439,62,549,481
+3187,Va10sflame,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,534,445,62,535,484
+3193,Zanderchief,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,526,437,63,546,473
+3350,TOMILLO,SWT,21,not_applicable,False,inside_capital_area,0,SWT,grass,,534,441,64,534,460
+3357,MSH6,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,537,447,64,546,465
+3364,aQuadem,SWT,21,shielded,False,inside_capital_area,0,SWT,grass,,530,435,65,541,470
+3139,0wll,SWT,20,shielded,False,inside_capital_area,0,SWT,grass,,521,435,65,529,475
+3188,Wojnas,SWT,20,shielded,False,inside_capital_area,0,SWT,grass,,534,437,66,534,474
+3191,yarsukl,SWT,20,shielded,False,inside_capital_area,0,SWT,grass,,525,433,67,540,491
+3348,MohamedBadr,SWT,20,not_applicable,False,inside_capital_area,0,SWT,grass,,538,441,68,536,458
+3143,bahadlr1982,SWT,18,shielded,False,inside_capital_area,0,SWT,grass,,535,433,69,548,483
+3248,Akkirocky97,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,527,479,38,482,529
+3251,ASGARDlANO,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,531,481,41,487,530
+3253,B3NNYBOY,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,529,475,42,494,526
+3263,Ghost Zephyr,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,527,471,42,495,530
+3266,GßTR,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,532,477,44,485,519
+3274,Juancami10777,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,531,467,48,498,529
+3277,ke moha,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,537,477,49,500,527
+3282,Miniplus,WRtH,22,shielded,False,inside_capital_area,0,WRtH,grass,,535,471,50,485,537
+3283,Mista Luva,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,532,463,51,500,521
+3284,Mista Luvp,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,539,473,53,501,521
+3295,Rasiter,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,535,465,53,480,516
+3298,RK RAY,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,539,469,55,479,520
+3304,SurvivorKRK,WRtH,22,shielded,False,inside_capital_area,0,WRtH,grass,,535,461,55,468,531
+3306,ThreeShot,WRtH,22,shielded,False,inside_capital_area,0,WRtH,grass,,540,465,58,488,536
+3309,XWartordX,WRtH,22,not_applicable,False,inside_capital_area,0,WRtH,grass,,544,471,59,501,524
+3249,Andreeeaa,WRtH,21,not_applicable,False,inside_capital_area,0,WRtH,grass,,545,465,63,489,529
+3255,BMW Kilz,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,539,453,63,493,545
+3256,BOOman,WRtH,21,not_applicable,False,inside_capital_area,0,WRtH,grass,,549,471,64,469,506
+3257,Brochas13,WRtH,21,not_applicable,False,inside_capital_area,0,WRtH,grass,,542,455,65,486,527
+3262,GAMNGSTER,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,546,461,66,489,543
+3267,H3115pAwN,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,549,467,66,484,551
+3268,heguedusch,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,545,457,67,462,541
+3269,Hijlnx74,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,549,463,68,469,528
+3271,Jeennaan,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,543,451,68,466,557
+3292,pjjp21,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,549,459,70,478,534
+3293,Prophesist,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,553,467,70,476,543
+3300,rot raccoon,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,548,455,71,474,540
+3019,BiffaSRW,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,532,491,37,501,464
+3034,Frenchtoast1234,mERC,22,shielded,False,inside_capital_area,0,mERC,grass,,535,497,37,469,472
+3036,Hometsnest,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,530,487,37,498,473
+3038,Jernblod,mERC,22,shielded,False,inside_capital_area,0,mERC,grass,,535,493,39,468,483
+3040,Justnothing,mERC,22,shielded,False,inside_capital_area,0,mERC,grass,,534,487,41,478,466
+3046,LizzieBorden,mERC,22,shielded,False,inside_capital_area,0,mERC,grass,,540,497,42,461,471
+3047,MacWright,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,534,483,43,489,468
+3052,Nikola1983,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,541,493,45,497,467
+3054,PauloSi,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,538,485,46,492,467
+3060,ShAuN,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,546,501,47,492,464
+3063,Survivor Aleks,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,545,493,49,484,468
+3069,x Lynzi x,mERC,22,shielded,False,inside_capital_area,0,mERC,grass,,547,497,49,471,456
+3356,Casa de Felt,mERC,22,not_applicable,False,inside_capital_area,0,mERC,grass,,540,481,50,508,465
+3016,Ace ss,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,544,487,51,507,469
+3017,Alexandrakne,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,550,501,51,504,466
+3018,Allen42,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,548,491,53,486,470
+3022,burnham94,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,545,483,54,514,470
+3023,Cha0190,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,551,495,54,465,495
+3026,CraaazyChris,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,543,477,55,466,467
+3027,DrunknMonk3y,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,549,485,57,497,447
+3028,DustyM,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,556,499,57,505,467
+3032,Fank01234,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,555,495,58,474,468
+3033,Flokithebuilder,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,554,491,59,463,475
+3037,J a s p e r,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,547,477,59,465,462
+3041,KidoCz,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,553,487,60,468,466
+3050,Mikelta85 I,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,552,483,61,501,480
+3053,Nosibalasi,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,551,479,62,494,466
+3057,rivaldo 61,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,558,491,63,460,477
+3061,Simply GodsGift,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,551,475,64,468,460
+3062,solarflare496,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,557,485,65,505,470
+3066,Wari0696969,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,555,481,65,500,477
+3068,WlLDMAN 81,mERC,21,not_applicable,False,inside_capital_area,0,mERC,grass,,561,493,65,496,470
+3360,ApocaIypse Fox,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,564,499,65,478,469
+3369,SNOBES,mERC,21,shielded,False,inside_capital_area,0,mERC,grass,,560,487,67,464,478
+3025,Cobra25,mERC,20,shielded,False,inside_capital_area,0,mERC,grass,,559,481,69,466,480
+3031,Ewavy,mERC,20,shielded,False,inside_capital_area,0,mERC,grass,,565,493,69,482,453
+3048,MayChan,mERC,20,shielded,False,inside_capital_area,0,mERC,grass,,557,477,69,471,459
+3055,PORKCHOP,mERC,20,shielded,False,inside_capital_area,0,mERC,grass,,555,473,69,465,472
+3065,Voldemortandron,mERC,20,not_applicable,False,inside_capital_area,0,mERC,grass,,563,485,71,501,474
+3067,Wiggly RG,mERC,20,shielded,False,inside_capital_area,0,mERC,grass,,569,497,71,472,472
+2783,celine Azzhra,aTam,22,shielded,False,inside_capital_area,0,aTam,grass,,532,509,37,540,510
+2788,Ezginaz,aTam,22,shielded,False,inside_capital_area,0,aTam,grass,,536,501,37,549,503
+2791,H3r,aTam,22,not_applicable,False,inside_capital_area,0,aTam,grass,,536,507,40,518,490
+2795,Jagur 4x4,aTam,22,not_applicable,False,inside_capital_area,0,aTam,grass,,541,503,43,522,490
+2803,Mamos2727,aTam,22,shielded,False,inside_capital_area,0,aTam,grass,,541,507,45,544,506
+2804,Mohammd 123,aTam,22,shielded,False,inside_capital_area,0,aTam,grass,,540,511,46,557,504
+2805,rafali,aTam,22,not_applicable,False,inside_capital_area,0,aTam,grass,,545,505,48,530,501
+2807,Skayyy,aTam,22,shielded,False,inside_capital_area,0,aTam,grass,,548,511,54,549,498
+2809,SoulOfLuna,aTam,22,shielded,False,inside_capital_area,0,aTam,grass,,551,507,55,553,497
+3395,Tarkan1,aTam,22,shielded,False,inside_capital_area,0,aTam,grass,,552,511,58,555,506
+2785,cJ-s,aTam,21,shielded,False,inside_capital_area,0,aTam,grass,,556,503,58,555,500
+2798,JohnSnow-91,aTam,21,shielded,False,inside_capital_area,0,aTam,grass,,553,515,61,547,504
+2806,Rayid Hazazi,aTam,21,shielded,False,inside_capital_area,0,aTam,grass,,559,505,62,542,500
+2811,Umtckmk,aTam,21,shielded,False,inside_capital_area,0,aTam,grass,,556,513,63,550,506
+2812,VOIkannn,aTam,21,shielded,False,inside_capital_area,0,aTam,grass,,559,509,64,554,503
+3389,Hankids,aTam,21,shielded,False,inside_capital_area,0,aTam,grass,,556,517,65,557,498
+3417,MORBiD,aTam,21,not_applicable,False,inside_capital_area,0,aTam,grass,,563,503,65,513,524
+2781,A5* HI,aTam,20,shielded,False,inside_capital_area,0,aTam,grass,,562,507,66,555,496
+2782,Bram pcf,aTam,20,not_applicable,False,inside_capital_area,0,aTam,grass,,562,511,68,526,503
+2794,HuNRuLlNG66,aTam,20,shielded,False,inside_capital_area,0,aTam,grass,,561,517,70,551,502
+2797,jeraya,aTam,20,shielded,False,inside_capital_area,0,aTam,grass,,567,507,71,556,493
+2808,slllci53,aTam,20,shielded,False,inside_capital_area,0,aTam,grass,,569,503,71,551,492
+3399,Sachhhhh,4NG,22,not_applicable,False,inside_capital_area,0,4NG,grass,,527,519,37,529,508
+2675,acf-of-sweden,4NG,21,not_applicable,False,inside_capital_area,0,4NG,grass,,525,523,37,518,524
+2677,B campell,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,530,517,39,508,540
+2680,Bearssmmy,4NG,21,not_applicable,False,inside_capital_area,0,4NG,grass,,532,513,39,523,477
+2683,Creestor,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,530,523,42,535,531
+2685,D101383,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,534,517,43,535,504
+2690,Jack083,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,529,527,43,533,507
+2705,Mr-Linus,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,534,521,45,544,530
+2706,MuhtarFARM,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,538,515,46,529,516
+2707,N3rdyFlow3rGirl,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,534,525,47,547,527
+2710,Predator XXX,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,538,521,49,537,512
+2714,SlowBuild,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,533,531,49,533,516
+2716,Spanntheman,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,542,515,50,541,535
+2717,Survivor-Zeta,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,537,527,51,529,521
+2718,Survivorkuruf,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,541,519,51,533,519
+2723,wlllehlppo,4NG,21,not_applicable,False,inside_capital_area,0,4NG,grass,,534,535,52,525,516
+2725,Yiwa13,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,537,531,53,537,506
+3403,DuarteN,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,540,529,55,531,512
+3408,JAB88,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,543,523,55,546,516
+3412,PablOOO,4NG,21,not_applicable,False,inside_capital_area,0,4NG,grass,,537,537,56,523,520
+3418,JoekatsJoe,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,547,517,56,544,524
+3443,FreePS,4NG,21,shielded,False,inside_capital_area,0,4NG,grass,,543,527,57,542,541
+2658,KingAzzam,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,546,525,59,543,537
+2673,'Alosh,4NG,20,not_applicable,False,inside_capital_area,0,4NG,grass,,543,533,60,538,546
+2684,CrueIlntentions,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,549,521,60,535,518
+2687,GotUrBack2,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,546,529,61,536,501
+2692,jim5,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,542,537,61,537,520
+2697,Kidnextdoor23,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,540,541,61,533,513
+2713,rjfrhb,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,549,527,63,548,520
+2727,Zeca urubu fc,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,546,535,64,541,531
+2728,ZØMBlELAND t,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,553,521,64,539,526
+3413,Puglife999,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,552,525,65,543,521
+3419,DimGala,4NG,20,shielded,False,inside_capital_area,0,4NG,grass,,552,533,69,529,525
+3371,WorkingBabe,4NG,19,shielded,False,inside_capital_area,0,4NG,grass,,550,539,70,536,478
+3402,ciddenbak,4NG,19,shielded,False,inside_capital_area,0,4NG,grass,,555,529,70,536,510
+3411,7ama3arbaty,4NG,19,shielded,False,inside_capital_area,0,4NG,grass,,547,545,70,539,519
+3438,Claude Hector,4NG,19,shielded,False,inside_capital_area,0,4NG,grass,,559,521,70,540,538
+2682,ConquerKitty,4NG,18,shielded,False,inside_capital_area,0,4NG,grass,,558,525,71,534,529
+3227,DyrtyD,UpS,22,shielded,False,inside_capital_area,0,UpS,grass,,522,529,37,483,456
+3231,Liferun,UpS,22,not_applicable,False,inside_capital_area,0,UpS,grass,,522,533,39,474,489
+3243,Zeusmode94,UpS,22,not_applicable,False,inside_capital_area,0,UpS,grass,,518,539,39,504,479
+3219,1Lumpi1,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,514,539,39,488,457
+3225,BIutundEisen666,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,522,537,41,498,457
+3228,Friör,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,521,541,42,467,486
+3233,Melsdot,UpS,21,not_applicable,False,inside_capital_area,0,UpS,grass,,518,543,43,514,473
+3236,panamaPanther2,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,527,533,44,456,494
+3237,ProfessorJohny,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,525,539,45,471,482
+3238,Sannysunnshine,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,521,545,45,487,449
+3239,Terminus702,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,525,543,47,455,497
+3240,uzODlNzzz,UpS,21,not_applicable,False,inside_capital_area,0,UpS,grass,,528,537,47,505,476
+3241,YourJovlalA11y,UpS,21,not_applicable,False,inside_capital_area,0,UpS,grass,,525,549,50,508,480
+3353,pieselpups,UpS,21,not_applicable,False,inside_capital_area,0,UpS,grass,,531,539,51,532,462
+3354,SoulPrison,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,529,545,52,523,463
+3370,RaVe21,UpS,21,not_applicable,False,inside_capital_area,0,UpS,grass,,532,543,54,502,478
+3375,GIgifrozen,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,528,553,55,458,484
+3414,DarkBee1027,UpS,21,shielded,False,inside_capital_area,0,UpS,grass,,520,555,55,471,522
+3222,Beekayxxx,UpS,20,not_applicable,False,inside_capital_area,0,UpS,grass,,531,549,56,511,474
+3224,big cod,UpS,20,not_applicable,False,inside_capital_area,0,UpS,grass,,535,541,56,508,477
+3235,noOnemoo,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,524,557,57,527,455
+3242,Yoyoyo,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,535,545,58,503,446
+3329,chaosnr1,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,530,557,59,492,442
+3352,Tana Umaga,UpS,20,not_applicable,False,inside_capital_area,0,UpS,grass,,535,551,61,527,462
+3368,RiPp3r08,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,520,561,61,539,477
+3373,broxy1690,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,531,561,62,466,483
+3376,JohnnyDangerous,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,539,545,62,461,485
+3381,Big Daff,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,528,563,63,466,491
+3382,Colllnskyy,UpS,20,shielded,False,inside_capital_area,0,UpS,grass,,524,563,63,460,492
+3220,Amra87,UpS,19,shielded,False,inside_capital_area,0,UpS,grass,,536,557,65,474,457
+3339,Surya59,UpS,19,shielded,False,inside_capital_area,0,UpS,grass,,540,551,66,488,454
+3351,Bigbrotato,UpS,19,shielded,False,inside_capital_area,0,UpS,grass,,534,565,67,494,461
+3367,KFC420,UpS,19,shielded,False,inside_capital_area,0,UpS,grass,,530,567,67,467,475
+3223,benn0243,UpS,18,shielded,False,inside_capital_area,0,UpS,grass,,525,567,67,463,533
+3346,Tommy86,UpS,18,shielded,False,inside_capital_area,0,UpS,grass,,544,549,69,480,458
+2817,animal style,Ayaa,22,shielded,False,inside_capital_area,0,Ayaa,grass,,500,537,37,477,527
+2823,BungIaou,Ayaa,22,shielded,False,inside_capital_area,0,Ayaa,grass,,508,537,37,461,507
+2841,moopz,Ayaa,22,shielded,False,inside_capital_area,0,Ayaa,grass,,504,539,39,462,505
+3410,sptyspy,Ayaa,22,shielded,False,inside_capital_area,0,Ayaa,grass,,510,541,41,462,519
+2815,Ace Hero,Ayaa,21,not_applicable,False,inside_capital_area,0,Ayaa,grass,,499,543,43,477,515
+2820,Bishop1004,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,502,545,45,455,514
+2830,DocHolliday34,Ayaa,21,not_applicable,False,inside_capital_area,0,Ayaa,grass,,512,545,45,475,512
+2833,Fast Track,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,496,545,45,458,530
+2842,MrNisbitt,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,510,549,49,464,498
+2845,SerlalSLINivor,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,500,549,49,458,499
+2846,SOAD Toxic,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,514,549,49,460,517
+3384,Olfrian,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,505,551,51,458,496
+3385,Snoobins,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,497,551,51,461,496
+3416,GuiIIereyes,Ayaa,21,shielded,False,inside_capital_area,0,Ayaa,grass,,508,553,53,466,524
+2819,Beefy21,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,502,553,53,464,528
+2822,Buffy532,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,514,555,55,465,518
+2826,cowboyrock,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,509,557,57,471,516
+2828,cuculand,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,499,557,57,470,537
+2834,Firstinlastout,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,504,559,59,459,520
+2835,GenZzZ,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,516,559,59,464,521
+2836,Guidshoots,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,496,559,59,457,525
+2838,Hunter00700,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,508,561,61,469,523
+2840,misterhavoc 0,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,512,561,61,469,516
+2843,Praetor J,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,500,561,61,465,505
+2847,TrudesSandro,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,505,565,65,465,531
+3390,Mand11976,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,512,565,65,461,499
+3407,SebasFIagg,Ayaa,20,not_applicable,False,inside_capital_area,0,Ayaa,grass,,498,565,65,474,515
+3421,Gigiorzr,Ayaa,20,shielded,False,inside_capital_area,0,Ayaa,grass,,508,567,67,459,527
+2821,BoosterYellow,Ayaa,19,shielded,False,inside_capital_area,0,Ayaa,grass,,502,567,67,470,525
+2844,Ronnieagp,Ayaa,19,shielded,False,inside_capital_area,0,Ayaa,grass,,521,567,67,460,503
+2816,AndyAly7,Ayaa,18,shielded,False,inside_capital_area,0,Ayaa,grass,,516,569,69,454,518
+2827,crazymomma0202,Ayaa,18,shielded,False,inside_capital_area,0,Ayaa,grass,,496,569,69,468,520
+2825,cane sugar,Ayaa,17,shielded,False,inside_capital_area,0,Ayaa,grass,,506,571,71,453,509
+3393,Spokes,Ayaa,17,shielded,False,inside_capital_area,0,Ayaa,grass,,510,571,71,457,502
+2867,Bazzoo,E45Y,22,shielded,False,inside_capital_area,0,E45Y,grass,,486,537,37,498,558
+2869,Cmoney514,E45Y,22,not_applicable,False,inside_capital_area,0,E45Y,grass,,496,537,37,505,523
+2871,Edevice,E45Y,22,shielded,False,inside_capital_area,0,E45Y,grass,,489,539,39,518,552
+2881,MeemzClan,E45Y,22,not_applicable,False,inside_capital_area,0,E45Y,grass,,481,541,41,511,523
+2890,Shroomysmurf,E45Y,22,not_applicable,False,inside_capital_area,0,E45Y,grass,,489,543,43,524,487
+2894,W3sTY,E45Y,22,not_applicable,False,inside_capital_area,0,E45Y,grass,,485,543,43,512,532
+2866,Aetherfiend,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,493,543,43,511,565
+2872,EIVinoDidFlow,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,484,547,47,516,561
+2874,Harri Cot,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,479,547,47,514,551
+2877,JoeBlack115,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,493,547,47,513,560
+2880,MaTad,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,488,549,49,499,560
+2887,RhineShame1315,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,482,551,51,472,544
+2893,Toria01,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,478,551,51,513,563
+3452,CANC3RBERO,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,493,551,51,515,548
+3474,SJ203,E45Y,21,shielded,False,inside_capital_area,0,E45Y,grass,,482,555,55,504,562
+2870,Coolnicknameo,E45Y,20,shielded,False,inside_capital_area,0,E45Y,grass,,486,555,55,519,543
+2873,H012026,E45Y,20,shielded,False,inside_capital_area,0,E45Y,grass,,476,555,55,515,543
+2882,Mehmet Cemal,E45Y,20,shielded,False,inside_capital_area,0,E45Y,grass,,494,555,55,516,555
+2883,Norbyx,E45Y,20,not_applicable,False,inside_capital_area,0,E45Y,grass,,490,557,57,514,531
+2884,Pasona20,E45Y,20,shielded,False,inside_capital_area,0,E45Y,grass,,485,559,59,503,540
+2886,Ptocessguy,E45Y,20,not_applicable,False,inside_capital_area,0,E45Y,grass,,473,559,59,509,519
+2892,Survivorwr3ckt,E45Y,20,shielded,False,inside_capital_area,0,E45Y,grass,,482,561,61,515,536
+2895,wolfpack45,E45Y,20,not_applicable,False,inside_capital_area,0,E45Y,grass,,489,561,61,517,533
+3427,SurvivorEdweird,E45Y,20,not_applicable,False,inside_capital_area,0,E45Y,grass,,493,561,61,505,531
+3449,Cgriff,E45Y,20,not_applicable,False,inside_capital_area,0,E45Y,grass,,476,563,63,513,546
+3455,Rogerroger,E45Y,20,shielded,False,inside_capital_area,0,E45Y,grass,,479,565,65,512,549
+2888,sendmeaseven,E45Y,19,shielded,False,inside_capital_area,0,E45Y,grass,,487,565,65,515,557
+2891,SurvivorJolyt,E45Y,19,shielded,False,inside_capital_area,0,E45Y,grass,,473,565,65,506,543
+3441,KGplays,E45Y,18,shielded,False,inside_capital_area,0,E45Y,grass,,491,565,65,515,540
+3464,Cookie75,E45Y,18,shielded,False,inside_capital_area,0,E45Y,grass,,479,569,69,513,555
+3468,lmyofada,E45Y,17,shielded,False,inside_capital_area,0,E45Y,grass,,474,569,69,518,556
+2732,Beningzombie,7cie,22,not_applicable,False,inside_capital_area,0,7cie,grass,,478,531,37,521,522
+2746,jubi assassins,7cie,22,not_applicable,False,inside_capital_area,0,7cie,grass,,480,535,37,508,530
+2751,Melamelia,7cie,22,shielded,False,inside_capital_area,0,7cie,grass,,473,525,39,535,534
+2752,Morpheus54,7cie,22,shielded,False,inside_capital_area,0,7cie,grass,,471,521,39,521,531
+2760,RoXluM,7cie,22,not_applicable,False,inside_capital_area,0,7cie,grass,,474,529,40,522,496
+2763,STaGe,7cie,22,not_applicable,False,inside_capital_area,0,7cie,grass,,475,533,41,515,517
+2768,VApplev,7cie,22,shielded,False,inside_capital_area,0,7cie,grass,,469,525,43,545,486
+2775,BuLL56,7cie,22,not_applicable,False,inside_capital_area,0,7cie,grass,,467,521,43,520,511
+3401,ARduiNO,7cie,22,not_applicable,False,inside_capital_area,0,7cie,grass,,478,543,43,517,510
+3423,Ie yennal MeemzCIqp,7cie,22,not_applicable,False,inside_capital_area,0,7cie,grass,,475,539,44,513,528
+2730,Anthellos82,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,472,535,45,520,519
+2731,Arwexx,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,468,529,46,517,530
+2736,ChantalJean,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,465,525,47,542,484
+2737,Chubaca66,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,471,539,48,527,506
+2739,CremlW,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,473,543,48,552,516
+2742,emad,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,467,535,50,525,556
+2743,Ghost amm,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,464,531,51,522,516
+2744,Hirochimaru,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,467,539,52,515,520
+2748,Kricetof,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,470,545,52,534,493
+2749,LaGuize,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,460,527,53,527,473
+2750,LeDob,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,473,553,53,547,510
+2753,PandaBoum,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,470,549,54,546,489
+2755,Paufttae,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,463,537,55,520,517
+2758,Rayan AL,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,466,543,55,550,510
+2761,Seleven21,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,461,533,55,525,511
+2762,Spartakus du 27,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,467,547,56,525,508
+2765,TJxMontanaxTJ,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,457,531,58,518,521
+2767,TrackerFou,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,468,553,58,545,482
+2769,vincenz0441,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,461,541,59,554,515
+2774,bulbu137,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,468,557,60,552,483
+2777,Piaa-kamikaz,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,457,537,61,518,514
+3379,DDK992,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,462,549,62,548,487
+3398,k111erest,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,459,545,63,522,508
+3406,Akun01,7cie,21,shielded,False,inside_capital_area,0,7cie,grass,,457,541,63,549,514
+3420,plerroman,7cie,21,not_applicable,False,inside_capital_area,0,7cie,grass,,463,553,63,507,526
+2738,Corse 2A,7cie,20,not_applicable,False,inside_capital_area,0,7cie,grass,,468,563,63,517,519
+2745,JONl VIRUS,7cie,20,shielded,False,inside_capital_area,0,7cie,grass,,452,533,64,550,521
+2756,Pierre13680,7cie,20,not_applicable,False,inside_capital_area,0,7cie,grass,,453,537,65,512,516
+2757,Piwway,7cie,20,shielded,False,inside_capital_area,0,7cie,grass,,463,557,65,552,486
+2770,woIiv,7cie,20,shielded,False,inside_capital_area,0,7cie,grass,,463,561,67,533,540
+2771,Yezalil,7cie,20,not_applicable,False,inside_capital_area,0,7cie,grass,,456,549,68,520,528
+2772,B anzi3,7cie,20,shielded,False,inside_capital_area,0,7cie,grass,,453,543,68,555,511
+2773,Boah531,7cie,20,not_applicable,False,inside_capital_area,0,7cie,grass,,464,565,68,521,514
+3453,dexter66,7cie,20,shielded,False,inside_capital_area,0,7cie,grass,,450,539,69,534,548
+2733,bepa anya,7cie,19,not_applicable,False,inside_capital_area,0,7cie,grass,,453,547,70,512,519
+3404,aigIenord,7cie,19,shielded,False,inside_capital_area,0,7cie,grass,,455,553,71,552,512
+2766,tolekm14,7cie,17,shielded,False,inside_capital_area,0,7cie,grass,,446,535,71,532,551
+3107,CleanUp Crew,SHSN,22,not_applicable,False,inside_capital_area,0,SHSN,grass,,468,513,38,499,465
+3116,johncenadad,SHSN,22,not_applicable,False,inside_capital_area,0,SHSN,grass,,470,517,38,505,473
+3117,jonh93,SHSN,22,not_applicable,False,inside_capital_area,0,SHSN,grass,,465,509,39,515,465
+3121,KRob81,SHSN,22,not_applicable,False,inside_capital_area,0,SHSN,grass,,461,505,41,512,465
+3125,pierreman,SHSN,22,shielded,False,inside_capital_area,0,SHSN,grass,,466,517,42,510,461
+3102,BlgDaddyJon,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,462,511,43,505,451
+3104,Burgundee,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,462,515,45,507,453
+3111,FutboIguyI I,SHSN,21,not_applicable,False,inside_capital_area,0,SHSN,grass,,463,519,46,500,470
+3113,Grumpier,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,455,503,46,514,461
+3114,Hackashaq,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,457,509,47,511,445
+3115,Jlan,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,459,517,49,498,453
+3124,Nf rave,SHSN,21,not_applicable,False,inside_capital_area,0,SHSN,grass,,456,513,50,500,468
+3126,Queen of Khaos,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,452,507,51,520,451
+3132,Superspots,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,450,503,51,515,445
+3133,Teufelshunden,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,459,523,52,510,455
+3134,ttsPrime,SHSN,21,not_applicable,False,inside_capital_area,0,SHSN,grass,,453,515,54,512,468
+3332,Sin10,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,451,511,54,523,447
+3338,Smc690,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,455,521,55,512,452
+3341,NinjaTurd,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,456,525,56,499,455
+3342,DirtyDahn,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,452,519,57,507,456
+3345,MarcosRigby,SHSN,21,shielded,False,inside_capital_area,0,SHSN,grass,,447,509,57,520,457
+3362,Futbolguy11,SHSN,21,not_applicable,False,inside_capital_area,0,SHSN,grass,,448,513,58,498,470
+3099,117Johnchief,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,449,517,59,515,451
+3100,1LLBCNU2,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,453,527,60,521,453
+3110,FurrBaller,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,443,509,61,503,459
+3119,Jt4you,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,445,515,62,517,461
+3128,Roy Giordano,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,449,523,62,505,442
+3129,Scorpo,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,440,505,62,513,448
+3136,xALCAPONEx,SHSN,20,not_applicable,False,inside_capital_area,0,SHSN,grass,,446,519,63,508,472
+3333,Stanych,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,449,527,64,505,448
+3343,YiGiDO,SHSN,20,shielded,False,inside_capital_area,0,SHSN,grass,,437,503,64,513,456
+3103,Bruno my Boy,SHSN,19,shielded,False,inside_capital_area,0,SHSN,grass,,441,513,65,509,447
+3108,Doomland42,SHSN,19,shielded,False,inside_capital_area,0,SHSN,grass,,441,517,67,515,455
+3120,Jungu1a,SHSN,19,shielded,False,inside_capital_area,0,SHSN,grass,,445,525,67,499,450
+3122,LonesomeDove,SHSN,19,shielded,False,inside_capital_area,0,SHSN,grass,,448,531,67,520,448
+3123,LordWaguri83X,SHSN,19,shielded,False,inside_capital_area,0,SHSN,grass,,435,507,68,501,461
+3112,Greebster,SHSN,18,shielded,False,inside_capital_area,0,SHSN,grass,,432,503,69,500,447
+3334,F3TUSD3L3TUS,SHSN,18,shielded,False,inside_capital_area,0,SHSN,grass,,437,515,70,502,449
+3336,hdweasel,SHSN,18,shielded,False,inside_capital_area,0,SHSN,grass,,441,523,70,507,450
+3347,Rapid18,SHSN,18,shielded,False,inside_capital_area,0,SHSN,grass,,444,529,70,509,458
+3131,Stryker1827,SHSN,17,shielded,False,inside_capital_area,0,SHSN,grass,,434,511,71,516,458
+3079,byIaIi,movR,22,shielded,False,inside_capital_area,0,movR,grass,,466,493,37,526,527
+3085,Looobik,movR,22,shielded,False,inside_capital_area,0,movR,grass,,462,497,39,524,547
+3086,Lorenzowar,movR,22,shielded,False,inside_capital_area,0,movR,grass,,461,501,39,523,539
+3434,Fede771,movR,22,shielded,False,inside_capital_area,0,movR,grass,,462,491,42,524,536
+3463,Bently79,movR,22,shielded,False,inside_capital_area,0,movR,grass,,457,499,43,523,554
+3078,A1i4747,movR,21,not_applicable,False,inside_capital_area,0,movR,grass,,458,495,44,521,525
+3088,Nameattempt99,movR,21,shielded,False,inside_capital_area,0,movR,grass,,456,491,48,519,534
+3090,scotty3008,movR,21,shielded,False,inside_capital_area,0,movR,grass,,453,495,49,530,540
+3093,Survivor813GST,movR,21,shielded,False,inside_capital_area,0,movR,grass,,451,499,49,525,544
+3094,Texsupport,movR,21,shielded,False,inside_capital_area,0,movR,grass,,447,499,53,526,533
+3424,KHANGTAEMOO,movR,21,shielded,False,inside_capital_area,0,movR,grass,,450,491,54,523,529
+3450,Survivor813GMYD,movR,21,shielded,False,inside_capital_area,0,movR,grass,,451,487,55,520,546
+3465,Msh2001,movR,21,shielded,False,inside_capital_area,0,movR,grass,,444,501,56,527,555
+3080,deadp0011980,movR,20,shielded,False,inside_capital_area,0,movR,grass,,445,495,57,529,551
+3083,kamona,movR,20,shielded,False,inside_capital_area,0,movR,grass,,447,489,58,475,460
+3087,Mauro Garcia,movR,20,shielded,False,inside_capital_area,0,movR,grass,,441,497,60,522,543
+3089,piggy pie,movR,20,shielded,False,inside_capital_area,0,movR,grass,,442,493,61,530,546
+3095,tntimdynamite,movR,20,shielded,False,inside_capital_area,0,movR,grass,,438,499,62,526,549
+3425,AmelComel,movR,20,shielded,False,inside_capital_area,0,movR,grass,,445,485,62,524,530
+3448,JARP01,movR,20,shielded,False,inside_capital_area,0,movR,grass,,438,495,64,533,545
+3082,Flyingpanda,movR,19,shielded,False,inside_capital_area,0,movR,grass,,442,487,64,529,543
+3459,ApMaH83,movR,19,shielded,False,inside_capital_area,0,movR,grass,,437,491,67,523,550
+3440,ozdefiIe,movR,18,shielded,False,inside_capital_area,0,movR,grass,,434,497,67,528,539
+3081,DJTrashPanda,movR,17,shielded,False,inside_capital_area,0,movR,grass,,438,487,68,521,536
+3428,MooDy69,movR,17,shielded,False,inside_capital_area,0,movR,grass,,434,493,69,531,531
+3204,Jungbauer1988,ULD,22,shielded,False,inside_capital_area,0,ULD,grass,,468,489,37,501,556
+3206,Lightning Flame,ULD,22,not_applicable,False,inside_capital_area,0,ULD,grass,,468,485,39,505,528
+3208,NECROZIS,ULD,22,not_applicable,False,inside_capital_area,0,ULD,grass,,465,487,41,517,522
+3214,Waxin,ULD,22,shielded,False,inside_capital_area,0,ULD,grass,,464,483,44,491,549
+3217,Zorck2,ULD,22,not_applicable,False,inside_capital_area,0,ULD,grass,,461,485,46,507,522
+3197,BarbieAna,ULD,21,shielded,False,inside_capital_area,0,ULD,grass,,458,487,48,501,553
+3198,Black star 00,ULD,21,shielded,False,inside_capital_area,0,ULD,grass,,458,481,51,485,554
+3200,Doncali,ULD,21,not_applicable,False,inside_capital_area,0,ULD,grass,,455,479,55,504,518
+3207,LowDub Decapo,ULD,21,shielded,False,inside_capital_area,0,ULD,grass,,453,483,55,499,554
+3210,Orbån1geci,ULD,21,shielded,False,inside_capital_area,0,ULD,grass,,454,475,58,484,540
+3199,DoctorWhoo,ULD,20,shielded,False,inside_capital_area,0,ULD,grass,,450,481,59,493,554
+3205,LEONlDAS01094,ULD,20,shielded,False,inside_capital_area,0,ULD,grass,,451,477,60,491,560
+3213,Uncle Adolf,ULD,20,shielded,False,inside_capital_area,0,ULD,grass,,448,475,64,494,558
+3216,ZedS,ULD,20,shielded,False,inside_capital_area,0,ULD,grass,,445,481,64,494,551
+3202,Goosel,ULD,19,shielded,False,inside_capital_area,0,ULD,grass,,449,471,65,490,556
+3431,KekkaiGenkai,ULD,19,shielded,False,inside_capital_area,0,ULD,grass,,442,483,66,530,534
+3445,LizzyBits,ULD,19,shielded,False,inside_capital_area,0,ULD,grass,,443,477,68,483,543
+3201,Dosenpfand Jim,ULD,18,shielded,False,inside_capital_area,0,ULD,grass,,439,481,70,491,552
+3209,notthehair,ULD,18,shielded,False,inside_capital_area,0,ULD,grass,,445,469,70,502,546
+2850,786skpOO,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,484,463,37,471,556
+2854,CROWN Plus,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,488,463,37,470,540
+2855,CuttySupreme,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,473,479,37,487,544
+2856,ICE Pirate,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,497,463,37,470,562
+2858,MOONZ WORLD,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,477,469,38,459,533
+2859,morningwoOd,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,479,463,39,481,543
+2911,Lobzilla,FJs,22,shielded,False,inside_capital_area,0,Other,grass,,473,475,39,494,567
+3008,7ApAk,KWP,22,shielded,False,inside_capital_area,0,Other,grass,,491,461,39,457,487
+3009,Anak Baik 800,KWP,22,shielded,False,inside_capital_area,0,Other,grass,,474,471,40,533,477
+3138,Broggy85,SM,22,shielded,False,inside_capital_area,0,Other,grass,,483,459,41,532,474
+3318,fherdinandz,X7X,22,shielded,False,inside_capital_area,0,Other,grass,,488,459,41,480,455
+3320,kitochi,X7X,22,shielded,False,inside_capital_area,0,Other,grass,,470,477,41,539,481
+3323,Rjamesleavy,X7X,22,shielded,False,inside_capital_area,0,Other,grass,,495,459,41,463,536
+3326,Starleyanaa,X7X,22,shielded,False,inside_capital_area,0,Other,grass,,499,459,41,476,531
+3328,xBLACK DRAGÖNx,X7X,22,shielded,False,inside_capital_area,0,Other,grass,,478,459,42,474,523
+3400,GaryFingersLKD,BNG,22,shielded,False,inside_capital_area,0,Other,grass,,467,481,42,464,510
+3432,ThebigC,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,470,471,44,460,536
+3461,ReloadeD,CRWN,22,shielded,False,inside_capital_area,0,Other,grass,,473,463,45,470,552
+3472,Fear the Beard,CASK,22,shielded,False,inside_capital_area,0,Other,grass,,471,467,45,489,559
+3479,Buttmassage,FJs,22,shielded,False,inside_capital_area,0,Other,grass,,484,455,45,492,565
+2662,east95,,21,not_applicable,False,inside_capital_area,0,Other,grass,,490,455,45,481,518
+2664,junior,,21,shielded,False,inside_capital_area,0,Other,grass,,467,475,45,549,471
+2780,HangMan Coming,ADAF,21,shielded,False,inside_capital_area,0,Other,grass,,496,455,45,499,441
+2853,boykads 33,CRWN,21,shielded,False,inside_capital_area,0,Other,grass,,475,455,47,473,531
+2861,Seedy78,CRWN,21,shielded,False,inside_capital_area,0,Other,grass,,481,453,47,472,553
+2863,Valerieee,CRWN,21,shielded,False,inside_capital_area,0,Other,grass,,493,453,47,469,554
+2864,laconix,DMNI,21,not_applicable,False,inside_capital_area,0,Other,grass,,468,465,49,502,558
+2896,A1teViper3,ELY,21,shielded,False,inside_capital_area,0,Other,grass,,489,451,49,498,546
+2897,Aaaaaarmando,ELY,21,shielded,False,inside_capital_area,0,Other,grass,,462,477,49,486,556
+2903,LORD ESTHERR,ESTK,21,shielded,False,inside_capital_area,0,Other,grass,,463,473,50,540,547
+2904,Otlile,ESTK,21,shielded,False,inside_capital_area,0,Other,grass,,477,449,51,469,557
+2905,VUK,FF07,21,shielded,False,inside_capital_area,0,Other,grass,,464,469,51,521,557
+2907,DeadHold,FJs,21,shielded,False,inside_capital_area,0,Other,grass,,497,449,51,502,555
+2909,FortyEightBB,FJs,21,shielded,False,inside_capital_area,0,Other,grass,,470,455,52,498,565
+3002,Bunny88,IDNx,21,shielded,False,inside_capital_area,0,Other,grass,,483,447,53,468,551
+3004,F2P-Pemula,IDNx,21,shielded,False,inside_capital_area,0,Other,grass,,487,447,53,536,498
+3007,Malabu,IDNx,21,shielded,False,inside_capital_area,0,Other,grass,,491,447,53,468,548
+3010,hio valentine,KWP,21,shielded,False,inside_capital_area,0,Other,grass,,459,475,53,530,479
+3011,Preeya Angela,KWP,21,shielded,False,inside_capital_area,0,Other,grass,,466,459,54,533,482
+3075,ThayHa,MiMS,21,shielded,False,inside_capital_area,0,Other,grass,,474,445,55,543,491
+3195,Fredmar octopus,TD11,21,shielded,False,inside_capital_area,0,Other,grass,,495,445,55,536,551
+3430,data xo,CRWN,21,shielded,False,inside_capital_area,0,Other,grass,,468,451,56,474,534
+3446,Marioneta93,DMNl,21,shielded,False,inside_capital_area,0,Other,grass,,461,465,56,500,543
+3457,GLFPDA,EzE,21,shielded,False,inside_capital_area,0,Other,grass,,465,455,57,498,550
+3466,GothMommyx,ELY,21,shielded,False,inside_capital_area,0,Other,grass,,485,443,57,482,556
+3471,Tsuj,CRWN,21,shielded,False,inside_capital_area,0,Other,grass,,458,469,57,480,559
+3475,DrKenNoisewater,CRWN,21,shielded,False,inside_capital_area,0,Other,grass,,499,443,57,475,563
+3480,zombie town,Smbz,21,shielded,False,inside_capital_area,0,Other,grass,,470,443,58,505,566
+2669,SIApocalypse79,,20,shielded,False,inside_capital_area,0,Other,grass,,473,441,59,532,459
+2670,SWTlvmanzyah,,20,shielded,False,inside_capital_area,0,Other,grass,,480,441,59,539,471
+2671,TUpSIPhilippos2000,,20,not_applicable,False,inside_capital_area,0,Other,grass,,460,461,59,528,493
+2779,kelly J,800L,20,shielded,False,inside_capital_area,0,Other,grass,,491,441,59,451,501
+2851,Alpha-52,CRWN,20,shielded,False,inside_capital_area,0,Other,grass,,496,441,59,468,534
+2899,MamaBang,ELY,20,shielded,False,inside_capital_area,0,Other,grass,,467,445,60,466,541
+2914,PoolPIayer,forl,20,shielded,False,inside_capital_area,0,Other,grass,,461,457,60,494,542
+3098,Sony pekitas,OMNI,20,shielded,False,inside_capital_area,0,Other,grass,,469,439,61,497,543
+3137,Bane333,SM,20,shielded,False,inside_capital_area,0,Other,grass,,463,451,61,554,477
+3359,Crisyp99,AGEB,20,shielded,False,inside_capital_area,0,Other,grass,,476,439,61,538,467
+3374,HlOmini,KWP,20,shielded,False,inside_capital_area,0,Other,grass,,483,439,61,530,483
+3435,Knelldog,CRWN,20,shielded,False,inside_capital_area,0,Other,grass,,453,471,61,465,537
+3476,stanflo,CASK,20,not_applicable,False,inside_capital_area,0,Other,grass,,464,447,62,482,563
+3478,GorillaGoatRMS,CASK,20,not_applicable,False,inside_capital_area,0,Other,grass,,466,441,63,485,564
+2912,BOmB' sFaRm,forl,19,shielded,False,inside_capital_area,0,Other,grass,,456,461,63,497,561
+2913,Hugrin,forl,19,shielded,False,inside_capital_area,0,Other,grass,,487,437,63,474,527
+2915,ShamrockU169,forl,19,shielded,False,inside_capital_area,0,Other,grass,,453,467,63,481,549
+3072,TrashRacoonFarm,mERF,19,shielded,False,inside_capital_area,0,Other,grass,,496,437,63,470,479
+3097,WhiskeyTwoNine,MPS1,19,not_applicable,False,inside_capital_area,0,Other,grass,,458,455,64,482,515
+3331,U1ysses138,BAD8,19,shielded,False,inside_capital_area,0,Other,grass,,467,435,65,479,447
+3358,Dierekt,AGEB,19,shielded,False,inside_capital_area,0,Other,grass,,472,435,65,541,466
+3366,shaunc525,forl,19,shielded,False,inside_capital_area,0,Other,grass,,481,435,65,541,474
+3433,falqui,DMNl,19,shielded,False,inside_capital_area,0,Other,grass,,453,463,65,504,536
+3477,Pipurr,MEH,19,not_applicable,False,inside_capital_area,0,Other,grass,,491,435,65,489,563
+2848,survivor813Tmm,BAD8,18,shielded,False,inside_capital_area,0,Other,grass,,459,449,66,491,460
+3439,Jeepcrawl,forl,18,shielded,False,inside_capital_area,0,Other,grass,,461,443,67,499,539
+3444,Boothyz,ZOAT,18,shielded,False,inside_capital_area,0,Other,grass,,477,433,67,533,542
+3458,Jaqueline City,EzE,18,shielded,False,inside_capital_area,0,Other,grass,,454,457,67,503,550
+3467,Wicked99,DMNl,18,shielded,False,inside_capital_area,0,Other,grass,,494,433,67,507,556
+3470,Atom\,EzE,18,shielded,False,inside_capital_area,0,Other,grass,,449,467,67,504,557
+3071,Flokifarm,mERF,17,shielded,False,inside_capital_area,0,Other,grass,,462,439,68,464,469
+3244,Doliprane45680,USv,17,shielded,False,inside_capital_area,0,Other,grass,,456,451,68,467,540
+3380,danishman,SFU,17,not_applicable,False,inside_capital_area,0,Other,grass,,470,431,69,528,488
+3447,xDrkPhnx,DMNl,17,shielded,False,inside_capital_area,0,Other,grass,,485,431,69,503,543
+2916,SurvivorFreedom,forl,16,shielded,False,inside_capital_area,0,Other,grass,,450,461,69,484,546
+3451,Symled,DMNl,16,shielded,False,inside_capital_area,0,Other,grass,,491,431,69,505,547
+3096,DrBigSams,MPS1,15,shielded,False,inside_capital_area,0,Other,grass,,498,431,69,510,555
+3426,MikloD,WRtH,21,not_applicable,False,inside_capital_area,0,WRtH,grass,,528,431,69,485,531
+3429,DOD069,WRtH,21,shielded,False,inside_capital_area,0,WRtH,grass,,492,569,69,479,532
+3261,Franchize44,WRtH,20,shielded,False,inside_capital_area,0,WRtH,grass,,486,569,69,482,537
+3279,LSTIOO,WRtH,20,shielded,False,inside_capital_area,0,WRtH,grass,,466,569,69,478,537
+3289,NeAr,WRtH,20,shielded,False,inside_capital_area,0,WRtH,grass,,538,437,70,467,545
+3043,Kruchi007 mER,mERC,19,not_applicable,False,inside_capital_area,0,mERC,grass,,541,557,70,483,462
+3056,RED CRONOS,mERC,17,shielded,False,inside_capital_area,0,mERC,grass,,539,561,70,462,467
+3344,lbnsina,mERC,17,shielded,False,inside_capital_area,0,mERC,grass,,542,443,71,490,457
+2813,WELLZY,aTam,20,not_applicable,False,inside_capital_area,0,aTam,grass,,524,571,71,518,493
+3394,UMUT16,aTam,19,shielded,False,inside_capital_area,0,aTam,grass,,519,571,71,548,506
+3392,Nora1976,aTam,18,shielded,False,inside_capital_area,0,aTam,grass,,535,429,71,557,501
+2712,Red Tanja,4NG,18,shielded,False,inside_capital_area,0,4NG,grass,,502,571,71,532,526
+3415,soesoesoe,4NG,18,shielded,False,inside_capital_area,0,4NG,grass,,489,571,71,532,522
+3422,V3BO,4NG,17,shielded,False,inside_capital_area,0,4NG,grass,,469,571,71,537,527
+2720,TheSurvivor4r,4NG,15,shielded,False,inside_capital_area,0,4NG,grass,,531,429,71,538,536
+3340,JinxMilano,SHSN,16,shielded,False,inside_capital_area,0,SHSN,grass,,501,429,71,519,454
+3462,Pagla101,movR,17,shielded,False,inside_capital_area,0,movR,grass,,506,429,71,526,553
+3091,Shlning Sun,movR,16,shielded,False,inside_capital_area,0,movR,grass,,510,429,71,528,547
+3212,Toeytoe2,ULD,18,shielded,False,inside_capital_area,0,ULD,grass,,514,429,71,487,539
+3397,0ronw123 farm,798F,15,shielded,False,inside_capital_area,0,Other,grass,,519,429,71,465,507
+3482,Reviraa Farm,mERF,15,shielded,False,inside_capital_area,0,Other,grass,,523,429,71,511,598
+2296,Beyazgece,SWT,26,unscanned,False,outside_capital_area,1,SWT,grass,,500,417,83,451,946
+2294,AnthonyAIbanese,SWT,22,unscanned,False,outside_capital_area,1,SWT,grass,,503,413,87,999,505
+2295,AnthonyAlbanese,SWT,22,unscanned,False,outside_capital_area,1,SWT,grass,,501,409,91,994,505
+2298,EYaD,SWT,22,unscanned,False,outside_capital_area,1,SWT,grass,,502,403,97,911,401
+2300,Mohammd alharbi,SWT,22,unscanned,False,outside_capital_area,1,SWT,grass,,503,399,101,46,777
+2301,Ssserhaddd,SWT,22,unscanned,False,outside_capital_area,1,SWT,grass,,500,397,103,922,645
+2297,D3mon10,SWT,21,unscanned,False,outside_capital_area,1,SWT,grass,,504,393,107,70,833
+2299,Liber67,SWT,21,unscanned,False,outside_capital_area,1,SWT,grass,,500,391,109,934,717
+3671,Mastana1,SWT,21,unscanned,False,outside_capital_area,1,SWT,grass,,504,389,111,206,949
+2610,XarlieX,WRtH,23,unscanned,False,outside_capital_area,1,WRtH,grass,,505,425,75,546,57
+2593,1Emreoz,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,504,421,79,526,77
+2594,221jesica,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,504,417,83,22,677
+2596,Clements86,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,508,409,91,22,957
+2598,HeSpazz,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,505,407,93,906,777
+2601,k+ü,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,509,405,95,602,929
+2602,Lilith Night 1,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,506,401,99,410,77
+2606,Michi Nice,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,509,399,101,946,837
+2607,Nowa20,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,507,395,105,394,25
+2608,S a t r i a,WRtH,22,unscanned,False,outside_capital_area,1,WRtH,grass,,509,391,109,965,749
+2595,AhmedFathy,WRtH,21,unscanned,False,outside_capital_area,1,WRtH,grass,,511,387,113,54,73
+2597,eJ\ü+,WRtH,21,unscanned,False,outside_capital_area,1,WRtH,grass,,507,387,113,922,445
+2599,JaxyWaxy,WRtH,21,unscanned,False,outside_capital_area,1,WRtH,grass,,514,385,115,229,65
+2603,MADNESS 13,WRtH,21,unscanned,False,outside_capital_area,1,WRtH,grass,,505,383,117,353,917
+2605,MartinusPrimuss,WRtH,21,unscanned,False,outside_capital_area,1,WRtH,grass,,508,381,119,962,569
+2609,Viper78,WRtH,18,unscanned,False,outside_capital_area,1,WRtH,grass,,513,381,119,402,914
+1839,fredoooo,mERC,22,unscanned,False,outside_capital_area,1,mERC,grass,,510,423,77,506,609
+1842,JOO,mERC,22,unscanned,False,outside_capital_area,1,mERC,grass,,511,417,83,522,625
+1843,Manan2021,mERC,22,unscanned,False,outside_capital_area,1,mERC,grass,,515,413,87,434,45
+1844,Michaelsz,mERC,22,unscanned,False,outside_capital_area,1,mERC,grass,,512,411,89,517,638
+1840,guapy,mERC,21,unscanned,False,outside_capital_area,1,mERC,grass,,516,409,91,534,609
+1841,Jason kuo,mERC,21,unscanned,False,outside_capital_area,1,mERC,grass,,512,407,93,210,521
+1845,rampantjoumey,mERC,21,unscanned,False,outside_capital_area,1,mERC,grass,,517,405,95,512,625
+1848,ZeroFoxtrot,mERC,21,unscanned,False,outside_capital_area,1,mERC,grass,,512,403,97,525,626
+1838,Dustyhoney,mERC,20,unscanned,False,outside_capital_area,1,mERC,grass,,516,399,101,530,629
+1846,SurvivorSP1978,mERC,20,unscanned,False,outside_capital_area,1,mERC,grass,,514,395,105,501,614
+1847,yotcha,mERC,19,unscanned,False,outside_capital_area,1,mERC,grass,,518,393,107,513,621
+1172,GanjiWanleaa,aTam,24,unscanned,False,outside_capital_area,1,aTam,grass,,521,425,75,575,338
+1174,JACESPARROW,aTam,23,unscanned,False,outside_capital_area,1,aTam,grass,,517,425,75,598,333
+1186,seemal,aTam,22,unscanned,False,outside_capital_area,1,aTam,grass,,528,425,75,592,339
+1189,Survivor813PTh,aTam,22,unscanned,False,outside_capital_area,1,aTam,grass,,514,423,77,578,341
+1194,The rock1996,aTam,22,unscanned,False,outside_capital_area,1,aTam,grass,,520,421,79,578,333
+1163,Bllahmt,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,527,421,79,576,331
+1164,BOYOKHUN,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,524,419,81,977,161
+1165,Brabus28,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,527,417,83,592,351
+1166,Butcher,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,532,417,83,818,21
+1167,BÜYOKHUN,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,515,417,83,978,161
+1168,eIsayed ashour,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,525,413,87,590,342
+1171,Gaida,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,521,413,87,598,345
+1175,kartalOO,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,529,411,89,594,333
+1176,Ktek22,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,535,409,91,927,713
+1178,MaXimusLord,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,524,407,93,580,331
+1193,Survivor813Zita,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,531,407,93,603,354
+1195,The RoCky,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,520,407,93,582,333
+1197,William willow,aTam,21,unscanned,False,outside_capital_area,1,aTam,grass,,527,405,95,589,331
+1159,abisinin gülü,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,534,403,97,714,93
+1160,Ami rXgamer,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,520,403,97,602,345
+1162,Azad ayaz,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,530,401,99,582,338
+1169,Eray5897,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,540,401,99,596,339
+1170,esen moto,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,525,399,101,34,801
+1173,Hamady libya,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,535,399,101,594,317
+1179,mayorx,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,522,397,103,593,327
+1182,oversOull,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,539,397,103,589,337
+1183,ozymr,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,527,395,105,578,321
+1184,prencees,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,535,395,105,583,343
+1187,Sonwamor67,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,542,395,105,600,327
+1188,Survivor8131Vf,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,533,391,109,602,321
+1190,survivor813TOR,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,537,391,109,604,540
+1191,Survivor813UFE,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,541,391,109,586,327
+1198,Yalan Dünya,aTam,20,unscanned,False,outside_capital_area,1,aTam,grass,,527,389,111,595,330
+1161,ayob26,aTam,19,unscanned,False,outside_capital_area,1,aTam,grass,,523,389,111,598,349
+1192,Survivor813XoE,aTam,19,unscanned,False,outside_capital_area,1,aTam,grass,,544,389,111,602,329
+1177,Manwe06,aTam,18,unscanned,False,outside_capital_area,1,aTam,grass,,536,387,113,582,349
+1180,Mostafa Naglah,aTam,18,unscanned,False,outside_capital_area,1,aTam,grass,,540,387,113,602,325
+1181,MuMax,aTam,18,unscanned,False,outside_capital_area,1,aTam,grass,,531,385,115,590,349
+1185,s k y e z e,aTam,18,unscanned,False,outside_capital_area,1,aTam,grass,,544,385,115,578,345
+1196,tugra2741,aTam,18,unscanned,False,outside_capital_area,1,aTam,grass,,534,383,117,581,346
+3496,Spnixsnow,aTam,18,unscanned,False,outside_capital_area,1,aTam,grass,,539,383,117,86,57
+939,Andoodh,4NG,21,unscanned,False,outside_capital_area,1,4NG,grass,,534,423,77,686,402
+943,JoOoker,4NG,21,unscanned,False,outside_capital_area,1,4NG,grass,,536,419,81,689,389
+944,numa6692,4NG,21,unscanned,False,outside_capital_area,1,4NG,grass,,537,413,87,689,398
+3562,TayIerDurden,4NG,21,unscanned,False,outside_capital_area,1,4NG,grass,,541,409,91,694,389
+940,Cundaaaa,4NG,20,unscanned,False,outside_capital_area,1,4NG,grass,,539,405,95,353,905
+942,Jeysc,4NG,20,unscanned,False,outside_capital_area,1,4NG,grass,,545,397,103,674,405
+946,Survivor813GJl,4NG,20,unscanned,False,outside_capital_area,1,4NG,grass,,547,393,107,714,409
+947,Viacppp,4NG,20,unscanned,False,outside_capital_area,1,4NG,grass,,549,387,113,677,455
+938,Alhasson,4NG,19,unscanned,False,outside_capital_area,1,4NG,grass,,553,383,117,694,417
+941,Dionysi,4NG,18,unscanned,False,outside_capital_area,1,4NG,grass,,548,383,117,705,398
+945,Pstud,4NG,18,unscanned,False,outside_capital_area,1,4NG,grass,,556,381,119,702,417
+2443,73jenko,UpS,21,unscanned,False,outside_capital_area,1,UpS,grass,,538,431,73,275,483
+2444,A-tech,UpS,21,unscanned,False,outside_capital_area,1,UpS,grass,,543,437,75,221,545
+2458,Helleven,UpS,21,unscanned,False,outside_capital_area,1,UpS,grass,,538,425,76,198,521
+2465,OOSippy,UpS,21,unscanned,False,outside_capital_area,1,UpS,grass,,543,433,77,216,536
+2470,Tufulandia,UpS,21,unscanned,False,outside_capital_area,1,UpS,grass,,544,429,80,228,534
+3573,Angriff bitte,UpS,21,unscanned,False,outside_capital_area,1,UpS,grass,,540,421,80,212,535
+2445,abo anas ali,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,544,425,82,210,549
+2446,AIbertoDraco,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,547,431,82,206,517
+2448,Brctje,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,540,417,83,206,521
+2450,Cronnoss,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,543,419,84,223,534
+2451,Dance club,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,547,427,84,90,945
+2452,Dane213,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,547,423,86,202,517
+2453,Davidsa,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,544,413,88,211,545
+2454,Db1975,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,548,417,90,218,549
+2455,Devon8131Yp,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,552,423,91,217,541
+2456,Doom re99in,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,549,413,93,230,537
+2459,Jhc01,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,546,407,93,218,509
+2462,Lindisfame HI,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,552,417,94,214,545
+2473,Znabeldraken,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,549,409,95,202,537
+3567,Bunte Bombe,UpS,20,unscanned,False,outside_capital_area,1,UpS,grass,,553,411,98,217,505
+2447,Bananenkopp,UpS,19,unscanned,False,outside_capital_area,1,UpS,grass,,556,417,98,132,209
+2457,Eitrie,UpS,19,unscanned,False,outside_capital_area,1,UpS,grass,,547,401,99,231,541
+2464,NUU511,UpS,19,unscanned,False,outside_capital_area,1,UpS,grass,,551,403,100,226,549
+2466,Panda3737,UpS,19,unscanned,False,outside_capital_area,1,UpS,grass,,554,407,101,226,541
+2467,ScottQc,UpS,19,unscanned,False,outside_capital_area,1,UpS,grass,,559,413,103,212,527
+2471,Uastasi74,UpS,19,unscanned,False,outside_capital_area,1,UpS,grass,,549,397,103,211,512
+2463,Marc051,UpS,18,unscanned,False,outside_capital_area,1,UpS,grass,,553,399,104,206,529
+2468,SeSi911,UpS,18,unscanned,False,outside_capital_area,1,UpS,grass,,557,405,105,202,525
+3574,Doni57,UpS,18,unscanned,False,outside_capital_area,1,UpS,grass,,560,409,106,222,537
+3527,Kalabri,UpS,17,unscanned,False,outside_capital_area,1,UpS,grass,,552,393,107,148,200
+2449,bt12 uw,UpS,16,unscanned,False,outside_capital_area,1,UpS,grass,,555,395,108,198,533
+2460,JoniIever,UpS,16,unscanned,False,outside_capital_area,1,UpS,grass,,558,399,109,213,541
+2461,Jonilever,UpS,16,unscanned,False,outside_capital_area,1,UpS,grass,,562,403,111,214,540
+2472,Witheräway,UpS,16,unscanned,False,outside_capital_area,1,UpS,grass,,553,389,111,202,541
+1233,Rapheal Montana,Ayaa,22,unscanned,False,outside_capital_area,1,Ayaa,grass,,547,451,72,422,225
+3544,mou95,Ayaa,22,unscanned,False,outside_capital_area,1,Ayaa,grass,,546,445,74,417,236
+1211,813Fahad,Ayaa,21,unscanned,False,outside_capital_area,1,Ayaa,grass,,549,447,76,410,232
+1219,Clcca19,Ayaa,21,unscanned,False,outside_capital_area,1,Ayaa,grass,,547,441,77,420,247
+1220,CoorsCooter,Ayaa,21,unscanned,False,outside_capital_area,1,Ayaa,grass,,546,435,79,130,917
+1228,koririo,Ayaa,21,unscanned,False,outside_capital_area,1,Ayaa,grass,,552,445,80,411,246
+1232,Pleasehelo,Ayaa,21,unscanned,False,outside_capital_area,1,Ayaa,grass,,550,439,81,414,253
+1240,Wolfman1717,Ayaa,21,unscanned,False,outside_capital_area,1,Ayaa,grass,,550,433,84,414,234
+1212,Aba Bautista,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,554,439,85,426,221
+1216,Bob022,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,556,443,85,435,245
+1218,CAPTAlN BORA,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,552,429,88,402,233
+1221,Creole,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,559,441,89,422,249
+1222,fenwaysdad,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,556,431,91,410,229
+1224,flyking-2026,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,559,437,91,419,235
+1235,Species5618,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,555,427,92,418,209
+1237,Tubby66,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,562,439,93,402,221
+1239,Veriferxx,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,560,433,94,421,221
+1241,You Mad Bro,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,557,423,96,994,725
+3487,Aaaabbbbaa,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,561,429,97,382,21
+3521,Corba97,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,564,435,97,982,165
+3575,NDomNaai,Ayaa,20,unscanned,False,outside_capital_area,1,Ayaa,grass,,564,431,99,977,537
+1213,AchilIes10,Ayaa,19,unscanned,False,outside_capital_area,1,Ayaa,grass,,562,425,100,682,973
+1214,Achilles10,Ayaa,19,unscanned,False,outside_capital_area,1,Ayaa,grass,,559,419,100,417,239
+1217,Bustercrab,Ayaa,19,unscanned,False,outside_capital_area,1,Ayaa,grass,,566,427,103,424,243
+1223,Finatic,Ayaa,19,unscanned,False,outside_capital_area,1,Ayaa,grass,,568,431,103,419,217
+1227,Kochise,Ayaa,19,unscanned,False,outside_capital_area,1,Ayaa,grass,,565,423,104,421,253
+3534,MrKai,Ayaa,19,unscanned,False,outside_capital_area,1,Ayaa,grass,,565,419,106,433,224
+3541,Nilmerg,Ayaa,19,unscanned,False,outside_capital_area,1,Ayaa,grass,,564,415,107,420,231
+1226,klitrubber,Ayaa,18,unscanned,False,outside_capital_area,1,Ayaa,grass,,571,429,107,430,241
+1230,mrDemetrius,Ayaa,18,unscanned,False,outside_capital_area,1,Ayaa,grass,,563,411,108,434,237
+1231,nepenepe,Ayaa,18,unscanned,False,outside_capital_area,1,Ayaa,grass,,571,425,109,416,246
+1236,SvenJaaaaaa,Ayaa,18,unscanned,False,outside_capital_area,1,Ayaa,grass,,569,415,112,428,232
+1238,VaIid Tumtable,Ayaa,18,unscanned,False,outside_capital_area,1,Ayaa,grass,,572,421,112,414,237
+3532,Hi11billy313,Ayaa,18,unscanned,False,outside_capital_area,1,Ayaa,grass,,569,411,114,414,221
+1234,ReeceTv12,Ayaa,17,unscanned,False,outside_capital_area,1,Ayaa,grass,,576,425,114,426,249
+3531,EzMax5,Ayaa,17,unscanned,False,outside_capital_area,1,Ayaa,grass,,573,417,115,412,214
+1229,Mooneez,Ayaa,16,unscanned,False,outside_capital_area,1,Ayaa,grass,,568,407,115,405,233
+1440,Charles71674842,E45Y,22,unscanned,False,outside_capital_area,1,E45Y,grass,,553,463,72,510,713
+1442,Dorthea74,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,553,457,75,530,677
+1448,Goldie2468,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,556,459,77,526,689
+1450,Jboss,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,553,453,77,926,513
+1458,orque,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,557,451,82,9,885
+1459,Pamldo,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,560,455,83,514,696
+1470,templest farm,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,562,459,83,498,697
+1472,TheEmperor01,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,556,447,83,522,701
+1474,Toumitus,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,560,449,86,509,700
+1477,Wiggy101,E45Y,21,unscanned,False,outside_capital_area,1,E45Y,grass,,563,453,87,530,681
+1444,DrDre75,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,559,445,87,530,673
+1445,Drilope,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,564,449,90,522,709
+1452,Kacek,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,567,453,91,242,74
+1454,lssssso,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,564,445,92,506,713
+1455,Mashhoodajmal,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,570,455,93,510,677
+1456,MitcHell,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,568,447,95,522,681
+1457,Oligun,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,571,451,96,521,713
+1466,Survivor813QPa,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,566,441,96,506,693
+1468,Survivor813Zmu,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,574,453,98,34,657
+1469,Survivor8140si,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,571,445,99,519,717
+1473,Tiffaniemnvl,E45Y,20,unscanned,False,outside_capital_area,1,E45Y,grass,,567,437,99,374,933
+1438,Azaxell,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,571,441,101,397,53
+1441,DforDone,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,575,447,102,504,698
+1446,Duecemaster,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,574,443,103,502,697
+1447,eJ.A,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,570,435,103,530,937
+1449,hectare,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,574,439,105,814,937
+1453,LD-3,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,579,445,107,61,521
+1461,skafou,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,577,437,109,522,685
+1462,snowbunby,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,575,433,109,521,698
+1464,Survivor813LZ9,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,575,429,111,502,709
+1475,Tski22,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,582,441,112,530,689
+1476,Wierdow,E45Y,19,unscanned,False,outside_capital_area,1,E45Y,grass,,584,445,112,501,685
+1437,Asapdani,E45Y,18,unscanned,False,outside_capital_area,1,E45Y,grass,,579,433,113,511,697
+1443,Dortlos,E45Y,18,unscanned,False,outside_capital_area,1,E45Y,grass,,579,429,115,504,703
+1451,JJK99,E45Y,18,unscanned,False,outside_capital_area,1,E45Y,grass,,585,439,116,518,669
+1463,SuNivor8131CE,E45Y,18,unscanned,False,outside_capital_area,1,E45Y,grass,,583,433,117,798,933
+1465,Survivor813PkL,E45Y,18,unscanned,False,outside_capital_area,1,E45Y,grass,,588,441,118,518,673
+1467,Survivor813QxS,E45Y,18,unscanned,False,outside_capital_area,1,E45Y,grass,,586,435,119,518,709
+1471,tetsuneda78,E45Y,18,unscanned,False,outside_capital_area,1,E45Y,grass,,583,429,119,190,937
+1460,Pansar,E45Y,17,unscanned,False,outside_capital_area,1,E45Y,grass,,580,423,119,274,929
+994,Misslecter,7cie,22,unscanned,False,outside_capital_area,1,7cie,grass,,558,471,73,198,801
+1005,Luc0430,7cie,22,unscanned,False,outside_capital_area,1,7cie,grass,,557,467,74,209,802
+989,Kawadamus,7cie,21,unscanned,False,outside_capital_area,1,7cie,grass,,561,469,77,218,779
+990,Lsr010,7cie,21,unscanned,False,outside_capital_area,1,7cie,grass,,559,463,78,216,789
+991,Lumbreracas,7cie,21,unscanned,False,outside_capital_area,1,7cie,grass,,564,471,79,202,793
+993,Minimax61,7cie,21,unscanned,False,outside_capital_area,1,7cie,grass,,562,465,80,202,769
+999,Survivor813Lp2,7cie,21,unscanned,False,outside_capital_area,1,7cie,grass,,567,467,84,974,157
+1001,Survivor813Yvf,7cie,21,unscanned,False,outside_capital_area,1,7cie,grass,,565,463,84,206,818
+1003,Zek1x,7cie,21,unscanned,False,outside_capital_area,1,7cie,grass,,566,459,87,150,217
+982,Bg000000006,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,570,465,88,213,813
+986,Hau987,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,570,461,90,202,805
+987,Jo 13 om,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,573,463,92,205,784
+995,Mreye,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,575,459,96,215,769
+997,OguzKagann,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,577,463,96,144,195
+1000,Survivor813N60,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,581,465,99,158,205
+1004,Ammar 80,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,578,457,100,218,800
+1007,RageBaiter85,7cie,20,unscanned,False,outside_capital_area,1,7cie,grass,,578,453,102,218,788
+981,bdub40,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,582,459,103,198,789
+983,Bra-Bra,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,581,455,104,195,773
+984,Eren-Yeager-91,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,581,451,106,212,795
+988,Jojuro,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,586,455,109,206,797
+996,Mrnklmb,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,590,461,110,202,785
+998,Qabanbay,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,587,451,112,204,799
+1002,xraffax97,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,587,447,114,194,789
+3529,Ak786,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,591,453,115,122,213
+3621,caipy,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,594,457,116,207,787
+3622,Elnaneto,7cie,19,unscanned,False,outside_capital_area,1,7cie,grass,,593,449,119,203,788
+992,Miklac,7cie,18,unscanned,False,outside_capital_area,1,7cie,grass,,595,453,119,130,637
+1006,Pw174,7cie,18,unscanned,False,outside_capital_area,1,7cie,grass,,591,445,119,217,783
+2225,20RAHH19,SHSN,21,unscanned,False,outside_capital_area,1,SHSN,grass,,563,481,73,415,613
+2232,DaemonSIayer,SHSN,21,unscanned,False,outside_capital_area,1,SHSN,grass,,561,475,74,186,713
+2236,h4z4rd95,SHSN,21,unscanned,False,outside_capital_area,1,SHSN,grass,,566,479,77,375,657
+2243,panpalinl,SHSN,21,unscanned,False,outside_capital_area,1,SHSN,grass,,569,477,81,412,583
+2247,RudeDude007,SHSN,21,unscanned,False,outside_capital_area,1,SHSN,grass,,570,471,85,421,613
+2252,Teal 33,SHSN,21,unscanned,False,outside_capital_area,1,SHSN,grass,,575,475,88,399,590
+2227,Apple 123,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,577,479,88,422,609
+2228,Arce89,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,575,469,91,420,597
+2233,dekoman,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,578,473,92,401,589
+2234,Double Y',SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,578,467,95,405,610
+2238,jg37,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,582,473,96,418,617
+2239,Jt3,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,582,469,98,414,592
+2249,STZOMongoose,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,587,473,101,409,611
+2250,SuNivorGlrla,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,586,469,102,399,608
+2251,Survivor813ZVN,SHSN,20,unscanned,False,outside_capital_area,1,SHSN,grass,,585,465,103,414,617
+2229,Boss503,SHSN,19,unscanned,False,outside_capital_area,1,SHSN,grass,,591,469,107,407,619
+2230,catto 08,SHSN,19,unscanned,False,outside_capital_area,1,SHSN,grass,,594,475,107,398,605
+2231,Crhawkins80,SHSN,19,unscanned,False,outside_capital_area,1,SHSN,grass,,590,465,108,408,614
+2237,Hari11,SHSN,19,unscanned,False,outside_capital_area,1,SHSN,grass,,596,471,111,408,583
+2241,lurker4000,SHSN,19,unscanned,False,outside_capital_area,1,SHSN,grass,,594,463,113,404,591
+2248,S1ayer2117,SHSN,19,unscanned,False,outside_capital_area,1,SHSN,grass,,599,473,113,406,586
+2254,USCG-M175,SHSN,19,unscanned,False,outside_capital_area,1,SHSN,grass,,598,465,116,394,581
+2226,Adrid,SHSN,18,unscanned,False,outside_capital_area,1,SHSN,grass,,597,461,117,399,601
+2235,EI Asso Wipo,SHSN,18,unscanned,False,outside_capital_area,1,SHSN,grass,,603,469,119,415,595
+1925,akatsu07,movR,23,unscanned,False,outside_capital_area,1,movR,grass,,568,487,75,696,303
+1963,TheOGZeusooo,movR,23,unscanned,False,outside_capital_area,1,movR,grass,,574,499,75,709,322
+1948,pape7,movR,22,unscanned,False,outside_capital_area,1,movR,grass,,566,483,75,710,308
+1952,Safy12,movR,22,unscanned,False,outside_capital_area,1,movR,grass,,571,491,76,686,381
+1929,Deny1987,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,575,495,78,682,309
+1939,Kln93,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,578,499,79,705,308
+1940,Mazpisaani,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,574,489,80,700,305
+1942,Mr Syed,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,572,485,80,686,337
+1947,Padre1984,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,577,487,84,709,317
+1957,Survivor813Ppd,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,582,497,84,678,309
+1959,Survivor813Zbj,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,574,481,84,533,61
+1970,Yeei,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,580,489,86,79,829
+1971,Yeel,movR,21,unscanned,False,outside_capital_area,1,movR,grass,,577,483,86,705,315
+1922,00000000007,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,583,493,87,690,337
+1923,aaabbbood,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,580,485,88,686,309
+1926,CoinFlip,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,587,499,88,686,301
+1930,dydy509,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,584,489,90,694,297
+1935,hmido,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,587,495,90,686,313
+1936,HQWD,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,580,481,90,690,315
+1938,Kastrum09,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,588,491,93,689,309
+1951,RSR RAFI,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,587,487,94,678,299
+1956,Survivor813POu,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,585,483,94,702,329
+1965,tony vet,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,593,499,94,714,377
+1969,xuIes,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,583,479,94,704,295
+1973,yuchmk,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,591,493,95,730,397
+1974,éÆlR,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,592,489,98,686,326
+3553,otr41ife,movR,20,unscanned,False,outside_capital_area,1,movR,grass,,590,485,98,688,311
+1933,GENX67,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,588,481,98,698,318
+1937,isola,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,596,497,98,718,385
+1941,Mqz4,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,595,491,100,682,329
+1945,ONYX-NØX,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,601,497,103,700,323
+1953,Sarty,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,591,477,103,674,305
+1972,Yennifer,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,597,487,104,874,9
+3552,Can-CPL,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,600,491,105,702,309
+3554,sawaf813GKI,movR,19,unscanned,False,outside_capital_area,1,movR,grass,,596,483,105,702,317
+1931,Facehatchet,movR,18,unscanned,False,outside_capital_area,1,movR,grass,,604,495,107,694,333
+1943,MuaazMax,movR,18,unscanned,False,outside_capital_area,1,movR,grass,,606,499,107,702,325
+3563,Cragir,movR,18,unscanned,False,outside_capital_area,1,movR,grass,,600,485,108,715,403
+1924,AhiLL,movR,17,unscanned,False,outside_capital_area,1,movR,grass,,598,479,109,704,311
+1949,Pelle73,movR,17,unscanned,False,outside_capital_area,1,movR,grass,,603,487,110,710,301
+1950,RogoRo,movR,17,unscanned,False,outside_capital_area,1,movR,grass,,610,499,111,5,665
+1958,Survivor813Wxe,movR,17,unscanned,False,outside_capital_area,1,movR,grass,,607,491,112,858,37
+1961,The Vixen,movR,17,unscanned,False,outside_capital_area,1,movR,grass,,602,481,112,686,329
+1962,theconst,movR,17,unscanned,False,outside_capital_area,1,movR,grass,,607,487,114,698,337
+1964,tofdu15,movR,17,unscanned,False,outside_capital_area,1,movR,grass,,611,493,115,702,413
+1928,Deewsdg,movR,16,unscanned,False,outside_capital_area,1,movR,grass,,603,477,115,698,333
+1944,musakan,movR,16,unscanned,False,outside_capital_area,1,movR,grass,,613,497,115,967,254
+1946,Pablocore2,movR,16,unscanned,False,outside_capital_area,1,movR,grass,,611,489,117,702,313
+1954,Survivor8131BP,movR,16,unscanned,False,outside_capital_area,1,movR,grass,,610,485,118,687,295
+3594,PabIocore2,movR,16,unscanned,False,outside_capital_area,1,movR,grass,,615,493,119,73,637
+2415,Altemicia,ULD,22,unscanned,False,outside_capital_area,1,ULD,grass,,572,505,75,822,877
+2436,TardyAura,ULD,22,unscanned,False,outside_capital_area,1,ULD,grass,,575,503,77,806,873
+3643,The Rise,ULD,22,unscanned,False,outside_capital_area,1,ULD,grass,,573,509,78,802,865
+2418,bonnerz,ULD,21,unscanned,False,outside_capital_area,1,ULD,grass,,577,507,81,802,853
+2421,Diznicatk,ULD,21,unscanned,False,outside_capital_area,1,ULD,grass,,581,505,84,795,853
+2423,Mazeiken111,ULD,21,unscanned,False,outside_capital_area,1,ULD,grass,,584,503,86,990,229
+2427,Raja12,ULD,21,unscanned,False,outside_capital_area,1,ULD,grass,,582,511,88,798,857
+2429,Salusia17,ULD,21,unscanned,False,outside_capital_area,1,ULD,grass,,588,505,91,813,881
+2430,ShaIava,ULD,21,unscanned,False,outside_capital_area,1,ULD,grass,,587,511,93,686,609
+2435,Survivor8LDS,ULD,21,unscanned,False,outside_capital_area,1,ULD,grass,,592,503,94,810,869
+2413,Abel 777,ULD,20,unscanned,False,outside_capital_area,1,ULD,grass,,592,507,96,810,861
+2437,TATTOOEDFATGUY,ULD,20,unscanned,False,outside_capital_area,1,ULD,grass,,592,511,98,818,869
+2414,Ali7hn2,ULD,19,unscanned,False,outside_capital_area,1,ULD,grass,,595,509,100,818,861
+2416,BabaBizzle,ULD,19,unscanned,False,outside_capital_area,1,ULD,grass,,598,503,100,258,921
+2417,Battle through,ULD,19,unscanned,False,outside_capital_area,1,ULD,grass,,598,507,102,722,73
+2419,Cydsss,ULD,19,unscanned,False,outside_capital_area,1,ULD,grass,,598,511,104,818,873
+2431,SK SANTO,ULD,19,unscanned,False,outside_capital_area,1,ULD,grass,,603,503,105,759,962
+2441,Yuuutt,ULD,19,unscanned,False,outside_capital_area,1,ULD,grass,,601,509,106,810,885
+3645,Antony81,ULD,19,unscanned,False,outside_capital_area,1,ULD,grass,,607,503,109,798,873
+2439,xsiIber,ULD,18,unscanned,False,outside_capital_area,1,ULD,grass,,606,507,110,802,861
+3648,SkinnyyJ,ULD,18,unscanned,False,outside_capital_area,1,ULD,grass,,604,513,111,800,875
+2424,NimA Rz,ULD,17,unscanned,False,outside_capital_area,1,ULD,grass,,610,507,114,750,965
+2422,Johnny do,ULD,16,unscanned,False,outside_capital_area,1,ULD,grass,,612,503,114,810,866
+2433,Survivor813H9e,ULD,16,unscanned,False,outside_capital_area,1,ULD,grass,,610,513,117,806,877
+2440,yousef hamdy,ULD,16,unscanned,False,outside_capital_area,1,ULD,grass,,616,501,117,754,960
+2442,zeeshee,ULD,16,unscanned,False,outside_capital_area,1,ULD,grass,,614,507,118,762,945
+77,Crazy696969,,22,unscanned,False,outside_capital_area,1,Other,grass,,447,463,71,75,857
+86,Dillyreturns,,22,unscanned,False,outside_capital_area,1,Other,grass,,461,435,71,422,589
+1265,Ben Derhöver,BNG,22,unscanned,False,outside_capital_area,1,Other,grass,,463,431,71,727,900
+1564,ME SHUAIB,ffox,22,unscanned,False,outside_capital_area,1,Other,grass,,467,429,71,32,587
+2255,EYaD,SM,22,unscanned,False,outside_capital_area,1,Other,grass,,474,429,71,909,401
+2376,Ahmad A313,TSL,22,unscanned,False,outside_capital_area,1,Other,grass,,478,429,71,918,919
+2,22,,21,unscanned,False,outside_capital_area,1,Other,grass,,488,429,71,518,989
+17,AHMED 77,,21,unscanned,False,outside_capital_area,1,Other,grass,,458,561,72,978,509
+61,CaiCaiFury,,21,unscanned,False,outside_capital_area,1,Other,grass,,441,527,72,999,0
+62,CalCalFuty,,21,unscanned,False,outside_capital_area,1,Other,grass,,460,565,72,996,0
+105,Eyya02,,21,unscanned,False,outside_capital_area,1,Other,grass,,463,571,72,335,217
+177,justinznnnn,,21,unscanned,False,outside_capital_area,1,Other,grass,,428,501,72,495,640
+203,lmovRllJep,,21,unscanned,False,outside_capital_area,1,Other,grass,,434,487,72,702,302
+224,Nayra01,,21,unscanned,False,outside_capital_area,1,Other,grass,,436,483,72,478,977
+270,RISINGKILLER,,21,unscanned,False,outside_capital_area,1,Other,grass,,439,477,72,902,361
+291,skipyl,,21,unscanned,False,outside_capital_area,1,Other,grass,,538,567,72,838,57
+867,taTarnlt.Ll* Sr,,21,unscanned,False,outside_capital_area,1,Other,grass,,450,455,72,588,344
+960,Martinator,7815,21,unscanned,False,outside_capital_area,1,Other,grass,,544,555,72,872,916
+1059,Survivor813LY,ADAF,21,unscanned,False,outside_capital_area,1,Other,grass,,458,439,72,306,957
+1360,Survivor8140sn,delu,21,unscanned,False,outside_capital_area,1,Other,grass,,550,543,72,824,273
+1409,MichiGm,DMNl,21,unscanned,False,outside_capital_area,1,Other,grass,,452,551,73,19,373
+1417,Survivor813QE7,DMNl,21,unscanned,False,outside_capital_area,1,Other,grass,,436,519,73,29,349
+1425,Valhelsingx,DMNl,21,unscanned,False,outside_capital_area,1,Other,grass,,429,505,73,142,77
+1657,asepthea93,GiD,21,unscanned,False,outside_capital_area,1,Other,grass,,485,573,73,732,144
+1692,Zhezhe,GiD,21,unscanned,False,outside_capital_area,1,Other,grass,,429,495,73,722,141
+1737,Prymus1904,JNGL,21,unscanned,False,outside_capital_area,1,Other,grass,,514,573,73,765,19
+1741,Franzsasha,JpS,21,unscanned,False,outside_capital_area,1,Other,grass,,530,573,73,217,528
+1868,lSTANBUL TRIP,Mesi,21,unscanned,False,outside_capital_area,1,Other,grass,,451,451,73,999,0
+2095,Cr33d,RE15,21,unscanned,False,outside_capital_area,1,Other,grass,,453,447,73,834,873
+2331,Irmäo,TMJ,21,unscanned,False,outside_capital_area,1,Other,grass,,455,443,73,930,69
+2378,Moha22,TSL,21,unscanned,False,outside_capital_area,1,Other,grass,,464,427,73,922,913
+2588,ThermoF,WHAN,21,unscanned,False,outside_capital_area,1,Other,grass,,555,535,73,773,245
+31,Armanngh,,20,unscanned,False,outside_capital_area,1,Other,grass,,471,427,73,706,301
+102,eriquita,,20,unscanned,False,outside_capital_area,1,Other,grass,,484,427,73,214,5
+144,IAmNoops,,20,unscanned,False,outside_capital_area,1,Other,grass,,493,427,73,262,45
+153,ItsMercy,,20,unscanned,False,outside_capital_area,1,Other,grass,,565,515,73,822,925
+190,Kwkebwhay,,20,unscanned,False,outside_capital_area,1,Other,grass,,567,511,73,522,974
+245,pastorchen,,20,unscanned,False,outside_capital_area,1,Other,grass,,445,539,74,122,189
+256,ptopoco,,20,unscanned,False,outside_capital_area,1,Other,grass,,454,557,74,5,735
+262,rayyan gaming,,20,unscanned,False,outside_capital_area,1,Other,grass,,460,569,74,714,317
+276,Röapör,,20,unscanned,False,outside_capital_area,1,Other,grass,,440,471,74,938,561
+503,Survivor813MKV,,20,unscanned,False,outside_capital_area,1,Other,grass,,442,467,74,565,950
+885,Trenknight,,20,unscanned,False,outside_capital_area,1,Other,grass,,447,457,74,43,449
+888,tTTYCILolmrd,,20,unscanned,False,outside_capital_area,1,Other,grass,,549,549,74,138,798
+897,Wolfoevsky,,20,unscanned,False,outside_capital_area,1,Other,grass,,564,519,74,94,97
+916,ZipY04Lips,,20,unscanned,False,outside_capital_area,1,Other,grass,,448,547,75,682,925
+949,0hDeal,7815,20,unscanned,False,outside_capital_area,1,Other,grass,,446,543,75,877,881
+963,OhDeal,7815,20,unscanned,False,outside_capital_area,1,Other,grass,,465,575,75,875,881
+972,Survivor813ME6,7815,20,unscanned,False,outside_capital_area,1,Other,grass,,470,575,75,870,901
+1022,degz42,ADAF,20,unscanned,False,outside_capital_area,1,Other,grass,,432,515,75,317,953
+1050,Roven1,ADAF,20,unscanned,False,outside_capital_area,1,Other,grass,,474,575,75,322,957
+1079,zeyad osama,ADAF,20,unscanned,False,outside_capital_area,1,Other,grass,,430,511,75,322,949
+1081,Gameir0101,AFz,20,unscanned,False,outside_capital_area,1,Other,grass,,482,575,75,481,928
+1098,jojodimitri,AHM7,20,unscanned,False,outside_capital_area,1,Other,grass,,488,575,75,746,949
+1137,RainHogg,ASLI,20,unscanned,False,outside_capital_area,1,Other,grass,,425,499,75,29,5
+1199,L11éssv,aTarn,20,unscanned,False,outside_capital_area,1,Other,grass,,494,575,75,581,342
+1280,Anaximander,CASK,20,unscanned,False,outside_capital_area,1,Other,grass,,429,491,75,650,880
+1295,DieselQue,COYO,20,unscanned,False,outside_capital_area,1,Other,grass,,499,575,75,162,833
+1297,EdAhm,COYO,20,unscanned,False,outside_capital_area,1,Other,grass,,506,575,75,174,829
+1331,lggyivan32,CRIC,20,unscanned,False,outside_capital_area,1,Other,grass,,522,575,75,62,706
+1334,Notopoco,CRIC,20,unscanned,False,outside_capital_area,1,Other,grass,,535,575,75,0,735
+1396,Corp Umbrella,DMNl,20,unscanned,False,outside_capital_area,1,Other,grass,,538,573,75,698,797
+1483,F S,EGLT,20,unscanned,False,outside_capital_area,1,Other,grass,,545,559,75,82,521
+1503,CruDeliA,EzE,20,unscanned,False,outside_capital_area,1,Other,grass,,548,553,75,754,129
+1515,Nen76And,EzE,20,unscanned,False,outside_capital_area,1,Other,grass,,458,433,75,918,77
+1540,Survlvor813PPV,EzE,20,unscanned,False,outside_capital_area,1,Other,grass,,468,425,75,944,816
+1565,PaSHteT,ffox,20,unscanned,False,outside_capital_area,1,Other,grass,,478,425,75,33,591
+1575,Bada Bing069,forl,20,unscanned,False,outside_capital_area,1,Other,grass,,498,425,75,126,525
+1653,amir joker,fort,20,unscanned,False,outside_capital_area,1,Other,grass,,451,555,76,110,529
+1654,BOMBER66,FYL1,20,unscanned,False,outside_capital_area,1,Other,grass,,441,535,76,330,925
+1655,Affan001,GiD,20,unscanned,False,outside_capital_area,1,Other,grass,,438,529,76,730,137
+1691,Y2KSL,GiD,20,unscanned,False,outside_capital_area,1,Other,grass,,457,567,76,722,145
+1755,0RC9,LKV,20,unscanned,False,outside_capital_area,1,Other,grass,,461,575,76,538,893
+1771,007 BENTLEY,LRDE,20,unscanned,False,outside_capital_area,1,Other,grass,,544,563,76,533,311
+1786,Survivor813VUo,LRDE,20,unscanned,False,outside_capital_area,1,Other,grass,,555,541,76,8,905
+1810,EdSum,m07,20,unscanned,False,outside_capital_area,1,Other,grass,,460,427,76,897,621
+1811,El Pereto,m07,20,unscanned,False,outside_capital_area,1,Other,grass,,560,531,76,890,645
+1813,farouk eg,m07,20,unscanned,False,outside_capital_area,1,Other,grass,,563,525,76,854,314
+1826,Slaem1122,m07,20,unscanned,False,outside_capital_area,1,Other,grass,,454,563,77,895,637
+1827,SuNivor813T93,m07,20,unscanned,False,outside_capital_area,1,Other,grass,,435,525,77,886,627
+1861,HaZeLL,Mesi,20,unscanned,False,outside_capital_area,1,Other,grass,,477,577,77,734,53
+1873,MEMO SA,Mesi,20,unscanned,False,outside_capital_area,1,Other,grass,,485,577,77,750,27
+1984,Hot Rod99,MPS1,20,unscanned,False,outside_capital_area,1,Other,grass,,429,487,77,638,889
+2028,Survivor813XNv,MsFd,20,unscanned,False,outside_capital_area,1,Other,grass,,510,577,77,82,549
+2075,JRT85,POHS,20,unscanned,False,outside_capital_area,1,Other,grass,,435,475,77,42,602
+2094,Cool-guy,RE15,20,unscanned,False,outside_capital_area,1,Other,grass,,519,577,77,842,865
+2132,SurvivorDSR007,RE15,20,unscanned,False,outside_capital_area,1,Other,grass,,526,577,77,838,877
+2164,Survivor813PYP,RRRS,20,unscanned,False,outside_capital_area,1,Other,grass,,443,459,77,858,609
+2217,Totof77,SFU,20,unscanned,False,outside_capital_area,1,Other,grass,,448,449,77,758,891
+2370,Jotayza,Tr1,20,unscanned,False,outside_capital_area,1,Other,grass,,450,445,77,123,137
+2383,barmy777,TTYC,20,unscanned,False,outside_capital_area,1,Other,grass,,465,423,77,142,796
+2386,LumpiaWamor,TTYC,20,unscanned,False,outside_capital_area,1,Other,grass,,475,423,77,130,795
+2481,KKK2912,UpS2,20,unscanned,False,outside_capital_area,1,Other,grass,,481,423,77,126,61
+2487,Survivor813Tle,UpS2,20,unscanned,False,outside_capital_area,1,Other,grass,,487,423,77,133,53
+2546,Laurapurple79,WHAN,20,unscanned,False,outside_capital_area,1,Other,grass,,569,515,77,766,229
+2558,Stevieeeee,WHAN,20,unscanned,False,outside_capital_area,1,Other,grass,,494,423,77,766,221
+2614,cedruslife,Yukz,20,unscanned,False,outside_capital_area,1,Other,grass,,442,541,78,626,969
+2627,Anna08,ZOAT,20,unscanned,False,outside_capital_area,1,Other,grass,,451,559,78,194,713
+2629,Giuglian081,ZOAT,20,unscanned,False,outside_capital_area,1,Other,grass,,431,519,78,174,725
+3555,abdelkaderCR7,m07,20,unscanned,False,outside_capital_area,1,Other,grass,,424,505,78,856,320
+3558,Qr9,B4N,20,unscanned,False,outside_capital_area,1,Other,grass,,431,481,78,126,326
+3568,Klkvyb,EGLT,20,unscanned,False,outside_capital_area,1,Other,grass,,436,471,78,74,513
+3570,Maru1980,EGLT,20,unscanned,False,outside_capital_area,1,Other,grass,,438,467,78,74,520
+3572,Craig7282,forl,20,unscanned,False,outside_capital_area,1,Other,grass,,543,569,78,125,529
+3578,c$„ 31335,DIFF,20,unscanned,False,outside_capital_area,1,Other,grass,,445,453,78,999,553
+3629,Danne12345,TTYC,20,unscanned,False,outside_capital_area,1,Other,grass,,453,437,78,141,817
+26,Angela0642,,19,unscanned,False,outside_capital_area,1,Other,grass,,457,429,78,406,913
+67,Chip Skylark,,19,unscanned,False,outside_capital_area,1,Other,grass,,559,537,78,619,965
+92,DragicMaster,,19,unscanned,False,outside_capital_area,1,Other,grass,,563,529,78,406,581
+99,Elmvxy23,,19,unscanned,False,outside_capital_area,1,Other,grass,,445,549,79,850,65
+112,Frnilord,,19,unscanned,False,outside_capital_area,1,Other,grass,,447,553,79,124,53
+130,hamoyasser,,19,unscanned,False,outside_capital_area,1,Other,grass,,457,573,79,718,381
+136,I E4SY,,19,unscanned,False,outside_capital_area,1,Other,grass,,465,579,79,510,721
+138,I rott IDxbxd,,19,unscanned,False,outside_capital_area,1,Other,grass,,470,579,79,134,525
+147,IISurvivorS2,,19,unscanned,False,outside_capital_area,1,Other,grass,,425,509,79,5,16
+151,Irgendwann,,19,unscanned,False,outside_capital_area,1,Other,grass,,481,579,79,485,926
+163,Joeyashtray,,19,unscanned,False,outside_capital_area,1,Other,grass,,421,501,79,334,993
+184,Keegan P Russ,,19,unscanned,False,outside_capital_area,1,Other,grass,,489,579,79,82,945
+195,Lagerthaaaa31,,19,unscanned,False,outside_capital_area,1,Other,grass,,498,579,79,354,89
+204,LUCiFER,,19,unscanned,False,outside_capital_area,1,Other,grass,,504,579,79,986,597
+258,Ramal Sofiyev,,19,unscanned,False,outside_capital_area,1,Other,grass,,515,579,79,378,5
+332,SUNivor8131Wx,,19,unscanned,False,outside_capital_area,1,Other,grass,,530,579,79,90,777
+434,Survivor813K9N,,19,unscanned,False,outside_capital_area,1,Other,grass,,535,579,79,994,357
+539,Survivor813PDE,,19,unscanned,False,outside_capital_area,1,Other,grass,,440,461,79,874,909
+870,tffoxl,,19,unscanned,False,outside_capital_area,1,Other,grass,,549,559,79,474,965
+887,tT80Tlwrez,,19,unscanned,False,outside_capital_area,1,Other,grass,,551,555,79,489,924
+909,Youaretrying,,19,unscanned,False,outside_capital_area,1,Other,grass,,553,551,79,226,917
+922,alon tzizin,1LEV,19,unscanned,False,outside_capital_area,1,Other,grass,,459,423,79,299,73
+966,Pollux85,7815,19,unscanned,False,outside_capital_area,1,Other,grass,,471,421,79,886,917
+978,Tenebre,7815,19,unscanned,False,outside_capital_area,1,Other,grass,,484,421,79,866,913
+1009,ADAF-Phantom,ADAF,19,unscanned,False,outside_capital_area,1,Other,grass,,567,523,79,310,965
+1035,JJones9586,ADAF,19,unscanned,False,outside_capital_area,1,Other,grass,,569,519,79,305,922
+1056,Survivor813JZK,ADAF,19,unscanned,False,outside_capital_area,1,Other,grass,,497,421,79,113,93
+1064,Survivor813PMU,ADAF,19,unscanned,False,outside_capital_area,1,Other,grass,,439,539,80,306,961
+1102,Love10228,AHM7,19,unscanned,False,outside_capital_area,1,Other,grass,,427,515,80,750,950
+1118,Master Purge,ASL1,19,unscanned,False,outside_capital_area,1,Other,grass,,421,497,80,442,944
+1143,Survivor813Mly,ASLI,19,unscanned,False,outside_capital_area,1,Other,grass,,424,491,80,430,953
+1152,SurvivorS2,ASLI,19,unscanned,False,outside_capital_area,1,Other,grass,,541,577,80,0,16
+1200,Kurt kenan D,attd,19,unscanned,False,outside_capital_area,1,Other,grass,,543,573,80,806,725
+1260,VALQUER1,BAD8,19,unscanned,False,outside_capital_area,1,Other,grass,,547,565,80,26,669
+1278,vvvvvvvvuuuuu,BTCQ,19,unscanned,False,outside_capital_area,1,Other,grass,,454,431,80,958,529
+1290,bigboy100,COYO,19,unscanned,False,outside_capital_area,1,Other,grass,,556,547,80,158,817
+1306,stasis,COYO,19,unscanned,False,outside_capital_area,1,Other,grass,,558,543,80,173,832
+1314,Survivor813W9H,COYO,19,unscanned,False,outside_capital_area,1,Other,grass,,447,557,81,170,825
+1326,wildrage,COYO,19,unscanned,False,outside_capital_area,1,Other,grass,,450,563,81,175,835
+1335,roadwarrior71,CRIC,19,unscanned,False,outside_capital_area,1,Other,grass,,436,535,81,54,705
+1349,GlRlS26,delu,19,unscanned,False,outside_capital_area,1,Other,grass,,453,569,81,818,265
+1356,sfsh,delu,19,unscanned,False,outside_capital_area,1,Other,grass,,433,529,81,818,281
+1357,Survivor813RJl,delu,19,unscanned,False,outside_capital_area,1,Other,grass,,457,577,81,818,273
+1361,SurvivorPitesti,delu,19,unscanned,False,outside_capital_area,1,Other,grass,,462,581,81,806,283
+1366,Psyco M,DIFF,19,unscanned,False,outside_capital_area,1,Other,grass,,473,581,81,802,221
+1384,Jairo1626,DMNI,19,unscanned,False,outside_capital_area,1,Other,grass,,477,581,81,34,328
+1480,DanisGreat,EGLT,19,unscanned,False,outside_capital_area,1,Other,grass,,484,581,81,78,513
+1491,Bendoverk35,ELVH,19,unscanned,False,outside_capital_area,1,Other,grass,,501,581,81,825,37
+1494,Survivor813VWz,ELVH,19,unscanned,False,outside_capital_area,1,Other,grass,,426,485,81,829,29
+1499,asergi033,EzE,19,unscanned,False,outside_capital_area,1,Other,grass,,512,581,81,934,821
+1534,Survivor813RyA,EzE,19,unscanned,False,outside_capital_area,1,Other,grass,,522,581,81,939,831
+1536,Survivor813XwO,EzE,19,unscanned,False,outside_capital_area,1,Other,grass,,527,581,81,913,937
+1557,furaxdu95,ffox,19,unscanned,False,outside_capital_area,1,Other,grass,,448,441,81,30,933
+1558,Goggggo,ffox,19,unscanned,False,outside_capital_area,1,Other,grass,,456,425,81,30,581
+1563,Lordnur,ffox,19,unscanned,False,outside_capital_area,1,Other,grass,,460,419,81,49,609
+1567,Survivor813NJm,ffox,19,unscanned,False,outside_capital_area,1,Other,grass,,465,419,81,34,585
+1572,ZeroGivz,ffox,19,unscanned,False,outside_capital_area,1,Other,grass,,563,535,81,24,587
+1582,Copalonzo,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,477,419,81,134,533
+1596,Krissy6685,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,490,419,81,126,545
+1606,pajamajoe,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,494,419,81,130,542
+1608,PlatonicFrisbee,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,441,547,82,118,529
+1621,Survivor813Kgi,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,439,543,82,0,93
+1622,Survivor813Kvp,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,430,525,82,134,538
+1628,Survivor813MZg,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,421,507,82,974,293
+1640,Survivor813XEU,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,430,475,82,122,525
+1647,takuraba,forl,19,unscanned,False,outside_capital_area,1,Other,grass,,546,571,82,138,529
+1669,Massa12345,GiD,19,unscanned,False,outside_capital_area,1,Other,grass,,444,447,82,714,149
+1689,Survivor813yung,GiD,19,unscanned,False,outside_capital_area,1,Other,grass,,574,515,82,918,509
+1720,sheekoo,JKTN,19,unscanned,False,outside_capital_area,1,Other,grass,,442,551,83,954,261
+1761,Matev07,LKVX,19,unscanned,False,outside_capital_area,1,Other,grass,,447,561,83,534,921
+1764,Survivor813HwF,LKVX,19,unscanned,False,outside_capital_area,1,Other,grass,,453,573,83,526,913
+1767,Survivor813SSz,LKVX,19,unscanned,False,outside_capital_area,1,Other,grass,,465,583,83,530,921
+1768,SurvivorE10972,LKVX,19,unscanned,False,outside_capital_area,1,Other,grass,,418,503,83,538,914
+1812,f024,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,491,583,83,882,637
+1818,KL025,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,508,583,83,902,633
+1819,Mazoga,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,519,583,83,854,329
+1822,Nima 2019,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,433,467,83,890,649
+1830,Survivor813LyE,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,530,583,83,882,629
+1831,Survivor813N8L,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,540,583,83,822,25
+1832,Survivor813Pw8,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,440,453,83,890,629
+1850,Tudorking-Farm,mERF,19,unscanned,False,outside_capital_area,1,Other,grass,,552,561,83,510,653
+1862,Hdab,Mesi,19,unscanned,False,outside_capital_area,1,Other,grass,,449,435,83,738,57
+1875,MUHAMMAD023,Mesi,19,unscanned,False,outside_capital_area,1,Other,grass,,453,427,83,754,53
+1916,Yggdrsil,Mesi,19,unscanned,False,outside_capital_area,1,Other,grass,,456,421,83,772,50
+1919,zeuszeyn,Mesi,19,unscanned,False,outside_capital_area,1,Other,grass,,563,539,83,754,61
+1989,Negris,MPS1,19,unscanned,False,outside_capital_area,1,Other,grass,,566,533,83,626,873
+1996,Survivor8131K1,MPS1,19,unscanned,False,outside_capital_area,1,Other,grass,,473,417,83,630,861
+2015,19911yon,MsFd,19,unscanned,False,outside_capital_area,1,Other,grass,,569,527,83,353,49
+2019,Corey Vegas,MsFd,19,unscanned,False,outside_capital_area,1,Other,grass,,481,417,83,66,837
+2060,Groot CZ,pEsT,19,unscanned,False,outside_capital_area,1,Other,grass,,571,523,83,818,889
+2098,gabrielttc,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,487,417,83,981,125
+2102,kiroen,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,573,519,83,846,877
+2104,Mixmastermike,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,435,539,84,826,881
+2108,prisma1,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,420,491,84,642,937
+2110,Seth d,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,422,487,84,818,865
+2123,Survivor813S16,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,427,477,84,834,889
+2137,Wozu81,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,434,463,84,857,965
+2186,Juancito 2112,RZCL,19,unscanned,False,outside_capital_area,1,Other,grass,,436,459,84,886,61
+2210,Oussayd,SFU,19,unscanned,False,outside_capital_area,1,Other,grass,,549,569,84,727,915
+2214,Survivor813PHJ,SFU,19,unscanned,False,outside_capital_area,1,Other,grass,,450,431,84,725,893
+2221,murphy22,SHI,19,unscanned,False,outside_capital_area,1,Other,grass,,557,553,84,754,953
+2292,Will shall rise,STGs,19,unscanned,False,outside_capital_area,1,Other,grass,,561,545,84,567,33
+2302,wrez,T80T,19,unscanned,False,outside_capital_area,1,Other,grass,,449,569,85,483,986
+2304,Jabanpagi,THGC,19,unscanned,False,outside_capital_area,1,Other,grass,,430,531,85,65,833
+2321,Babszinha,TMJ,19,unscanned,False,outside_capital_area,1,Other,grass,,454,579,85,950,37
+2322,CeciliaBrasil,TMJ,19,unscanned,False,outside_capital_area,1,Other,grass,,456,583,85,929,49
+2323,Chewster1066,TMJ,19,unscanned,False,outside_capital_area,1,Other,grass,,462,585,85,944,51
+2336,kotzbrocken,TMJ,19,unscanned,False,outside_capital_area,1,Other,grass,,425,521,85,934,33
+2353,Survivor813GGt,TMJ,19,unscanned,False,outside_capital_area,1,Other,grass,,468,585,85,942,669
+2358,Survivor813Qdz,TMJ,19,unscanned,False,outside_capital_area,1,Other,grass,,420,511,85,942,37
+2377,ch javed,TSL,19,unscanned,False,outside_capital_area,1,Other,grass,,481,585,85,911,925
+2411,Survivor813YDN,TWLB,19,unscanned,False,outside_capital_area,1,Other,grass,,494,585,85,978,133
+2474,Alanezi2,UpS2,19,unscanned,False,outside_capital_area,1,Other,grass,,501,585,85,128,63
+2475,Bebastown,UpS2,19,unscanned,False,outside_capital_area,1,Other,grass,,505,585,85,130,61
+2476,Blackknight3,UpS2,19,unscanned,False,outside_capital_area,1,Other,grass,,424,481,85,118,53
+2483,shaxina17042012,UpS2,19,unscanned,False,outside_capital_area,1,Other,grass,,514,585,85,950,765
+2484,Smilord,UpS2,19,unscanned,False,outside_capital_area,1,Other,grass,,525,585,85,126,53
+2485,Survivor6000,UpS2,19,unscanned,False,outside_capital_area,1,Other,grass,,535,585,85,130,53
+2499,Gim1995,USv,19,unscanned,False,outside_capital_area,1,Other,grass,,546,577,85,622,950
+2513,KillerCassam,WEEQ,19,unscanned,False,outside_capital_area,1,Other,grass,,440,449,85,982,225
+2530,BRUTALUS3000,WHAN,19,unscanned,False,outside_capital_area,1,Other,grass,,453,423,85,750,229
+2535,Dv93,WHAN,19,unscanned,False,outside_capital_area,1,Other,grass,,466,415,85,762,245
+2540,Ioluss,WHAN,19,unscanned,False,outside_capital_area,1,Other,grass,,470,415,85,766,233
+2548,MOstafa,WHAN,19,unscanned,False,outside_capital_area,1,Other,grass,,484,415,85,766,217
+2563,Survivor8130sN,WHAN,19,unscanned,False,outside_capital_area,1,Other,grass,,494,415,85,777,238
+2615,grizzl 8,Yukz,19,unscanned,False,outside_capital_area,1,Other,grass,,578,513,85,633,957
+2616,Laketittekaka83,Yukz,19,unscanned,False,outside_capital_area,1,Other,grass,,438,549,86,635,958
+2631,korpixx,ZOAT,19,unscanned,False,outside_capital_area,1,Other,grass,,436,545,86,174,721
+2635,NassOnTheBeach,ZOAT,19,unscanned,False,outside_capital_area,1,Other,grass,,417,507,86,179,712
+2647,Survivor813PWM,ZOAT,19,unscanned,False,outside_capital_area,1,Other,grass,,416,495,86,530,41
+3501,NNNM,Mesi,19,unscanned,False,outside_capital_area,1,Other,grass,,436,455,86,742,69
+3506,Kötttbulle,MsFd,19,unscanned,False,outside_capital_area,1,Other,grass,,549,573,86,842,81
+3518,Hunter359,GiD,19,unscanned,False,outside_capital_area,1,Other,grass,,552,567,86,726,146
+3550,kvln,delu,19,unscanned,False,outside_capital_area,1,Other,grass,,443,441,86,818,277
+3560,omaxOOO,DMNl,19,unscanned,False,outside_capital_area,1,Other,grass,,557,557,86,38,333
+3583,92277,RRRS,19,unscanned,False,outside_capital_area,1,Other,grass,,455,417,86,866,592
+3584,Bobdazz1e,RRRS,19,unscanned,False,outside_capital_area,1,Other,grass,,564,543,86,859,603
+3595,VTTlM,m07,19,unscanned,False,outside_capital_area,1,Other,grass,,442,559,87,882,641
+3607,John555,CRIC,19,unscanned,False,outside_capital_area,1,Other,grass,,446,567,87,70,709
+3613,beshir,ZOAT,19,unscanned,False,outside_capital_area,1,Other,grass,,451,577,87,182,729
+3646,Torpid012,RE15,19,unscanned,False,outside_capital_area,1,Other,grass,,458,587,87,830,873
+3662,Syco Jutt,TSL,19,unscanned,False,outside_capital_area,1,Other,grass,,422,519,87,914,917
+3663,ludh20,7815,19,unscanned,False,outside_capital_area,1,Other,grass,,475,587,87,870,921
+3674,Plouf23,7815,19,unscanned,False,outside_capital_area,1,Other,grass,,485,587,87,889,968
+3675,Gamaouter,JNGL,19,unscanned,False,outside_capital_area,1,Other,grass,,491,587,87,574,969
+1,/ TIPI',,18,unscanned,False,outside_capital_area,1,Other,grass,,498,587,87,925,829
+13,Agamendon,,18,unscanned,False,outside_capital_area,1,Other,grass,,421,483,87,179,701
+27,Anonimus shadow,,18,unscanned,False,outside_capital_area,1,Other,grass,,510,587,87,414,685
+35,BabyFace13,,18,unscanned,False,outside_capital_area,1,Other,grass,,517,587,87,918,541
+111,Freddy slater,,18,unscanned,False,outside_capital_area,1,Other,grass,,426,473,87,510,69
+152,ITMJIDiegoNu,,18,unscanned,False,outside_capital_area,1,Other,grass,,430,465,87,950,49
+165,Johnny356,,18,unscanned,False,outside_capital_area,1,Other,grass,,540,587,87,986,373
+166,Johnyyy,,18,unscanned,False,outside_capital_area,1,Other,grass,,546,581,87,230,945
+179,jvR11tSBeRtO,,18,unscanned,False,outside_capital_area,1,Other,grass,,562,549,87,702,321
+227,NHANJSuNivor8140a5,,18,unscanned,False,outside_capital_area,1,Other,grass,,568,537,87,770,245
+247,Peregars,,18,unscanned,False,outside_capital_area,1,Other,grass,,570,533,87,794,89
+253,Prince of Iraq,,18,unscanned,False,outside_capital_area,1,Other,grass,,490,413,87,38,17
+254,ProdigyV2,,18,unscanned,False,outside_capital_area,1,Other,grass,,433,543,88,687,965
+284,Scraggs,,18,unscanned,False,outside_capital_area,1,Other,grass,,430,537,88,229,425
+295,sologamer,,18,unscanned,False,outside_capital_area,1,Other,grass,,425,527,88,267,937
+302,Staying Moist,,18,unscanned,False,outside_capital_area,1,Other,grass,,418,487,88,842,49
+306,Su Nivor813Xxr,,18,unscanned,False,outside_capital_area,1,Other,grass,,423,477,88,494,969
+355,Survivor8130Sa,,18,unscanned,False,outside_capital_area,1,Other,grass,,427,469,88,737,120
+604,Survivor813SD,,18,unscanned,False,outside_capital_area,1,Other,grass,,545,585,88,893,938
+756,Survivor813Xxr,,18,unscanned,False,outside_capital_area,1,Other,grass,,440,443,88,682,333
+809,Survivor81400z,,18,unscanned,False,outside_capital_area,1,Other,grass,,444,435,88,981,353
+878,TheSlayersOfBuf,,18,unscanned,False,outside_capital_area,1,Other,grass,,556,563,88,413,608
+880,Tomkrayyy,,18,unscanned,False,outside_capital_area,1,Other,grass,,574,527,88,70,137
+884,TrappeboyTrae,,18,unscanned,False,outside_capital_area,1,Other,grass,,577,521,88,424,235
+886,tSHSN1qny,,18,unscanned,False,outside_capital_area,1,Other,grass,,579,517,88,415,581
+889,Twinkleguy,,18,unscanned,False,outside_capital_area,1,Other,grass,,437,553,89,0,645
+912,YunglrishBoii26,,18,unscanned,False,outside_capital_area,1,Other,grass,,442,563,89,902,857
+925,D12MT,1LEV,18,unscanned,False,outside_capital_area,1,Other,grass,,447,573,89,22,233
+928,Jrans,1LEV,18,unscanned,False,outside_capital_area,1,Other,grass,,452,583,89,58,9
+937,Survivor813Ygj,1LEV,18,unscanned,False,outside_capital_area,1,Other,grass,,463,589,89,22,229
+954,Fafadu88100,7815,18,unscanned,False,outside_capital_area,1,Other,grass,,418,515,89,866,925
+968,Spudweb,7815,18,unscanned,False,outside_capital_area,1,Other,grass,,470,589,89,882,925
+973,Survivor813S15,7815,18,unscanned,False,outside_capital_area,1,Other,grass,,488,589,89,502,681
+979,Tlmagric86,7815,18,unscanned,False,outside_capital_area,1,Other,grass,,495,589,89,879,913
+1053,Slick89,ADAF,18,unscanned,False,outside_capital_area,1,Other,grass,,501,589,89,301,949
+1088,Shahlo,AGEB,18,unscanned,False,outside_capital_area,1,Other,grass,,522,589,89,807,833
+1100,lbr0011011,AHM7,18,unscanned,False,outside_capital_area,1,Other,grass,,529,589,89,198,45
+1119,sajjad Akhtar,ASL1,18,unscanned,False,outside_capital_area,1,Other,grass,,430,461,89,93,761
+1138,sajjad Akhtar,ASLI,18,unscanned,False,outside_capital_area,1,Other,grass,,537,589,89,95,761
+1140,Survivor813JoA,ASLI,18,unscanned,False,outside_capital_area,1,Other,grass,,432,457,89,450,941
+1144,Survivor813P3T,ASLI,18,unscanned,False,outside_capital_area,1,Other,grass,,543,589,89,435,949
+1203,sava9G152,attd,18,unscanned,False,outside_capital_area,1,Other,grass,,445,431,89,806,721
+1207,Survivor8140Y5,attd,18,unscanned,False,outside_capital_area,1,Other,grass,,447,427,89,97,113
+1210,The Foundation,attd,18,unscanned,False,outside_capital_area,1,Other,grass,,449,423,89,810,729
+1289,BEAST KING,COYO,18,unscanned,False,outside_capital_area,1,Other,grass,,565,547,89,181,821
+1292,CHUM,COYO,18,unscanned,False,outside_capital_area,1,Other,grass,,456,411,89,159,834
+1299,keeptomyzeIph,COYO,18,unscanned,False,outside_capital_area,1,Other,grass,,462,411,89,162,817
+1304,NaasT,COYO,18,unscanned,False,outside_capital_area,1,Other,grass,,470,411,89,166,841
+1328,AXEHatchetFACE,CRIC,18,unscanned,False,outside_capital_area,1,Other,grass,,477,411,89,49,713
+1329,bahtiyor84,CRIC,18,unscanned,False,outside_capital_area,1,Other,grass,,481,411,89,45,734
+1332,MiladMoradi,CRIC,18,unscanned,False,outside_capital_area,1,Other,grass,,486,411,89,61,712
+1333,Muelas de gallo,CRIC,18,unscanned,False,outside_capital_area,1,Other,grass,,498,411,89,54,709
+1336,Schitzngigglez,CRIC,18,unscanned,False,outside_capital_area,1,Other,grass,,438,557,90,54,717
+1338,Survivor813MoU1,CRIC,18,unscanned,False,outside_capital_area,1,Other,grass,,430,541,90,58,725
+1348,Da&089,delu,18,unscanned,False,outside_capital_area,1,Other,grass,,411,497,90,834,285
+1353,MohB,delu,18,unscanned,False,outside_capital_area,1,Other,grass,,414,491,90,826,277
+1355,RED3461,delu,18,unscanned,False,outside_capital_area,1,Other,grass,,433,453,90,906,505
+1372,SK76,dis,18,unscanned,False,outside_capital_area,1,Other,grass,,550,579,90,925,342
+1376,Sec064,dls,18,unscanned,False,outside_capital_area,1,Other,grass,,553,573,90,926,345
+1383,franss09,DMNI,18,unscanned,False,outside_capital_area,1,Other,grass,,568,543,90,26,345
+1388,Superviviente93,DMNI,18,unscanned,False,outside_capital_area,1,Other,grass,,574,531,90,119,908
+1400,Emi1y0999,DMNl,18,unscanned,False,outside_capital_area,1,Other,grass,,439,561,91,914,561
+1402,hemirto,DMNl,18,unscanned,False,outside_capital_area,1,Other,grass,,433,549,91,78,849
+1432,Survivor8130Ej,DWX,18,unscanned,False,outside_capital_area,1,Other,grass,,449,581,91,229,137
+1435,yousry145,DWX,18,unscanned,False,outside_capital_area,1,Other,grass,,452,587,91,926,794
+1493,SunTzaTza,ELVH,18,unscanned,False,outside_capital_area,1,Other,grass,,455,591,91,834,21
+1498,antorider,EzE,18,unscanned,False,outside_capital_area,1,Other,grass,,421,525,91,946,833
+1510,kOshirO,EzE,18,unscanned,False,outside_capital_area,1,Other,grass,,418,519,91,929,821
+1517,Numon,EzE,18,unscanned,False,outside_capital_area,1,Other,grass,,474,591,91,963,289
+1520,Rffrrrr,EzE,18,unscanned,False,outside_capital_area,1,Other,grass,,481,591,91,943,833
+1525,sunshine13,EzE,18,unscanned,False,outside_capital_area,1,Other,grass,,409,501,91,750,129
+1560,jokerseesyou,ffox,18,unscanned,False,outside_capital_area,1,Other,grass,,492,591,91,929,701
+1561,kevln910,ffox,18,unscanned,False,outside_capital_area,1,Other,grass,,498,591,91,39,589
+1568,Survivor813RpV,ffox,18,unscanned,False,outside_capital_area,1,Other,grass,,506,591,91,34,605
+1571,TOTO BOOS,ffox,18,unscanned,False,outside_capital_area,1,Other,grass,,511,591,91,38,561
+1573,Survivor813Zms,FOD,18,unscanned,False,outside_capital_area,1,Other,grass,,518,591,91,826,25
+1609,saridis1988,forl,18,unscanned,False,outside_capital_area,1,Other,grass,,525,591,91,129,537
+1614,SJ»14,forl,18,unscanned,False,outside_capital_area,1,Other,grass,,426,465,91,954,369
+1645,Survivor8141td,forl,18,unscanned,False,outside_capital_area,1,Other,grass,,532,591,91,914,989
+1668,LElS,GiD,18,unscanned,False,outside_capital_area,1,Other,grass,,540,591,91,734,161
+1671,Namblets,GiD,18,unscanned,False,outside_capital_area,1,Other,grass,,434,449,91,722,137
+1674,Rakha67,GiD,18,unscanned,False,outside_capital_area,1,Other,grass,,561,559,91,722,153
+1676,SuNivor813SNt,GiD,18,unscanned,False,outside_capital_area,1,Other,grass,,564,553,91,730,165
+1681,Survivor813NWl,GiD,18,unscanned,False,outside_capital_area,1,Other,grass,,571,539,91,734,133
+1687,Survivor813Xah,GiD,18,unscanned,False,outside_capital_area,1,Other,grass,,489,409,91,722,161
+1708,chamberoffarts,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,495,409,91,965,269
+1712,JoeyG,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,442,569,92,958,261
+1713,KoboiSutraUngu,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,424,533,92,999,234
+1714,Masbro,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,414,513,92,934,241
+1716,ndass,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,412,509,92,962,267
+1724,Survivor813P50,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,410,505,92,954,245
+1726,Survivor813XMo,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,411,493,92,974,261
+1727,Survivor813Y93,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,423,469,92,951,265
+1733,ahmadmmm,JNGL,18,unscanned,False,outside_capital_area,1,Other,grass,,549,585,92,878,33
+1738,sekial,JNGL,18,unscanned,False,outside_capital_area,1,Other,grass,,435,445,92,757,29
+1740,Survivor813XYQ,JNGL,18,unscanned,False,outside_capital_area,1,Other,grass,,553,577,92,999,737
+1745,Dame the great,KYLE,18,unscanned,False,outside_capital_area,1,Other,grass,,438,439,92,725,168
+1748,Hadi89,KYLE,18,unscanned,False,outside_capital_area,1,Other,grass,,440,435,92,722,177
+1758,Helpppppp65,LKVX,18,unscanned,False,outside_capital_area,1,Other,grass,,560,563,92,518,917
+1772,adelwi11986,LRDE,18,unscanned,False,outside_capital_area,1,Other,grass,,453,409,92,226,717
+1775,Chlmaera67,LRDE,18,unscanned,False,outside_capital_area,1,Other,grass,,578,527,92,231,704
+1780,Les sauveur,LRDE,18,unscanned,False,outside_capital_area,1,Other,grass,,434,555,93,222,713
+1781,Pini9,LRDE,18,unscanned,False,outside_capital_area,1,Other,grass,,430,547,93,254,793
+1799,Division ost,ltw,18,unscanned,False,outside_capital_area,1,Other,grass,,444,575,93,654,169
+1806,Aldgreri99,m07,18,unscanned,False,outside_capital_area,1,Other,grass,,425,537,93,890,625
+1820,miroOo,m07,18,unscanned,False,outside_capital_area,1,Other,grass,,449,585,93,922,681
+1821,Mouse7889,m07,18,unscanned,False,outside_capital_area,1,Other,grass,,461,593,93,902,649
+1877,nor nor,Mesi,18,unscanned,False,outside_capital_area,1,Other,grass,,468,593,93,748,31
+1978,deputamadre69,MPS1,18,unscanned,False,outside_capital_area,1,Other,grass,,484,593,93,625,905
+1982,Goose1013,MPS1,18,unscanned,False,outside_capital_area,1,Other,grass,,488,593,93,629,881
+1988,Naber,MPS1,18,unscanned,False,outside_capital_area,1,Other,grass,,495,593,93,626,897
+1992,Spikes,MPS1,18,unscanned,False,outside_capital_area,1,Other,grass,,414,485,93,646,885
+2017,Boss Man 021,MsFd,18,unscanned,False,outside_capital_area,1,Other,grass,,503,593,93,58,833
+2044,goes gus,oray,18,unscanned,False,outside_capital_area,1,Other,grass,,417,479,93,165,889
+2048,Roterriot87,oray,18,unscanned,False,outside_capital_area,1,Other,grass,,514,593,93,181,897
+2049,Survivor813Rh1,oray,18,unscanned,False,outside_capital_area,1,Other,grass,,529,593,93,181,901
+2051,Survivor81402b,oray,18,unscanned,False,outside_capital_area,1,Other,grass,,427,459,93,178,901
+2061,HAG,pEsT,18,unscanned,False,outside_capital_area,1,Other,grass,,537,593,93,811,889
+2066,NANUN81,pEsT,18,unscanned,False,outside_capital_area,1,Other,grass,,558,569,93,818,885
+2085,Derikichi,prox,18,unscanned,False,outside_capital_area,1,Other,grass,,442,429,93,806,677
+2099,Gangster444,RE15,18,unscanned,False,outside_capital_area,1,Other,grass,,448,417,93,843,859
+2133,Teeejerton,RE15,18,unscanned,False,outside_capital_area,1,Other,grass,,567,551,93,817,881
+2144,Clusterphux,RRRS,18,unscanned,False,outside_capital_area,1,Other,grass,,456,407,93,866,605
+2146,Dredgex,RRRS,18,unscanned,False,outside_capital_area,1,Other,grass,,460,407,93,594,837
+2153,nxcguy,RRRS,18,unscanned,False,outside_capital_area,1,Other,grass,,467,407,93,870,617
+2163,Survivor813MM1,RRRS,18,unscanned,False,outside_capital_area,1,Other,grass,,471,407,93,863,610
+2179,Blvckpain,RZCL,18,unscanned,False,outside_capital_area,1,Other,grass,,478,407,93,898,18
+2180,Cabezadepercebe,RZCL,18,unscanned,False,outside_capital_area,1,Other,grass,,482,407,93,889,169
+2190,SkiJax,RZCL,18,unscanned,False,outside_capital_area,1,Other,grass,,584,517,93,877,60
+2196,Survivor813VjX,RZCL,18,unscanned,False,outside_capital_area,1,Other,grass,,498,407,93,870,57
+2198,tonk777,RZCL,18,unscanned,False,outside_capital_area,1,Other,grass,,438,565,94,878,69
+2200,wallas crue,RZCL,18,unscanned,False,outside_capital_area,1,Other,grass,,421,531,94,882,69
+2204,Dunderhead1,SFU,18,unscanned,False,outside_capital_area,1,Other,grass,,417,523,94,721,893
+2205,Gangu25,SFU,18,unscanned,False,outside_capital_area,1,Other,grass,,406,499,94,725,905
+2207,Le891079,SFU,18,unscanned,False,outside_capital_area,1,Other,grass,,408,495,94,724,895
+2258,Cabottrail,Smbz,18,unscanned,False,outside_capital_area,1,Other,grass,,420,471,94,526,981
+2261,ie.ppt.l?,Smbz,18,unscanned,False,outside_capital_area,1,Other,grass,,553,581,94,518,965
+2264,MonkeyZane42,Smbz,18,unscanned,False,outside_capital_area,1,Other,grass,,556,575,94,242,45
+2269,Survivor813TVMx,Smbz,18,unscanned,False,outside_capital_area,1,Other,grass,,444,423,94,902,157
+2280,Friksoulis,STGs,18,unscanned,False,outside_capital_area,1,Other,grass,,449,413,94,558,33
+2283,jay alfin,STGs,18,unscanned,False,outside_capital_area,1,Other,grass,,572,543,94,562,25
+2317,8976,TMJ,18,unscanned,False,outside_capital_area,1,Other,grass,,578,531,94,925,41
+2330,hoIamsndhejbd,TMJ,18,unscanned,False,outside_capital_area,1,Other,grass,,583,521,94,926,49
+2338,Manfisc,TMJ,18,unscanned,False,outside_capital_area,1,Other,grass,,435,561,95,942,49
+2344,ney155,TMJ,18,unscanned,False,outside_capital_area,1,Other,grass,,431,553,95,938,45
+2369,Wonkmeister,TMJ,18,unscanned,False,outside_capital_area,1,Other,grass,,426,543,95,934,65
+2371,Msa3ada,Tr1,18,unscanned,False,outside_capital_area,1,Other,grass,,444,579,95,34,181
+2394,Survivor813NuN,TTYC,18,unscanned,False,outside_capital_area,1,Other,grass,,457,595,95,138,785
+2401,Zabrékassét,TTYC,18,unscanned,False,outside_capital_area,1,Other,grass,,414,519,95,126,821
+2482,Pidas house,UpS2,18,unscanned,False,outside_capital_area,1,Other,grass,,473,595,95,38,893
+2489,vaIhalla87,UpS2,18,unscanned,False,outside_capital_area,1,Other,grass,,479,595,95,130,69
+2500,Le01 IJr,USv,18,unscanned,False,outside_capital_area,1,Other,grass,,492,595,95,147,919
+2502,Survivor GAMBO,USv,18,unscanned,False,outside_capital_area,1,Other,grass,,411,487,95,902,449
+2504,Survivor813LiT,USv,18,unscanned,False,outside_capital_area,1,Other,grass,,508,595,95,174,937
+2514,LigonEviel,WEEQ,18,unscanned,False,outside_capital_area,1,Other,grass,,417,475,95,979,204
+2532,Champen45,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,521,595,95,762,225
+2537,Ferassssss,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,525,595,95,768,235
+2543,Karimax,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,544,595,95,822,57
+2545,Kobbykeys,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,428,453,95,768,232
+2551,prpele,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,431,447,95,754,241
+2554,Rheyan01,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,570,549,95,760,233
+2562,Survivor8130HT,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,452,405,95,764,235
+2580,Survivor813WSZ,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,475,405,95,0,629
+2582,Survivor813Xj4,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,582,525,95,606,25
+2587,SurvivorJek,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,488,405,95,757,221
+2589,vandemogli,WHAN,18,unscanned,False,outside_capital_area,1,Other,grass,,408,509,96,774,234
+2628,DeanB2109,ZOAT,18,unscanned,False,outside_capital_area,1,Other,grass,,408,491,96,178,709
+2632,massimaxx,ZOAT,18,unscanned,False,outside_capital_area,1,Other,grass,,423,461,96,190,733
+2634,musaai,ZOAT,18,unscanned,False,outside_capital_area,1,Other,grass,,436,435,96,182,721
+2654,Survivor813Zrh,ZOAT,18,unscanned,False,outside_capital_area,1,Other,grass,,441,425,96,532,72
+3492,MeIshazly,Mesi,18,unscanned,False,outside_capital_area,1,Other,grass,,563,565,96,758,37
+3495,MadMax75,TMJ,18,unscanned,False,outside_capital_area,1,Other,grass,,565,561,96,940,47
+3502,mafer2009,RZCL,18,unscanned,False,outside_capital_area,1,Other,grass,,449,409,96,866,69
+3520,Survivor8140xU,ltw,18,unscanned,False,outside_capital_area,1,Other,grass,,577,537,96,653,165
+3549,nda,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,421,537,97,964,267
+3557,shadi91,m07,18,unscanned,False,outside_capital_area,1,Other,grass,,445,585,97,847,322
+3559,Lucasbiche,DMNl,18,unscanned,False,outside_capital_area,1,Other,grass,,449,593,97,974,329
+3561,Mc-arra,DMN1,18,unscanned,False,outside_capital_area,1,Other,grass,,416,527,97,31,354
+3580,ahmed 2030,ZOAT,18,unscanned,False,outside_capital_area,1,Other,grass,,467,597,97,902,569
+3586,Hendek,POHS,18,unscanned,False,outside_capital_area,1,Other,grass,,482,597,97,38,609
+3590,Survivor813R9p,m07,18,unscanned,False,outside_capital_area,1,Other,grass,,489,597,97,894,621
+3593,Survivor8131Sl,JKTN,18,unscanned,False,outside_capital_area,1,Other,grass,,495,597,97,34,629
+3614,Remos80,ZOAT,18,unscanned,False,outside_capital_area,1,Other,grass,,500,597,97,177,733
+3615,Survivor813XjC,ZOAT,18,unscanned,False,outside_capital_area,1,Other,grass,,516,597,97,178,737
+3623,GetSumBoy,TTYC,18,unscanned,False,outside_capital_area,1,Other,grass,,532,597,97,139,800
+3626,Mo nour,TTYC,18,unscanned,False,outside_capital_area,1,Other,grass,,540,597,97,141,809
+3633,Survivor813LTn,COYO,18,unscanned,False,outside_capital_area,1,Other,grass,,552,589,97,169,821
+3634,Apophls1987,EzE,18,unscanned,False,outside_capital_area,1,Other,grass,,433,439,97,944,823
+3635,Opa63,EzE,18,unscanned,False,outside_capital_area,1,Other,grass,,438,429,97,937,826
+3651,Cp89,RE15,18,unscanned,False,outside_capital_area,1,Other,grass,,444,417,97,842,885
+3664,HEOLE03,7815,18,unscanned,False,outside_capital_area,1,Other,grass,,568,557,97,886,921
+3666,VOLVO FH16,7815,18,unscanned,False,outside_capital_area,1,Other,grass,,457,403,97,874,940
+3673,Kourosh,ADAF,18,unscanned,False,outside_capital_area,1,Other,grass,,576,541,97,316,955
+3676,bogobox,AHM7,18,unscanned,False,outside_capital_area,1,Other,grass,,465,403,97,730,969
+3680,Creeky89,LRDE,18,unscanned,False,outside_capital_area,1,Other,grass,,472,403,97,282,993
+44,BigNaturals,,17,unscanned,False,outside_capital_area,1,Other,grass,,484,403,97,190,725
+48,Bjorn Bart,,17,unscanned,False,outside_capital_area,1,Other,grass,,492,403,97,718,733
+87,Dirty AF,,17,unscanned,False,outside_capital_area,1,Other,grass,,496,403,97,229,678
+104,ExecutiveFlow,,17,unscanned,False,outside_capital_area,1,Other,grass,,430,557,98,538,45
+129,ham jan,,17,unscanned,False,outside_capital_area,1,Other,grass,,434,565,98,446,925
+146,IdlslTokzen,,17,unscanned,False,outside_capital_area,1,Other,grass,,438,573,98,930,345
+148,Im071MHDCN,,17,unscanned,False,outside_capital_area,1,Other,grass,,422,541,98,906,637
+171,Joseph CH,,17,unscanned,False,outside_capital_area,1,Other,grass,,450,597,98,132,195
+173,Jp2020,,17,unscanned,False,outside_capital_area,1,Other,grass,,413,523,98,42,877
+176,Jurig Jarian,,17,unscanned,False,outside_capital_area,1,Other,grass,,403,503,98,918,65
+197,lawyerowl,,17,unscanned,False,outside_capital_area,1,Other,grass,,403,497,98,249,893
+218,Ms Lynx,,17,unscanned,False,outside_capital_area,1,Other,grass,,405,493,98,845,435
+222,N' BER MODOR,,17,unscanned,False,outside_capital_area,1,Other,grass,,411,481,98,906,237
+231,Notbestnotworst,,17,unscanned,False,outside_capital_area,1,Other,grass,,413,477,98,171,705
+238,One1Tw02Three3,,17,unscanned,False,outside_capital_area,1,Other,grass,,418,467,98,650,949
+260,rayoku,,17,unscanned,False,outside_capital_area,1,Other,grass,,423,457,98,466,37
+289,shreeyan,,17,unscanned,False,outside_capital_area,1,Other,grass,,551,593,98,876,905
+339,supervivorrr,,17,unscanned,False,outside_capital_area,1,Other,grass,,559,577,98,22,529
+361,Survivor8130XT,,17,unscanned,False,outside_capital_area,1,Other,grass,,441,421,98,54,817
+431,Survivor813K70,,17,unscanned,False,outside_capital_area,1,Other,grass,,589,517,98,523,690
+469,Survivor813LBq,,17,unscanned,False,outside_capital_area,1,Other,grass,,431,561,99,162,21
+492,Survivor813M7w,,17,unscanned,False,outside_capital_area,1,Other,grass,,435,569,99,158,21
+505,Survivor813MlW,,17,unscanned,False,outside_capital_area,1,Other,grass,,425,549,99,538,909
+679,Survivor813UW6,,17,unscanned,False,outside_capital_area,1,Other,grass,,423,545,99,917,176
+784,Survivor813Z7F,,17,unscanned,False,outside_capital_area,1,Other,grass,,418,535,99,186,29
+858,SurvivorPGWT,,17,unscanned,False,outside_capital_area,1,Other,grass,,456,599,99,395,361
+860,surviyarak,,17,unscanned,False,outside_capital_area,1,Other,grass,,460,599,99,94,277
+876,TheDough,,17,unscanned,False,outside_capital_area,1,Other,grass,,409,517,99,990,685
+882,TopGuru,,17,unscanned,False,outside_capital_area,1,Other,grass,,407,513,99,517,665
+907,yamann27,,17,unscanned,False,outside_capital_area,1,Other,grass,,476,599,99,30,65
+923,Cri mzinZA,1LEV,17,unscanned,False,outside_capital_area,1,Other,grass,,408,485,99,4,225
+924,CrimzinZA,1LEV,17,unscanned,False,outside_capital_area,1,Other,grass,,506,599,99,9,225
+927,DOGTOWN,1LEV,17,unscanned,False,outside_capital_area,1,Other,grass,,511,599,99,5,213
+931,Mxxxxx,1LEV,17,unscanned,False,outside_capital_area,1,Other,grass,,414,473,99,0,212
+962,Ninna06100,7815,17,unscanned,False,outside_capital_area,1,Other,grass,,528,599,99,862,913
+1016,BigKKnight,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,536,599,99,702,789
+1031,GothicBean916,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,425,451,99,309,923
+1032,Grafter,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,548,599,99,912,604
+1033,HeIlsWarriors,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,430,441,99,326,961
+1034,JimmyKicker,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,555,587,99,317,949
+1036,JoJ01w23,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,558,581,99,307,979
+1041,Martenen,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,562,573,99,314,949
+1058,Survivor813LR1,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,573,551,99,306,953
+1078,Yaxshi odam,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,451,401,99,322,953
+1105,PosterNutBag,AHM7,17,unscanned,False,outside_capital_area,1,Other,grass,,576,545,99,722,973
+1110,c$J87,ARAE,17,unscanned,False,outside_capital_area,1,Other,grass,,583,531,99,978,270
+1112,Serap78,ARAE,17,unscanned,False,outside_capital_area,1,Other,grass,,478,401,99,978,273
+1116,t$087,ARAE,17,unscanned,False,outside_capital_area,1,Other,grass,,426,553,100,977,270
+1134,Musa Bhai27,ASLI,17,unscanned,False,outside_capital_area,1,Other,grass,,440,581,100,78,317
+1148,Survivor813VSj,ASLI,17,unscanned,False,outside_capital_area,1,Other,grass,,444,589,100,433,929
+1150,Survivor8140pI,ASLI,17,unscanned,False,outside_capital_area,1,Other,grass,,410,521,100,782,49
+1153,SurvivorSMk2,ASLI,17,unscanned,False,outside_capital_area,1,Other,grass,,404,509,100,446,917
+1154,TamTam93,ASLI,17,unscanned,False,outside_capital_area,1,Other,grass,,418,463,100,430,957
+1157,VTOWNBOOGIE,ASLI,17,unscanned,False,outside_capital_area,1,Other,grass,,443,413,100,434,957
+1242,A1diba11,B4N,17,unscanned,False,outside_capital_area,1,Other,grass,,587,525,100,122,333
+1251,Deathstranding,BAD8,17,unscanned,False,outside_capital_area,1,Other,grass,,437,577,101,990,569
+1254,KT cali,BAD8,17,unscanned,False,outside_capital_area,1,Other,grass,,441,585,101,70,845
+1257,Supamamax4,BAD8,17,unscanned,False,outside_capital_area,1,Other,grass,,415,533,101,458,941
+1272,ßS+A,BTCQ,17,unscanned,False,outside_capital_area,1,Other,grass,,412,527,101,946,585
+1283,Survivor813SDi,CHIO,17,unscanned,False,outside_capital_area,1,Other,grass,,453,601,101,942,437
+1296,Domie,COYO,17,unscanned,False,outside_capital_area,1,Other,grass,,466,601,101,166,825
+1301,larry91,COYO,17,unscanned,False,outside_capital_area,1,Other,grass,,472,601,101,178,817
+1307,Sur1 Allexsc,COYO,17,unscanned,False,outside_capital_area,1,Other,grass,,479,601,101,170,837
+1321,SurvivorFIoyd,COYO,17,unscanned,False,outside_capital_area,1,Other,grass,,483,601,101,186,841
+1325,wb001,COYO,17,unscanned,False,outside_capital_area,1,Other,grass,,495,601,101,166,821
+1330,DiscreetCanuck,CRIC,17,unscanned,False,outside_capital_area,1,Other,grass,,499,601,101,56,708
+1341,SurvivorFrou6,CRIC,17,unscanned,False,outside_capital_area,1,Other,grass,,520,601,101,66,705
+1346,ATlQ ARMY,delu,17,unscanned,False,outside_capital_area,1,Other,grass,,525,601,101,830,277
+1347,cisal 810,delu,17,unscanned,False,outside_capital_area,1,Other,grass,,542,601,101,830,273
+1350,kayraaa,delu,17,unscanned,False,outside_capital_area,1,Other,grass,,422,453,101,822,285
+1351,leon 2525,delu,17,unscanned,False,outside_capital_area,1,Other,grass,,552,597,101,70,745
+1354,Monerx,delu,17,unscanned,False,outside_capital_area,1,Other,grass,,437,423,101,814,273
+1368,Survivor813M9s,DIFF,17,unscanned,False,outside_capital_area,1,Other,grass,,458,399,101,802,237
+1375,omar9555,dls,17,unscanned,False,outside_capital_area,1,Other,grass,,465,399,101,929,353
+1378,Survivor813Ywj,dls,17,unscanned,False,outside_capital_area,1,Other,grass,,470,399,101,598,929
+1387,SuNivor813WDa,DMNI,17,unscanned,False,outside_capital_area,1,Other,grass,,583,535,101,474,45
+1393,Alvira Di nata,DMNl,17,unscanned,False,outside_capital_area,1,Other,grass,,475,399,101,698,801
+1394,aquama,DMNl,17,unscanned,False,outside_capital_area,1,Other,grass,,482,399,101,95,437
+1399,Eloypinilla,DMNl,17,unscanned,False,outside_capital_area,1,Other,grass,,486,399,101,36,343
+1407,Marcs1981,DMNl,17,unscanned,False,outside_capital_area,1,Other,grass,,492,399,101,82,585
+1410,Nyxeriis,DMNl,17,unscanned,False,outside_capital_area,1,Other,grass,,593,515,101,142,909
+1414,Ricks Cafe,DMNl,17,unscanned,False,outside_capital_area,1,Other,grass,,427,559,102,38,337
+1424,TlANCHORAP845,DMNl,17,unscanned,False,outside_capital_area,1,Other,grass,,398,499,102,29,341
+1484,Haruhi1717,EGLT,17,unscanned,False,outside_capital_area,1,Other,grass,,403,489,102,86,533
+1495,Survivor81401h,ELVH,17,unscanned,False,outside_capital_area,1,Other,grass,,409,477,102,834,13
+1501,catapan096,EzE,17,unscanned,False,outside_capital_area,1,Other,grass,,414,467,102,906,881
+1508,Khalil Tahbash3,EzE,17,unscanned,False,outside_capital_area,1,Other,grass,,425,445,102,750,121
+1518,Obelixxx1893,EzE,17,unscanned,False,outside_capital_area,1,Other,grass,,556,591,102,946,829
+1522,Seals68,EzE,17,unscanned,False,outside_capital_area,1,Other,grass,,430,435,102,945,829
+1524,SuNivor813NW1,EzE,17,unscanned,False,outside_capital_area,1,Other,grass,,433,429,102,508,215
+1542,tanerseker,EzE,17,unscanned,False,outside_capital_area,1,Other,grass,,566,571,102,90,569
+1559,JackMac9995,ffox,17,unscanned,False,outside_capital_area,1,Other,grass,,438,419,102,42,605
+1570,Survivor813YqA,ffox,17,unscanned,False,outside_capital_area,1,Other,grass,,571,561,102,62,473
+1574,Yugooo,forf,17,unscanned,False,outside_capital_area,1,Other,grass,,446,403,102,122,533
+1577,Bry1295,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,582,539,102,222,893
+1581,Charly k,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,590,523,102,519,89
+1583,Doubler,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,419,545,103,102,537
+1594,KiNg Zander,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,443,593,103,138,553
+1595,Krall ko,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,446,599,103,226,869
+1601,malekboom,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,412,531,103,127,521
+1603,MONTA55,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,461,603,103,126,538
+1613,SIummySurvivor,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,404,515,103,153,548
+1644,Survivor8140Rf,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,399,495,103,169,893
+1651,White15,forl,17,unscanned,False,outside_capital_area,1,Other,grass,,404,485,103,114,537
+1673,Pictres,GiD,17,unscanned,False,outside_capital_area,1,Other,grass,,502,603,103,731,146
+1682,Survivor813Poz,GiD,17,unscanned,False,outside_capital_area,1,Other,grass,,508,603,103,578,953
+1684,Survivor813ThL,GiD,17,unscanned,False,outside_capital_area,1,Other,grass,,513,603,103,738,153
+1693,Zyrex26,GID,17,unscanned,False,outside_capital_area,1,Other,grass,,532,603,103,735,140
+1700,lJv313,hae,17,unscanned,False,outside_capital_area,1,Other,grass,,417,459,103,822,121
+1715,mexicain 69,JKTN,17,unscanned,False,outside_capital_area,1,Other,grass,,538,603,103,935,233
+1721,Survivor8131zf,JKTN,17,unscanned,False,outside_capital_area,1,Other,grass,,426,441,103,970,257
+1732,Yung58,JKTN,17,unscanned,False,outside_capital_area,1,Other,grass,,562,581,103,997,161
+1734,IAMSURVIVORI,JNGL,17,unscanned,False,outside_capital_area,1,Other,grass,,434,425,103,762,33
+1735,Nani26,JNGL,17,unscanned,False,outside_capital_area,1,Other,grass,,569,567,103,911,589
+1739,survivor617,JNGL,17,unscanned,False,outside_capital_area,1,Other,grass,,439,415,103,766,13
+1746,Dragon1975,KYLE,17,unscanned,False,outside_capital_area,1,Other,grass,,574,557,103,724,173
+1747,Failarmy,KYLE,17,unscanned,False,outside_capital_area,1,Other,grass,,453,397,103,726,173
+1756,Cr7 suuuuuuuuu,LKVX,17,unscanned,False,outside_capital_area,1,Other,grass,,588,529,103,526,905
+1763,Survivor8130eT,LKVX,17,unscanned,False,outside_capital_area,1,Other,grass,,593,519,103,534,929
+1770,Wang cutter,LKVX,17,unscanned,False,outside_capital_area,1,Other,grass,,496,397,103,538,917
+1776,Dallas01,LRDE,17,unscanned,False,outside_capital_area,1,Other,grass,,429,567,104,702,21
+1779,Lahelle,LRDE,17,unscanned,False,outside_capital_area,1,Other,grass,,432,573,104,383,418
+1798,eslam mattar,Lsr,17,unscanned,False,outside_capital_area,1,Other,grass,,416,541,104,82,973
+1803,AALHABAAL,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,414,537,104,898,629
+1808,argentina999,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,447,603,104,866,93
+1809,corBenden,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,408,525,104,892,636
+1816,khaled benz,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,405,519,104,897,645
+1817,kiLær,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,399,507,104,882,645
+1823,saeidalabdollah,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,400,491,104,894,633
+1829,Survivor813LWs,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,418,455,104,890,653
+1837,Zombikilller,m07,17,unscanned,False,outside_capital_area,1,Other,grass,,565,577,104,887,633
+1853,bekme,Mesi,17,unscanned,False,outside_capital_area,1,Other,grass,,441,409,104,730,45
+1859,Fat•ma zahra,Mesi,17,unscanned,False,outside_capital_area,1,Other,grass,,587,533,104,330,981
+1865,JAGUARHAWK,Mesi,17,unscanned,False,outside_capital_area,1,Other,grass,,423,557,105,750,53
+1869,Mami1,Mesi,17,unscanned,False,outside_capital_area,1,Other,grass,,419,549,105,762,53
+1882,STRAYSlDE,Mesi,17,unscanned,False,outside_capital_area,1,Other,grass,,436,583,105,730,57
+1893,Survivor813RgM,Mesi,17,unscanned,False,outside_capital_area,1,Other,grass,,438,587,105,42,217
+1994,Survive2winn,MPS1,17,unscanned,False,outside_capital_area,1,Other,grass,,454,605,105,230,861
+1998,Survivor813JKJ,MPS1,17,unscanned,False,outside_capital_area,1,Other,grass,,458,605,105,642,881
+2004,Survivor813Yf1,MPS1,17,unscanned,False,outside_capital_area,1,Other,grass,,400,511,105,622,881
+2016,Badass51D,MsFd,17,unscanned,False,outside_capital_area,1,Other,grass,,478,605,105,58,829
+2018,Chas3Th3Bag,MsFd,17,unscanned,False,outside_capital_area,1,Other,grass,,483,605,105,30,969
+2020,Eddyz,MsFd,17,unscanned,False,outside_capital_area,1,Other,grass,,489,605,105,42,817
+2024,Kobay9898,MsFd,17,unscanned,False,outside_capital_area,1,Other,grass,,493,605,105,58,817
+2062,hashemabwhade,pEsT,17,unscanned,False,outside_capital_area,1,Other,grass,,499,605,105,802,901
+2067,S7s4315,pEsT,17,unscanned,False,outside_capital_area,1,Other,grass,,505,605,105,794,889
+2086,Survivor813SRr,prox,17,unscanned,False,outside_capital_area,1,Other,grass,,404,481,105,926,529
+2090,abo dojana,RE15,17,unscanned,False,outside_capital_area,1,Other,grass,,408,473,105,838,865
+2093,Char112345,RE15,17,unscanned,False,outside_capital_area,1,Other,grass,,517,605,105,966,573
+2111,Shenti,RE15,17,unscanned,False,outside_capital_area,1,Other,grass,,410,469,105,827,866
+2125,Survivor813U07,RE15,17,unscanned,False,outside_capital_area,1,Other,grass,,522,605,105,838,873
+2156,Ricky Grime,RRRS,17,unscanned,False,outside_capital_area,1,Other,grass,,527,605,105,842,73
+2167,Survivor813RGA,RRRS,17,unscanned,False,outside_capital_area,1,Other,grass,,535,605,105,861,613
+2172,Twodollarbill,RRRS,17,unscanned,False,outside_capital_area,1,Other,grass,,541,605,105,862,606
+2208,LycanSFX,SFU,17,unscanned,False,outside_capital_area,1,Other,grass,,547,605,105,730,897
+2211,Rolcsi 09,SFU,17,unscanned,False,outside_capital_area,1,Other,grass,,421,447,105,0,861
+2266,Pidarok,Smbz,17,unscanned,False,outside_capital_area,1,Other,grass,,562,585,105,525,989
+2274,Survivor813LIR,Smsk,17,unscanned,False,outside_capital_area,1,Other,grass,,446,397,105,682,929
+2279,Cachaa,STGs,17,unscanned,False,outside_capital_area,1,Other,grass,,579,551,105,558,21
+2285,lronman2369,STGs,17,unscanned,False,outside_capital_area,1,Other,grass,,456,395,105,570,21
+2306,Lmrtins,THGC,17,unscanned,False,outside_capital_area,1,Other,grass,,583,543,105,42,841
+2313,Survivor813WrX,THGC,17,unscanned,False,outside_capital_area,1,Other,grass,,473,395,105,45,829
+2320,Angy79,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,481,395,105,946,45
+2328,GORDELAS,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,485,395,105,940,39
+2337,LEANDR07,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,489,395,105,942,65
+2341,Nacionalnoma,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,493,395,105,923,49
+2342,Ne1075,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,425,563,106,934,49
+2343,Negah,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,420,553,106,929,51
+2348,polloloc0123,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,433,579,106,958,31
+2349,Rcruzat89,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,405,523,106,317,89
+2350,SpanishGuerria,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,394,499,106,938,65
+2355,Survivor813JmU,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,413,461,106,54,869
+2374,Survivor813TT5,Tri,17,unscanned,False,outside_capital_area,1,Other,grass,,556,599,106,34,177
+2379,perfect101,TSL,17,unscanned,False,outside_capital_area,1,Other,grass,,558,595,106,582,957
+2389,SLINivor8131YZ,TTYC,17,unscanned,False,outside_capital_area,1,Other,grass,,426,435,106,370,945
+2391,Survivor813HHl,TTYC,17,unscanned,False,outside_capital_area,1,Other,grass,,430,427,106,130,813
+2393,Survivor813NkB,TTYC,17,unscanned,False,outside_capital_area,1,Other,grass,,433,421,106,122,805
+2479,Fortnit,UpS2,17,unscanned,False,outside_capital_area,1,Other,grass,,435,417,106,521,41
+2486,Survivor813SCU,UpS2,17,unscanned,False,outside_capital_area,1,Other,grass,,570,571,106,126,57
+2491,JackWhite1312,UQV,17,unscanned,False,outside_capital_area,1,Other,grass,,574,563,106,122,681
+2498,Echo Delta,USv,17,unscanned,False,outside_capital_area,1,Other,grass,,441,405,106,114,913
+2515,lisa813KTA,WEEQ,17,unscanned,False,outside_capital_area,1,Other,grass,,582,547,106,981,233
+2521,Survivor813Kg5,WEEQ,17,unscanned,False,outside_capital_area,1,Other,grass,,592,527,106,966,213
+2522,Survivor813P4y,WEEQ,17,unscanned,False,outside_capital_area,1,Other,grass,,428,571,107,977,229
+2525,Abbas fahad90,WHAN,17,unscanned,False,outside_capital_area,1,Other,grass,,439,593,107,194,989
+2529,ars-13-666,WHAN,17,unscanned,False,outside_capital_area,1,Other,grass,,410,535,107,909,977
+2547,ltaly70,WHAN,17,unscanned,False,outside_capital_area,1,Other,grass,,443,601,107,759,217
+2553,Rehan ak47,WHAN,17,unscanned,False,outside_capital_area,1,Other,grass,,447,607,107,755,245
+2557,shadow244,WHAN,17,unscanned,False,outside_capital_area,1,Other,grass,,467,607,107,922,509
+2613,Bazd meg anyåd,Yukz,17,unscanned,False,outside_capital_area,1,Other,grass,,400,515,107,625,977
+2620,Survivor813M8E,Yukz,17,unscanned,False,outside_capital_area,1,Other,grass,,472,607,107,634,969
+2623,Tkana,ZDW,17,unscanned,False,outside_capital_area,1,Other,grass,,486,607,107,725,221
+2625,Alex Woods,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,508,607,107,176,710
+2626,Alite Roffi,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,404,477,107,830,285
+2637,noolbody,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,417,451,107,161,723
+2638,OnlyFast,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,554,605,107,181,701
+2640,Shutter Island,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,421,443,107,570,981
+2645,Survivor8131rd,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,562,589,107,806,961
+2646,Survivor813NV3,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,427,431,107,174,713
+3512,Asi690,EzE,17,unscanned,False,outside_capital_area,1,Other,grass,,569,575,107,66,129
+3523,Survivor8140HA,Smbz,17,unscanned,False,outside_capital_area,1,Other,grass,,443,399,107,925,173
+3545,frankdaf,WHAN,17,unscanned,False,outside_capital_area,1,Other,grass,,448,393,107,786,237
+3556,mohamad 22,RE15,17,unscanned,False,outside_capital_area,1,Other,grass,,461,393,107,66,321
+3601,Smokipotimus,prox,17,unscanned,False,outside_capital_area,1,Other,grass,,466,393,107,806,673
+3608,MOAtef,LRDE,17,unscanned,False,outside_capital_area,1,Other,grass,,587,539,107,226,709
+3609,Moombahton,ZOAT,17,unscanned,False,outside_capital_area,1,Other,grass,,591,531,107,186,717
+3631,Elayach,TTYC,17,unscanned,False,outside_capital_area,1,Other,grass,,596,521,107,138,818
+3647,Noaflb,RE15,17,unscanned,False,outside_capital_area,1,Other,grass,,598,517,107,850,873
+3650,FastLuigi,NCHT,17,unscanned,False,outside_capital_area,1,Other,grass,,497,393,107,125,885
+3659,Neemias,TMJ,17,unscanned,False,outside_capital_area,1,Other,grass,,412,541,108,90,914
+3661,joh76,7815,17,unscanned,False,outside_capital_area,1,Other,grass,,444,605,108,882,917
+3668,666Aba,ASL1,17,unscanned,False,outside_capital_area,1,Other,grass,,396,509,108,453,941
+3669,ToOoTA,ADAF,17,unscanned,False,outside_capital_area,1,Other,grass,,396,491,108,325,945
+19,Akkiiransingh,,16,unscanned,False,outside_capital_area,1,Other,grass,,399,485,108,762,37
+22,altwap,,16,unscanned,False,outside_capital_area,1,Other,grass,,561,593,108,958,493
+30,Armando Guerra,,16,unscanned,False,outside_capital_area,1,Other,grass,,567,581,108,42,965
+51,Bobby1986,,16,unscanned,False,outside_capital_area,1,Other,grass,,430,423,108,41,149
+55,Brentyn,,16,unscanned,False,outside_capital_area,1,Other,grass,,574,567,108,970,797
+65,Changcuterz,,16,unscanned,False,outside_capital_area,1,Other,grass,,579,557,108,738,901
+81,Dark venom 86,,16,unscanned,False,outside_capital_area,1,Other,grass,,425,569,109,4,57
+107,Fantasmas-M16,,16,unscanned,False,outside_capital_area,1,Other,grass,,428,575,109,965,725
+140,i Survivor813NUv,,16,unscanned,False,outside_capital_area,1,Other,grass,,419,557,109,750,113
+150,Infantryman423,,16,unscanned,False,outside_capital_area,1,Other,grass,,415,549,109,353,853
+154,iyavemas22,,16,unscanned,False,outside_capital_area,1,Other,grass,,453,609,109,778,25
+156,JayJaysd,,16,unscanned,False,outside_capital_area,1,Other,grass,,459,609,109,50,697
+160,Jessgaz,,16,unscanned,False,outside_capital_area,1,Other,grass,,401,521,109,762,49
+162,Joey4113,,16,unscanned,False,outside_capital_area,1,Other,grass,,463,609,109,45,41
+180,Kampfbär,,16,unscanned,False,outside_capital_area,1,Other,grass,,476,609,109,962,189
+181,KangBang615,,16,unscanned,False,outside_capital_area,1,Other,grass,,393,505,109,510,981
+185,keranjingan,,16,unscanned,False,outside_capital_area,1,Other,grass,,481,609,109,378,817
+208,MartyAllTheTime,,16,unscanned,False,outside_capital_area,1,Other,grass,,503,609,109,641,97
+214,MoldyVoldY,,16,unscanned,False,outside_capital_area,1,Other,grass,,513,609,109,408,226
+237,Olykea,,16,unscanned,False,outside_capital_area,1,Other,grass,,517,609,109,265,929
+242,padilla,,16,unscanned,False,outside_capital_area,1,Other,grass,,521,609,109,481,27
+249,Playfair,,16,unscanned,False,outside_capital_area,1,Other,grass,,407,467,109,999,990
+279,Sandy Cheekss,,16,unscanned,False,outside_capital_area,1,Other,grass,,527,609,109,802,949
+296,sololevelingsh,,16,unscanned,False,outside_capital_area,1,Other,grass,,409,463,109,961,905
+299,Spartacus 512,,16,unscanned,False,outside_capital_area,1,Other,grass,,412,457,109,943,617
+303,SteffeLynne23,,16,unscanned,False,outside_capital_area,1,Other,grass,,539,609,109,642,873
+370,Survivor8131NB,,16,unscanned,False,outside_capital_area,1,Other,grass,,548,609,109,924,415
+419,Survivor813JSY,,16,unscanned,False,outside_capital_area,1,Other,grass,,417,447,109,526,917
+473,Survivor813LHV,,16,unscanned,False,outside_capital_area,1,Other,grass,,552,609,109,902,213
+546,Survivor813PrL,,16,unscanned,False,outside_capital_area,1,Other,grass,,444,393,109,941,813
+570,Survivor813QlF,,16,unscanned,False,outside_capital_area,1,Other,grass,,587,543,109,8,861
+650,Survivor813TtG,,16,unscanned,False,outside_capital_area,1,Other,grass,,469,391,109,450,929
+680,Survivor813Uwf,,16,unscanned,False,outside_capital_area,1,Other,grass,,590,537,109,174,633
+686,Survivor813V4f,,16,unscanned,False,outside_capital_area,1,Other,grass,,477,391,109,170,81
+734,Survivor813Wt3,,16,unscanned,False,outside_capital_area,1,Other,grass,,485,391,109,786,25
+764,Survivor813YBp,,16,unscanned,False,outside_capital_area,1,Other,grass,,490,391,109,22,29
+781,Survivor813Yz6,,16,unscanned,False,outside_capital_area,1,Other,grass,,494,391,109,965,5
+836,Survivor8140Wg,,16,unscanned,False,outside_capital_area,1,Other,grass,,601,515,109,930,109
+839,Survivor8141 hX,,16,unscanned,False,outside_capital_area,1,Other,grass,,430,581,110,954,97
+857,SurvivorBae99,,16,unscanned,False,outside_capital_area,1,Other,grass,,412,545,110,22,301
+859,Survivortuktuk,,16,unscanned,False,outside_capital_area,1,Other,grass,,438,597,110,141,805
+866,TANV,,16,unscanned,False,outside_capital_area,1,Other,grass,,405,531,110,954,273
+868,Tay Smooth,,16,unscanned,False,outside_capital_area,1,Other,grass,,393,493,110,551,53
+871,Thatguyjon,,16,unscanned,False,outside_capital_area,1,Other,grass,,559,601,110,42,945
+872,The Plague,,16,unscanned,False,outside_capital_area,1,Other,grass,,566,587,110,198,965
+894,Wa Hey,,16,unscanned,False,outside_capital_area,1,Other,grass,,433,413,110,79,73
+921,1ucky59,1LEV,16,unscanned,False,outside_capital_area,1,Other,grass,,435,409,110,9,221
+929,lucky59,1LEV,16,unscanned,False,outside_capital_area,1,Other,grass,,438,403,110,13,221
+932,Nader samy,1LEV,16,unscanned,False,outside_capital_area,1,Other,grass,,582,555,110,14,217
+936,Survivor813UfB,1LEV,16,unscanned,False,outside_capital_area,1,Other,grass,,597,525,110,22,225
+950,Biscott,7815,16,unscanned,False,outside_capital_area,1,Other,grass,,433,589,111,867,922
+956,Kris30,7815,16,unscanned,False,outside_capital_area,1,Other,grass,,435,593,111,873,905
+961,mika16,7815,16,unscanned,False,outside_capital_area,1,Other,grass,,440,603,111,861,905
+967,Scarface68146,7815,16,unscanned,False,outside_capital_area,1,Other,grass,,407,537,111,862,925
+975,Survivor813YAY,7815,16,unscanned,False,outside_capital_area,1,Other,grass,,447,611,111,874,921
+976,Survivor8140im,7815,16,unscanned,False,outside_capital_area,1,Other,grass,,402,527,111,882,933
+1013,asian nuts 559,ADAF,16,unscanned,False,outside_capital_area,1,Other,grass,,398,519,111,822,21
+1049,Rollinrob,ADAF,16,unscanned,False,outside_capital_area,1,Other,grass,,485,611,111,313,954
+1066,Survivor813V3T,ADAF,16,unscanned,False,outside_capital_area,1,Other,grass,,390,497,111,326,929
+1069,Survivor813WNa,ADAF,16,unscanned,False,outside_capital_area,1,Other,grass,,491,611,111,306,941
+1071,Survivor813YjN,ADAF,16,unscanned,False,outside_capital_area,1,Other,grass,,495,611,111,297,941
+1072,Survivor813YZN,ADAF,16,unscanned,False,outside_capital_area,1,Other,grass,,500,611,111,306,945
+1073,Survivor81415Q,ADAF,16,unscanned,False,outside_capital_area,1,Other,grass,,399,479,111,297,953
+1082,Ajc4443,AGEB,16,unscanned,False,outside_capital_area,1,Other,grass,,403,471,111,799,825
+1083,Bubbablacksh33p,AGEB,16,unscanned,False,outside_capital_area,1,Other,grass,,533,611,111,802,833
+1089,shooterGir1,AGEB,16,unscanned,False,outside_capital_area,1,Other,grass,,414,449,111,802,795
+1113,Survivor813N1s,ARAE,16,unscanned,False,outside_capital_area,1,Other,grass,,555,611,111,971,268
+1127,DinoLoca1525,ASLI,16,unscanned,False,outside_capital_area,1,Other,grass,,419,439,111,461,923
+1131,Help ulan,ASLI,16,unscanned,False,outside_capital_area,1,Other,grass,,421,435,111,442,937
+1141,Survivor813Kme,ASLI,16,unscanned,False,outside_capital_area,1,Other,grass,,424,429,111,974,29
+1146,Survivor813RPY,ASLI,16,unscanned,False,outside_capital_area,1,Other,grass,,440,397,111,45,293
+1147,Survivor813Sy6,ASLI,16,unscanned,False,outside_capital_area,1,Other,grass,,585,551,111,434,954
+1244,salaheeee,B4N,16,unscanned,False,outside_capital_area,1,Other,grass,,454,389,111,913,121
+1249,Crabatonia,BAD8,16,unscanned,False,outside_capital_area,1,Other,grass,,466,389,111,446,921
+1256,Su1tan83,BAD8,16,unscanned,False,outside_capital_area,1,Other,grass,,473,389,111,474,937
+1270,Raykid,BTCQ,16,unscanned,False,outside_capital_area,1,Other,grass,,593,535,111,950,529
+1279,Wolves94,BTCQ,16,unscanned,False,outside_capital_area,1,Other,grass,,419,563,112,958,533
+1286,Survivor813ZlZ,CHIO,16,unscanned,False,outside_capital_area,1,Other,grass,,424,573,112,761,29
+1287,Survivor81411m,CHIO,16,unscanned,False,outside_capital_area,1,Other,grass,,427,579,112,990,577
+1294,Dhsk,COYO,16,unscanned,False,outside_capital_area,1,Other,grass,,430,585,112,150,830
+1308,Survivor813LEe,COYO,16,unscanned,False,outside_capital_area,1,Other,grass,,395,515,112,169,834
+1309,Survivor813SaH,COYO,16,unscanned,False,outside_capital_area,1,Other,grass,,393,511,112,154,825
+1312,Survivor813VaP,COYO,16,unscanned,False,outside_capital_area,1,Other,grass,,388,501,112,165,833
+1324,Wambosama,COYO,16,unscanned,False,outside_capital_area,1,Other,grass,,400,475,112,174,821
+1339,Survivor813SEU,CRIC,16,unscanned,False,outside_capital_area,1,Other,grass,,563,597,112,258,925
+1340,Survivor813VDS,CRIC,16,unscanned,False,outside_capital_area,1,Other,grass,,565,593,112,50,717
+1359,Survivor8140nI,delu,16,unscanned,False,outside_capital_area,1,Other,grass,,426,423,112,834,277
+1364,Hakan Türkiye,DIFF,16,unscanned,False,outside_capital_area,1,Other,grass,,572,579,112,54,913
+1374,Murat Ergüzel,dls,16,unscanned,False,outside_capital_area,1,Other,grass,,574,575,112,942,337
+1377,Survivor813T61,dls,16,unscanned,False,outside_capital_area,1,Other,grass,,581,561,112,926,349
+1385,Jorgemeg,DMNI,16,unscanned,False,outside_capital_area,1,Other,grass,,601,521,112,30,337
+1390,SurvivorLalo 1,DMNI,16,unscanned,False,outside_capital_area,1,Other,grass,,416,559,113,702,801
+1401,gabe12,DMNl,16,unscanned,False,outside_capital_area,1,Other,grass,,412,551,113,34,341
+1403,hshshshshshsh,DMNl,16,unscanned,False,outside_capital_area,1,Other,grass,,437,601,113,702,793
+1405,jordi7878,DMNl,16,unscanned,False,outside_capital_area,1,Other,grass,,441,609,113,470,37
+1413,R5jose,DMNl,16,unscanned,False,outside_capital_area,1,Other,grass,,455,613,113,710,813
+1415,Survivor HC68,DMNl,16,unscanned,False,outside_capital_area,1,Other,grass,,463,613,113,974,625
+1419,Survivor813R8y,DMNl,16,unscanned,False,outside_capital_area,1,Other,grass,,468,613,113,974,289
+1421,Survivor813UZz,DMNl,16,unscanned,False,outside_capital_area,1,Other,grass,,473,613,113,802,893
+1427,Helphggyy,DWX,16,unscanned,False,outside_capital_area,1,Other,grass,,504,613,113,233,113
+1433,Survivor813NQT,DWX,16,unscanned,False,outside_capital_area,1,Other,grass,,508,613,113,246,162
+1500,Blackjack23,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,516,613,113,929,829
+1519,Raging Rudi,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,520,613,113,401,98
+1526,Survivor81303w,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,403,467,113,745,117
+1532,Survivor813NX7,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,405,463,113,754,125
+1535,Survivor813UMl,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,530,613,113,382,97
+1544,Tuterror007,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,540,613,113,937,829
+1549,born 2015,FF07,16,unscanned,False,outside_capital_area,1,Other,grass,,547,613,113,42,357
+1550,Fire Whip,FF07,16,unscanned,False,outside_capital_area,1,Other,grass,,414,445,113,50,361
+1552,killasmocc,FF07,16,unscanned,False,outside_capital_area,1,Other,grass,,416,441,113,34,361
+1555,AHMADMADRlD,ffox,16,unscanned,False,outside_capital_area,1,Other,grass,,434,405,113,22,605
+1556,DeathBr1 ng3r,ffox,16,unscanned,False,outside_capital_area,1,Other,grass,,577,571,113,38,585
+1566,straiguer,ffox,16,unscanned,False,outside_capital_area,1,Other,grass,,579,567,113,38,581
+1576,Bakerboy85,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,444,387,113,118,521
+1584,DutchMa5ter,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,449,387,113,50,757
+1586,fish7720,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,589,547,113,134,541
+1588,Fu113rv3rs3,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,461,387,113,113,545
+1599,LiteDuty,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,597,531,113,126,541
+1600,MadTheHatter91,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,482,387,113,242,909
+1602,MiniMac23,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,490,387,113,147,530
+1604,Monvxzgh,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,495,387,113,138,533
+1620,Survivor813KB7,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,421,571,114,62,709
+1626,Survivor813MOF,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,424,577,114,138,537
+1631,Survivor813QZz,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,409,547,114,181,985
+1632,Survivor813RNL,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,398,525,114,130,521
+1635,Survivor813SSR,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,390,509,114,113,529
+1642,Survivor813ZWT,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,388,505,114,226,865
+1649,Wezzy22,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,389,493,114,222,873
+1652,zez02030,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,392,487,114,134,549
+1656,AlBaru,GiD,16,unscanned,False,outside_capital_area,1,Other,grass,,395,481,114,354,909
+1664,Debbiedebow,GiD,16,unscanned,False,outside_capital_area,1,Other,grass,,408,455,114,742,153
+1667,Javierfgil,GiD,16,unscanned,False,outside_capital_area,1,Other,grass,,561,605,114,338,93
+1675,Ratmam1976,GiD,16,unscanned,False,outside_capital_area,1,Other,grass,,571,585,114,731,149
+1678,Survivor813J50,GiD,16,unscanned,False,outside_capital_area,1,Other,grass,,427,417,114,738,129
+1683,Survivor813Qp2,GiD,16,unscanned,False,outside_capital_area,1,Other,grass,,439,393,114,734,129
+1695,Survivor813Mtg,GMA,16,unscanned,False,outside_capital_area,1,Other,grass,,441,389,114,382,829
+1697,SurvivorFazo,GMA,16,unscanned,False,outside_capital_area,1,Other,grass,,592,543,114,380,823
+1703,aaaghjjjjhhh,Itw,16,unscanned,False,outside_capital_area,1,Other,grass,,430,591,115,650,161
+1704,aIev57,Itw,16,unscanned,False,outside_capital_area,1,Other,grass,,434,599,115,650,157
+1722,Survivor813K3M,JKTN,16,unscanned,False,outside_capital_area,1,Other,grass,,437,605,115,914,241
+1752,Survivor813TU7,KYLE,16,unscanned,False,outside_capital_area,1,Other,grass,,403,537,115,58,337
+1753,Szwejk,KYLE,16,unscanned,False,outside_capital_area,1,Other,grass,,444,615,115,730,173
+1762,NathanTom,LKVX,16,unscanned,False,outside_capital_area,1,Other,grass,,399,529,115,546,897
+1765,Survivor813KOA,LKVX,16,unscanned,False,outside_capital_area,1,Other,grass,,460,615,115,138,21
+1784,Survivor813Hxk,LRDE,16,unscanned,False,outside_capital_area,1,Other,grass,,476,615,115,194,73
+1787,Survivor813Xe6,LRDE,16,unscanned,False,outside_capital_area,1,Other,grass,,480,615,115,625,973
+1795,WC3163,LRDE,16,unscanned,False,outside_capital_area,1,Other,grass,,385,499,115,229,717
+1804,abdo hafez,m07,16,unscanned,False,outside_capital_area,1,Other,grass,,487,615,115,886,645
+1805,abo donia,m07,16,unscanned,False,outside_capital_area,1,Other,grass,,495,615,115,858,325
+1814,hossein1371419,m07,16,unscanned,False,outside_capital_area,1,Other,grass,,501,615,115,622,510
+1834,uv•-i Ali,m07,16,unscanned,False,outside_capital_area,1,Other,grass,,396,477,115,854,325
+1835,Zana kurdi,m07,16,unscanned,False,outside_capital_area,1,Other,grass,,513,615,115,902,641
+1854,bior12,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,523,615,115,762,57
+1857,Eli012ab,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,405,459,115,602,25
+1858,Erda127,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,410,449,115,750,37
+1863,hema slime,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,550,615,115,758,57
+1872,mehrad irani,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,557,615,115,730,41
+1885,Survivor8131Hi,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,559,611,115,746,37
+1975,Armageddon920,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,416,437,115,657,81
+1976,Benders Revenge,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,422,425,115,625,869
+1979,DerpyDurr,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,569,591,115,634,897
+1980,Dopz,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,429,411,115,634,893
+1993,SuNivor813VWg,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,435,399,115,634,861
+2001,Survivor813WxP,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,582,565,115,618,881
+2010,VereVolf,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,455,385,115,878,41
+2012,yomama-sonnnn,MPS1,16,unscanned,False,outside_capital_area,1,Other,grass,,468,385,115,630,873
+2014,05Torch,MsFd,16,unscanned,False,outside_capital_area,1,Other,grass,,595,539,115,51,818
+2029,Survivor8140vs,MsFd,16,unscanned,False,outside_capital_area,1,Other,grass,,473,385,115,56,827
+2038,Bigjack442,oray,16,unscanned,False,outside_capital_area,1,Other,grass,,479,385,115,165,905
+2045,nunoabn,oray,16,unscanned,False,outside_capital_area,1,Other,grass,,487,385,115,181,885
+2056,Blondi toxic,pEsT,16,unscanned,False,outside_capital_area,1,Other,grass,,417,567,116,802,869
+2058,Dikdikaa,pEsT,16,unscanned,False,outside_capital_area,1,Other,grass,,421,575,116,29,193
+2059,Erenuys127,pEsT,16,unscanned,False,outside_capital_area,1,Other,grass,,411,555,116,0,804
+2072,Xxodus,pEsT,16,unscanned,False,outside_capital_area,1,Other,grass,,440,613,116,823,881
+2073,ydroj,pEsT,16,unscanned,False,outside_capital_area,1,Other,grass,,391,515,116,154,85
+2076,ShinBone,POHS,16,unscanned,False,outside_capital_area,1,Other,grass,,386,495,116,34,601
+2081,SurvivorDu69,POHS,16,unscanned,False,outside_capital_area,1,Other,grass,,398,471,116,29,593
+2088,Survivor81407B,prox,16,unscanned,False,outside_capital_area,1,Other,grass,,417,433,116,854,65
+2106,nnmnForewemmnm,RE15,16,unscanned,False,outside_capital_area,1,Other,grass,,419,429,116,845,869
+2109,RASHiD,RE15,16,unscanned,False,outside_capital_area,1,Other,grass,,568,595,116,848,863
+2120,Survivor813PCQ,RE15,16,unscanned,False,outside_capital_area,1,Other,grass,,574,583,116,826,869
+2138,Yansky,RE15,16,unscanned,False,outside_capital_area,1,Other,grass,,436,395,116,814,861
+2147,Greenguy1313,RRRS,16,unscanned,False,outside_capital_area,1,Other,grass,,441,385,116,874,613
+2152,MisterPikaski,RRRS,16,unscanned,False,outside_capital_area,1,Other,grass,,586,559,116,858,629
+2154,object bingo,RRRS,16,unscanned,False,outside_capital_area,1,Other,grass,,602,527,116,870,597
+2175,Aliis,Rwak,16,unscanned,False,outside_capital_area,1,Other,grass,,414,563,117,917,125
+2192,Survivor8131CQ,RZCL,16,unscanned,False,outside_capital_area,1,Other,grass,,427,589,117,881,65
+2193,Survivor813Mtl,RZCL,16,unscanned,False,outside_capital_area,1,Other,grass,,431,597,117,882,49
+2194,Survivor813NaK,RZCL,16,unscanned,False,outside_capital_area,1,Other,grass,,404,543,117,874,73
+2195,Survivor813Rr6,RZCL,16,unscanned,False,outside_capital_area,1,Other,grass,,454,617,117,882,73
+2215,Survivor813Yhm,SFU,16,unscanned,False,outside_capital_area,1,Other,grass,,465,617,117,718,893
+2278,bowdeerkiller,STGs,16,unscanned,False,outside_capital_area,1,Other,grass,,469,617,117,570,17
+2307,Survivor81310t,THGC,16,unscanned,False,outside_capital_area,1,Other,grass,,483,617,117,242,957
+2308,Survivor813Jtz,THGC,16,unscanned,False,outside_capital_area,1,Other,grass,,498,617,117,66,829
+2309,Survivor813K2D,THGC,16,unscanned,False,outside_capital_area,1,Other,grass,,506,617,117,38,817
+2319,ANDERSON SILVA,TMJ,16,unscanned,False,outside_capital_area,1,Other,grass,,517,617,117,934,37
+2324,di12345,TMJ,16,unscanned,False,outside_capital_area,1,Other,grass,,531,617,117,926,61
+2325,Duky92,TMJ,16,unscanned,False,outside_capital_area,1,Other,grass,,538,617,117,929,41
+2346,par1,TMJ,16,unscanned,False,outside_capital_area,1,Other,grass,,542,617,117,932,47
+2356,Survivor813LpB,TMJ,16,unscanned,False,outside_capital_area,1,Other,grass,,407,451,117,922,41
+2375,Mimo 14,Trkr,16,unscanned,False,outside_capital_area,1,Other,grass,,411,443,117,914,17
+2380,Si1entHi1,TSL,16,unscanned,False,outside_capital_area,1,Other,grass,,432,401,117,987,921
+2381,SilentHil,TSL,16,unscanned,False,outside_capital_area,1,Other,grass,,582,569,117,981,921
+2395,Survivor813PgZ,TTYC,16,unscanned,False,outside_capital_area,1,Other,grass,,451,383,117,130,809
+2398,United Templars,TTYC,16,unscanned,False,outside_capital_area,1,Other,grass,,591,551,117,138,793
+2400,WorldwarZ91,TTYC,16,unscanned,False,outside_capital_area,1,Other,grass,,593,547,117,126,789
+2477,Cem71,UpS2,16,unscanned,False,outside_capital_area,1,Other,grass,,460,383,117,127,65
+2480,Hutch-RFC,UpS2,16,unscanned,False,outside_capital_area,1,Other,grass,,476,383,117,122,69
+2497,Br7uwu,USv,16,unscanned,False,outside_capital_area,1,Other,grass,,607,519,117,1,557
+2509,Efe0935,WEEQ,16,unscanned,False,outside_capital_area,1,Other,grass,,424,585,118,981,229
+2511,Fuller616,WEEQ,16,unscanned,False,outside_capital_area,1,Other,grass,,407,551,118,977,233
+2524,za3toor,WEEQ,16,unscanned,False,outside_capital_area,1,Other,grass,,399,535,118,233,977
+2526,ACZ,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,440,617,118,766,253
+2528,angeltikling,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,391,519,118,768,243
+2534,cry84,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,388,513,118,786,233
+2538,goolloo,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,384,505,118,778,225
+2550,NoFroX,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,387,489,118,782,229
+2556,sahar 9245,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,398,467,118,761,221
+2561,Survivor81306s,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,412,439,118,762,249
+2568,Survivor813JCZ,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,564,607,118,774,253
+2574,Survivor813Rh7,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,568,599,118,770,213
+2576,Survivor813TFu,WHAN,16,unscanned,False,outside_capital_area,1,Other,grass,,423,417,118,802,33
+2633,maxgrund,ZOAT,16,unscanned,False,outside_capital_area,1,Other,grass,,573,589,118,178,721
+2643,Survivor81304h,ZOAT,16,unscanned,False,outside_capital_area,1,Other,grass,,580,575,118,385,905
+2644,Survivor8130GT,ZOAT,16,unscanned,False,outside_capital_area,1,Other,grass,,438,387,118,181,697
+2655,sweetheart1987,ZOAT,16,unscanned,False,outside_capital_area,1,Other,grass,,599,537,118,181,725
+1439,Biggyschmallz,E45Y,16,unscanned,False,outside_capital_area,1,E45Y,grass,,514,391,109,497,686
+985,gamerfemand034,7cie,17,unscanned,False,outside_capital_area,1,7cie,grass,,519,389,111,222,785
+2240,LuciaCMNS,SHSN,18,unscanned,False,outside_capital_area,1,SHSN,grass,,565,405,113,417,613
+2244,Quln59x,SHSN,18,unscanned,False,outside_capital_area,1,SHSN,grass,,560,395,113,411,615
+3587,bla194,SHSN,18,unscanned,False,outside_capital_area,1,SHSN,grass,,501,387,113,421,617
+2242,Majman,SHSN,17,unscanned,False,outside_capital_area,1,SHSN,grass,,564,399,115,410,581
+2245,Razka x Mal,SHSN,17,unscanned,False,outside_capital_area,1,SHSN,grass,,559,389,115,742,141
+2253,Terekeme 46,SHSN,17,unscanned,False,outside_capital_area,1,SHSN,grass,,557,385,115,417,596
+3617,Survivor813Twr,ULD,16,unscanned,False,outside_capital_area,1,ULD,grass,,518,385,115,790,741
+3488,Survivor813Tku,ASLI,16,unscanned,False,outside_capital_area,1,Other,grass,,500,383,117,5,25
+3498,SAIF3,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,526,383,117,742,62
+3499,LA5,Mesi,16,unscanned,False,outside_capital_area,1,Other,grass,,568,403,117,741,65
+3513,Menjingle,IBMP,16,unscanned,False,outside_capital_area,1,Other,grass,,573,413,117,298,129
+3514,Garry1221,GiD,16,unscanned,False,outside_capital_area,1,Other,grass,,576,419,117,718,133
+3540,Seanus,1LEV,16,unscanned,False,outside_capital_area,1,Other,grass,,565,395,118,10,230
+3571,Mom092600,EGLT,16,unscanned,False,outside_capital_area,1,Other,grass,,517,381,119,70,521
+3577,dasiam,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,522,381,119,118,549
+3591,Survivor813ML6,m07,16,unscanned,False,outside_capital_area,1,Other,grass,,529,381,119,894,625
+3599,Survivor813P6F,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,608,479,119,514,669
+3604,sly 71,s71,16,unscanned,False,outside_capital_area,1,Other,grass,,543,381,119,77,677
+3624,Bigtillacuh,TTYC,16,unscanned,False,outside_capital_area,1,Other,grass,,605,473,119,142,801
+3628,SC94,EzE,16,unscanned,False,outside_capital_area,1,Other,grass,,561,385,119,946,813
+3657,Dusty D,forl,16,unscanned,False,outside_capital_area,1,Other,grass,,563,389,119,706,909
+9,Aashy,,15,unscanned,False,outside_capital_area,1,Other,grass,,568,399,119,202,881
+12,Aegaerys,,15,unscanned,False,outside_capital_area,1,Other,grass,,571,405,119,970,509
+18,ahmet813Kgo,,15,unscanned,False,outside_capital_area,1,Other,grass,,573,409,119,970,689
+3247,AHANSK,WRtH,22,unshielded,True,inside_capital_area,2,WRtH,grass,,613,511,119,520,467
+3029,EmGiriFr,mERC,21,unshielded,True,inside_capital_area,2,mERC,grass,,597,543,119,471,464
+3035,Harley CVO,mERC,21,unshielded,True,inside_capital_area,2,mERC,grass,,602,533,119,503,443
+3042,KingGucci666,mERC,21,unshielded,True,inside_capital_area,2,mERC,grass,,606,525,119,467,463
+2792,Harboy,aTam,23,unshielded,True,inside_capital_area,2,aTam,grass,,578,581,119,553,494
+2802,M3Dx 411,aTam,22,unshielded,True,inside_capital_area,2,aTam,grass,,586,565,119,549,494
+2810,Tudor2,aTam,21,unshielded,True,inside_capital_area,2,aTam,grass,,562,613,119,553,489
+2699,kylieeeee,4NG,22,unshielded,True,inside_capital_area,2,4NG,grass,,514,619,119,539,522
+2715,Soulthai,4NG,22,unshielded,True,inside_capital_area,2,4NG,grass,,509,619,119,526,521
+2703,Missss x1,4NG,21,unshielded,True,inside_capital_area,2,4NG,grass,,520,619,119,554,520
+3436,Ulfricwolf,4NG,21,unshielded,True,inside_capital_area,2,4NG,grass,,502,619,119,534,537
+2681,Bronxito,4NG,20,unshielded,True,inside_capital_area,2,4NG,grass,,526,619,119,548,523
+2691,jasmin123,4NG,20,unshielded,True,inside_capital_area,2,4NG,grass,,535,619,119,539,532
+2694,Kareem11208,4NG,20,unshielded,True,inside_capital_area,2,4NG,grass,,490,619,119,539,541
+3218,"'""711",UpS,22,unshielded,True,inside_capital_area,2,UpS,grass,,448,619,119,496,444
+3337,NOOgM4n,UpS,21,unshielded,True,inside_capital_area,2,UpS,grass,,457,619,119,489,451
+2814,"'J1'J""é",Ayaa,22,unshielded,True,inside_capital_area,2,Ayaa,grass,,428,595,119,455,507
+2824,Caitkit,Ayaa,20,unshielded,True,inside_capital_area,2,Ayaa,grass,,421,581,119,459,523
+2837,hadiajodani,Ayaa,20,unshielded,True,inside_capital_area,2,Ayaa,grass,,434,607,119,456,522
+2729,alws,7cie,22,unshielded,True,inside_capital_area,2,7cie,grass,,411,561,119,527,518
+2754,Papa bourru,7cie,20,unshielded,True,inside_capital_area,2,7cie,grass,,404,547,119,531,549
+2776,Nathan',7cie,20,unshielded,True,inside_capital_area,2,7cie,grass,,416,571,119,537,539
+3105,carlitos1803,SHSN,21,unshielded,True,inside_capital_area,2,SHSN,grass,,392,523,119,518,446
+3106,cherfike,SHSN,21,unshielded,True,inside_capital_area,2,SHSN,grass,,381,501,119,518,458
+3118,Jot4Br4z,SHSN,20,unshielded,True,inside_capital_area,2,SHSN,grass,,395,529,119,511,449
+3127,rodopotocekici,SHSN,20,unshielded,True,inside_capital_area,2,SHSN,grass,,382,497,119,516,453
+3084,kay1992,movR,20,unshielded,True,inside_capital_area,2,movR,grass,,391,479,119,522,533
+3211,toca dos lobo,ULD,21,unshielded,True,inside_capital_area,2,ULD,grass,,400,461,119,490,539
+3215,yerog,ULD,21,unshielded,True,inside_capital_area,2,ULD,grass,,402,457,119,501,565
+3005,Junt,IDNx,30,unshielded,True,inside_capital_area,2,Other,grass,,435,391,119,465,534
+3316,FancyTurtle,X7X,28,unshielded,True,inside_capital_area,2,Other,grass,,432,397,119,478,457
+2666,n king45,,22,unshielded,True,inside_capital_area,2,Other,grass,,429,403,119,532,488
+2672,XIAOMEI,,22,unshielded,True,inside_capital_area,2,Other,grass,,441,381,119,555,463
+3006,KYAWKYAW,IDNx,22,unshielded,True,inside_capital_area,2,Other,grass,,427,407,119,554,466
+3076,Titeuflemaal,MiMS,22,unshielded,True,inside_capital_area,2,Other,grass,,446,381,119,473,453
+3315,ckkyaw3,X7X,22,unshielded,True,inside_capital_area,2,Other,grass,,424,413,119,552,465
+2849,YoUrLuckChanged,BNG,21,unshielded,True,inside_capital_area,2,Other,grass,,454,381,119,476,447
+2910,Frank jr,FJs,21,unshielded,True,inside_capital_area,2,Other,grass,,420,421,119,545,519
+2865,saboteador,DMNl,20,unshielded,True,inside_capital_area,2,Other,grass,,418,425,119,494,561
+2918,1stWarrior,Helm,26,unshielded,True,inside_capital_area,2,Helm,grass,,496,381,119,470,461
+2951,GUMA,Helm,24,unshielded,True,inside_capital_area,2,Helm,grass,,490,381,119,486,443
+2928,Banditloott,Helm,23,unshielded,True,inside_capital_area,2,Helm,grass,,485,381,119,474,445
+2991,TEoY,Helm,23,unshielded,True,inside_capital_area,2,Helm,grass,,480,381,119,488,442
+3377,PurePlaya2,Helm,23,unshielded,True,inside_capital_area,2,Helm,grass,,469,381,119,469,485
+2971,Mrktics,Helm,22,unshielded,True,inside_capital_area,2,Helm,grass,,413,435,119,503,457
+2977,Paxxx3,Helm,22,unshielded,True,inside_capital_area,2,Helm,grass,,408,445,119,466,441
+2933,CassieeK,Helm,21,unshielded,True,inside_capital_area,2,Helm,grass,,404,453,119,484,450
+3000,åRM9rStøRM,Helm,21,unshielded,True,inside_capital_area,2,Helm,grass,,393,475,119,506,459
+3148,CatOAO,SWT,24,unshielded,True,inside_capital_area,2,SWT,grass,,559,619,119,536,463
+3149,Cemach,SWT,22,unshielded,True,inside_capital_area,2,SWT,grass,,555,619,119,551,468
+3169,Nem002,SWT,22,unshielded,True,inside_capital_area,2,SWT,grass,,546,619,119,534,465
+3355,AliBaba67,SWT,22,unshielded,True,inside_capital_area,2,SWT,grass,,480,619,119,540,463
+3176,SEVDA,SWT,21,unshielded,True,inside_capital_area,2,SWT,grass,,472,619,119,520,461
+3280,MARCELO 396,WRtH,20,unshielded,True,inside_capital_area,2,WRtH,grass,,462,619,119,462,545
+3361,Reviraa,mERC,21,unshielded,True,inside_capital_area,2,mERC,grass,,443,619,119,466,470
+3391,mowalid,aTam,21,unshielded,True,inside_capital_area,2,aTam,grass,,436,611,119,547,501
+3130,Seb1234567,SHSN,19,unshielded,True,inside_capital_area,2,SHSN,grass,,389,483,119,503,453
