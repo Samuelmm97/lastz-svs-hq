@@ -7,7 +7,7 @@ Live page: https://samuelmm97.github.io/lastz-svs-hq/
 
 ## Proposed 2,000 player placement
 
-`placement.html` shows a read-only placement proposal built by `generate_placement.py`
+`placement.html` starts from a placement proposal built by `generate_placement.py`
 from the State 798 Field Atlas. The script removes exact repeated name-and-alliance
 records, then ranks plausible HQ records with readable levels by level. Prior
 capital-area location and atlas ID break ties. It uses the 181 published spacing-1 mud spots,
@@ -19,14 +19,27 @@ area last time get first placement priority; HQs recorded outside go later in gr
 This location is only a proxy for attendance. Players marked unshielded in the
 September 26 atlas scan are assigned last in grass.
 
-The plan is a proposal and does not change shared sign-up reservations. The
-`placement-plan.csv` download includes player, alliance, level, shield reading,
-proposed X/Y and prior atlas X/Y for review. OCR readings, shield observations,
-and section boundaries need review before anyone teleports. To regenerate:
+The planner lets coordinators lock manual edge placements, set a wedge by clockwise
+angles from north, and refill only unlocked positions in that wedge. It supports
+grass strike players paired with mud reserve holders; the post-swap preview and CSV
+exchange each pair's position. The shared draft is saved to a Cloudflare Worker
+and D1 database. Every edit uses a revision check so a stale browser cannot silently
+overwrite another planner's changes. The page refreshes shared changes every 10
+seconds. Anyone can view; editing requires the team key. The key is entered in the
+browser and never committed to this repository.
+
+The draft does not change the separate HQ sign-up reservations. Staging and
+post-swap CSV downloads include player, alliance, level, shield reading, proposed
+X/Y and prior atlas X/Y for review. OCR readings, shield observations, and section
+boundaries need review before anyone teleports. To regenerate the base plan:
 
 ```
 python generate_placement.py --atlas PATH_TO_FIELD_ATLAS_REPOSITORY
 ```
+
+The base plan should not be regenerated while a shared draft exists: the draft
+references its player IDs and legal sites. Migrate or archive the draft first.
+Backend setup and local tests are in `backend/README.md`.
 
 * outer hexagon = buildable dirt zone (35 tiles from the capital centre)
 * inner hexagon = no-build zone (18 tiles)
