@@ -226,10 +226,18 @@ $('connectEditor').onclick = async () => {
     const r = await fetch(`${apiUrl}/api/editor-check`, { method: 'POST',
       headers: { Authorization: `Bearer ${key}` } });
     if (!r.ok) throw Error('Editor key was rejected');
-    editorKey = key; sessionStorage.setItem('state798.editorKey', key);
+    editorKey = key; localStorage.setItem('state798.editorKey', key);
+    sessionStorage.removeItem('state798.editorKey');
     localStorage.setItem('state798.editorName', $('editorName').value.trim());
     message('Editing enabled. Changes save to the shared database.');
   } catch (e) { message(e.message); }
+};
+$('forgetEditor').onclick = () => {
+  editorKey = '';
+  $('editorKey').value = '';
+  localStorage.removeItem('state798.editorKey');
+  sessionStorage.removeItem('state798.editorKey');
+  message('Editor key removed from this device.');
 };
 
 fetch('placement-plan.json').then(r => {
@@ -241,7 +249,8 @@ fetch('placement-plan.json').then(r => {
     option.textContent = `${tag} (${data.sections[tag].players})`; $('section').append(option);
   }
   $('editorName').value = localStorage.getItem('state798.editorName') || '';
-  $('editorKey').value = sessionStorage.getItem('state798.editorKey') || '';
+  $('editorKey').value = localStorage.getItem('state798.editorKey') ||
+    sessionStorage.getItem('state798.editorKey') || '';
   $('explain').textContent = 'Shared plan: lock manual edge placements, then refill unlocked sites in your wedge. ' +
     'Strike players stage in grass; paired reserves hold mud spots until the planned swap.';
   render(); size(); loadShared(true);
