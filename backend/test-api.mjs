@@ -28,4 +28,34 @@ const latest = await fetch(`${base}/api/placement`).then(r => r.json());
 assert.equal(latest.revision, saved.revision);
 const restored = P.create(plan);
 P.importDraft(restored, latest.draft);
-console.log('D1 save, read, auth, and concurrent revision conflict passed');
+const history = await fetch(`${base}/api/placement/history`).then(r => r.json());
+assert.equal(history.entries[0].revision, saved.revision);
+const detail = await fetch(`${base}/api/placement/history/${saved.revision}`).then(r => r.json());
+assert.deepEqual(detail.draft, draft);
+const changed = P.create(plan); P.importDraft(changed, draft);
+const pair = [...changed.assignments].find(([id, site], index, entries) =>
+  index > 0 && changed.sites.get(site).zone === changed.sites.get(entries[0][1]).zone);
+assert(pair);
+const firstId = changed.assignments.keys().next().value;
+const firstSite = changed.assignments.get(firstId);
+changed.assignments.set(firstId, pair[1]); changed.assignments.set(pair[0], firstSite);
+changed.locks.add(firstId);
+const edit = await fetch(`${base}/api/placement`, { method: 'PUT',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+  body: JSON.stringify({ baseRevision: saved.revision, draft: P.exportDraft(changed), editor: 'Editor test' }) });
+assert.equal(edit.status, 200, await edit.clone().text());
+const edited = await edit.json();
+assert.equal(edited.changes.moved.length, 2);
+assert.equal(edited.changes.locked.length, 1);
+const editDetail = await fetch(`${base}/api/placement/history/${edited.revision}`).then(r => r.json());
+assert.equal(editDetail.changes.moved.length, 2);
+const restore = await fetch(`${base}/api/placement/restore`, { method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+  body: JSON.stringify({ baseRevision: edited.revision, sourceRevision: saved.revision, editor: 'Restore test' }) });
+assert.equal(restore.status, 200, await restore.clone().text());
+const restoredRevision = await restore.json();
+assert.equal(restoredRevision.action, 'restore');
+assert.equal(restoredRevision.sourceRevision, saved.revision);
+const final = await fetch(`${base}/api/placement`).then(r => r.json());
+assert.deepEqual(final.draft, draft);
+console.log('D1 save, history, change details, restore, auth, and revision conflict passed');

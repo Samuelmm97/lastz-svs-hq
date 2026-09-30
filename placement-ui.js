@@ -6,6 +6,7 @@ const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
   risk: '#ef6f77', team: '#f9e37e' };
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null;
+let historyEntries = [], selectedHistory = null;
 
 function message(value) { $('status').textContent = value; }
 function bounds() { return { start: Number($('wedgeStart').value), end: Number($('wedgeEnd').value) }; }
@@ -104,6 +105,64 @@ function render() {
   }
   draw();
 }
+function changeSummary(changes) {
+  const parts = [['moved', 'moved'], ['locked', 'locked'], ['unlocked', 'unlocked'],
+    ['paired', 'paired'], ['unpaired', 'unpaired']]
+    .filter(([key]) => changes[key]?.length)
+    .map(([key, label]) => `${changes[key].length} ${label}`);
+  return parts.join(' · ') || 'No placement changes';
+}
+function renderHistoryList() {
+  const list = $('historyList'); list.replaceChildren();
+  for (const entry of historyEntries) {
+    const li = document.createElement('li'), button = document.createElement('button');
+    const action = entry.action === 'restore' ? `restored revision ${entry.sourceRevision}`
+      : entry.action === 'baseline' ? 'history begins here' : changeSummary(entry.changes);
+    li.append(document.createTextNode(`Revision ${entry.revision} · ${new Date(entry.updatedAt).toLocaleString()} · ` +
+      `${entry.updatedBy} · ${action}`));
+    button.textContent = 'View'; button.onclick = () => showHistory(entry.revision);
+    li.append(button); list.append(li);
+  }
+  $('moreHistory').hidden = !historyEntries.length || !$('moreHistory').dataset.hasMore;
+}
+async function loadHistory(reset = true) {
+  try {
+    const before = reset || !historyEntries.length ? '' : `?before=${historyEntries.at(-1).revision}`;
+    const r = await fetch(`${apiUrl}/api/placement/history${before}`, { cache: 'no-store' });
+    if (!r.ok) throw Error(`History unavailable (${r.status})`);
+    const data = await r.json();
+    historyEntries = reset ? data.entries : historyEntries.concat(data.entries);
+    $('moreHistory').dataset.hasMore = data.hasMore ? 'yes' : '';
+    renderHistoryList();
+  } catch (e) { $('historyDetail').textContent = e.message; }
+}
+async function showHistory(number) {
+  try {
+    const r = await fetch(`${apiUrl}/api/placement/history/${number}`, { cache: 'no-store' });
+    if (!r.ok) throw Error(`Revision unavailable (${r.status})`);
+    const entry = await r.json();
+    const check = P.create(plan); P.importDraft(check, entry.draft);
+    selectedHistory = entry;
+    const detail = $('historyDetail'); detail.replaceChildren();
+    const title = document.createElement('p');
+    title.textContent = `Revision ${number} by ${entry.updatedBy} · ${changeSummary(entry.changes)}`;
+    detail.append(title);
+    if (entry.action === 'restore') {
+      const source = document.createElement('p');
+      source.textContent = `Restored from revision ${entry.sourceRevision}.`; detail.append(source);
+    }
+    const list = document.createElement('ul'); list.className = 'history-changes';
+    const add = value => { const li = document.createElement('li'); li.textContent = value; list.append(li); };
+    const name = id => state.players.get(id)?.name || `Atlas ID ${id}`;
+    for (const move of entry.changes.moved) add(`${name(move.id)}: ${move.from} → ${move.to}`);
+    for (const id of entry.changes.locked) add(`${name(id)}: locked`);
+    for (const id of entry.changes.unlocked) add(`${name(id)}: unlocked`);
+    for (const pair of entry.changes.paired) add(`${name(pair.strike)} ⇄ ${name(pair.reserve)}: paired`);
+    for (const pair of entry.changes.unpaired) add(`${name(pair.strike)} ⇄ ${name(pair.reserve)}: pair removed`);
+    detail.append(list);
+    $('restoreHistory').hidden = number === revision;
+  } catch (e) { $('historyDetail').textContent = e.message; $('restoreHistory').hidden = true; }
+}
 async function loadShared(force = false) {
   if (!apiUrl) { message('Shared backend URL is not configured yet.'); return; }
   if (busy && !force) return;
@@ -115,6 +174,8 @@ async function loadShared(force = false) {
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
       state = next; revision = data.revision; render();
+      if (selectedHistory) $('restoreHistory').hidden = selectedHistory.revision === revision;
+      loadHistory();
       message(data.revision ? `Shared revision ${revision} by ${data.updatedBy} loaded.`
         : 'Shared plan is ready. No edits yet.');
     }
@@ -135,6 +196,8 @@ async function mutate(action) {
     if (!r.ok) throw Error(r.status === 409 ? 'Another planner saved first; reloading their version. Retry your edit.'
       : data.error || `Save failed (${r.status})`);
     revision = data.revision; render();
+    if (selectedHistory) $('restoreHistory').hidden = selectedHistory.revision === revision;
+    loadHistory();
     message(`Saved revision ${revision}${typeof detail === 'number' ? ` · ${detail} positions updated` : ''}.`);
   } catch (e) {
     P.importDraft(state, before); render(); message(e.message);
@@ -217,6 +280,27 @@ $('pairReserve').onclick = () => mutate(() => {
   P.addPair(state, pendingStrike, selectedId); pendingStrike = null;
 });
 $('reloadShared').onclick = () => loadShared(true);
+$('refreshHistory').onclick = () => loadHistory();
+$('moreHistory').onclick = () => loadHistory(false);
+$('restoreHistory').onclick = async () => {
+  if (!selectedHistory) return;
+  if (!editorKey) { message('Enter the shared editor key before restoring.'); return; }
+  if (busy) { message('A change is still saving.'); return; }
+  const sourceRevision = selectedHistory.revision;
+  busy = true;
+  try {
+    const r = await fetch(`${apiUrl}/api/placement/restore`, { method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${editorKey}` },
+      body: JSON.stringify({ baseRevision: revision, sourceRevision,
+        editor: $('editorName').value.trim() || 'Planner' }) });
+    const data = await r.json();
+    if (!r.ok) throw Error(r.status === 409 ? 'Another planner saved first; reload and try restoring again.'
+      : data.error || `Restore failed (${r.status})`);
+    await loadShared(true);
+    message(`Restored revision ${sourceRevision} as new revision ${data.revision}.`);
+  } catch (e) { message(e.message); if (e.message.startsWith('Another planner')) await loadShared(true); }
+  finally { busy = false; }
+};
 $('exportCurrent').onclick = () => download('state-798-staging.csv', csv(false));
 $('exportSwap').onclick = () => download('state-798-post-swap.csv', csv(true));
 $('connectEditor').onclick = async () => {

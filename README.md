@@ -23,8 +23,11 @@ The planner lets coordinators lock manual edge placements, set a wedge by clockw
 angles from north, and refill only unlocked positions in that wedge. It supports
 grass strike players paired with mud reserve holders; the post-swap preview and CSV
 exchange each pair's position. The shared draft is saved to a Cloudflare Worker
-and D1 database. Every edit uses a revision check so a stale browser cannot silently
-overwrite another planner's changes. The page refreshes shared changes every 10
+and D1 database. Each saved revision records the editor name, time, changed players,
+locks, and strike/reserve pairs. The history panel shows these changes and can restore
+an earlier snapshot as a new revision. History starts at the current baseline because
+older drafts were not retained before this feature. Every edit uses a revision check
+so a stale browser cannot silently overwrite another planner's changes. The page refreshes shared changes every 10
 seconds. Anyone can view; editing requires the team key. After a valid key is entered,
 it stays saved in that browser on that device until the editor uses “Forget key on this
 device” or clears browser storage. The key is never committed to this repository.
