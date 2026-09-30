@@ -41,6 +41,7 @@ node test-api.mjs
 ```
 
 From the repository root, `node planner.test.cjs` checks manual locks, wedge
-refill, pair swaps, and draft validation. D1 retains revision snapshots until
+refill, pair swaps, and draft validation. `node backend/test-validation.mjs` checks
+the API's draft and plan identity validation. D1 retains revision snapshots until
 explicitly removed. The editor key can be rotated
 with `npx wrangler secret put EDITOR_KEY`.

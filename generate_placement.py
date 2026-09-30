@@ -93,6 +93,21 @@ def assign_zone(players, sites, sections):
         site = min(available, key=lambda s: (s['ring'], angular_distance(s['angle'], target)))
         result.append({**player, **site})
         available.remove(site)
+    # Spillover sites can be nearer than a section's final in-wedge site. Keep
+    # each alliance's assigned sites, but give the nearer ones to higher HQs.
+    for tag in sections:
+        group = sorted((row for row in result if row['section'] == tag),
+                       key=lambda row: -row['hq'])
+        while True:
+            inversion = next(((a, b) for a, b in zip(group, group[1:])
+                              if a['hq'] > b['hq'] and a['ring'] > b['ring']), None)
+            if inversion is None:
+                break
+            a, b = inversion
+            for field in ('x', 'y', 'ring', 'angle'):
+                a[field], b[field] = b[field], a[field]
+            if 'spot' in a:
+                a['spot'], b['spot'] = b['spot'], a['spot']
     return result
 
 

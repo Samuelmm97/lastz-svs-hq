@@ -165,11 +165,12 @@ async function showHistory(number) {
 }
 async function loadShared(force = false) {
   if (!apiUrl) { message('Shared backend URL is not configured yet.'); return; }
-  if (busy && !force) return;
+  if (busy) { if (force) message('Wait for the current save to finish.'); return; }
   try {
     const r = await fetch(`${apiUrl}/api/placement`, { cache: 'no-store' });
     if (!r.ok) throw Error(`Shared plan unavailable (${r.status})`);
     const data = await r.json();
+    if (busy) return;
     if (data.revision !== revision || force) {
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
@@ -179,7 +180,7 @@ async function loadShared(force = false) {
       message(data.revision ? `Shared revision ${revision} by ${data.updatedBy} loaded.`
         : 'Shared plan is ready. No edits yet.');
     }
-  } catch (e) { message(e.message); }
+  } catch (e) { if (!busy) message(e.message); }
 }
 async function mutate(action) {
   if (!editorKey) { message('Enter the shared editor key to make changes.'); return; }
@@ -201,7 +202,7 @@ async function mutate(action) {
     message(`Saved revision ${revision}${typeof detail === 'number' ? ` · ${detail} positions updated` : ''}.`);
   } catch (e) {
     P.importDraft(state, before); render(); message(e.message);
-    if (e.message.startsWith('Another planner')) await loadShared(true);
+    if (e.message.startsWith('Another planner')) { busy = false; await loadShared(true); }
   } finally { busy = false; }
 }
 function setTarget(key) {
@@ -296,9 +297,13 @@ $('restoreHistory').onclick = async () => {
     const data = await r.json();
     if (!r.ok) throw Error(r.status === 409 ? 'Another planner saved first; reload and try restoring again.'
       : data.error || `Restore failed (${r.status})`);
+    busy = false;
     await loadShared(true);
     message(`Restored revision ${sourceRevision} as new revision ${data.revision}.`);
-  } catch (e) { message(e.message); if (e.message.startsWith('Another planner')) await loadShared(true); }
+  } catch (e) {
+    message(e.message);
+    if (e.message.startsWith('Another planner')) { busy = false; await loadShared(true); }
+  }
   finally { busy = false; }
 };
 $('exportCurrent').onclick = () => download('state-798-staging.csv', csv(false));

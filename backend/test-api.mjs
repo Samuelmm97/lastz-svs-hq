@@ -24,6 +24,12 @@ const denied = await fetch(`${base}/api/placement`, { method: 'PUT',
   headers: { 'Content-Type': 'application/json', Authorization: 'Bearer wrong' },
   body: JSON.stringify({ ...payload, baseRevision: saved.revision }) });
 assert.equal(denied.status, 401);
+const wrongPlan = structuredClone(draft);
+wrongPlan.signature = 'different base plan';
+const invalid = await fetch(`${base}/api/placement`, { method: 'PUT',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+  body: JSON.stringify({ baseRevision: saved.revision, draft: wrongPlan, editor: 'Invalid test' }) });
+assert.equal(invalid.status, 400);
 const latest = await fetch(`${base}/api/placement`).then(r => r.json());
 assert.equal(latest.revision, saved.revision);
 const restored = P.create(plan);

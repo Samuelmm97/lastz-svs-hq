@@ -21,11 +21,24 @@ function validDraft(draft) {
         typeof pair[1] !== 'string' || !/^\d{1,3},\d{1,3}$/.test(pair[1])) return false;
     ids.add(pair[0]); sites.add(pair[1]);
   }
-  return ids.size === 2000 && sites.size === 2000 &&
+  if (draft.pairs.some(p => !p || typeof p !== 'object')) return false;
+  const locks = new Set(draft.locks);
+  const members = draft.pairs.flatMap(p => [p.strike, p.reserve]);
+  return ids.size === 2000 && sites.size === 2000 && locks.size === draft.locks.length &&
     draft.locks.every(id => Number.isSafeInteger(id) && ids.has(id)) &&
+    members.length === new Set(members).size &&
     draft.pairs.every(p => Number.isSafeInteger(p.strike) && Number.isSafeInteger(p.reserve) &&
-      ids.has(p.strike) && ids.has(p.reserve));
+      ids.has(p.strike) && ids.has(p.reserve) && locks.has(p.strike) && locks.has(p.reserve));
 }
+
+function samePlan(before, after) {
+  if (before.signature !== after.signature) return false;
+  const ids = new Set(before.assignments.map(([id]) => id));
+  const sites = new Set(before.assignments.map(([, site]) => site));
+  return after.assignments.every(([id, site]) => ids.has(id) && sites.has(site));
+}
+
+export { validDraft, samePlan };
 
 function changesBetween(before, after) {
   const oldSites = new Map(before?.assignments || []);
@@ -52,6 +65,7 @@ async function currentDraft(db) {
 async function saveDraft(db, baseRevision, draft, editor, action = 'edit', sourceRevision = null) {
   const current = await currentDraft(db);
   if ((current?.revision || 0) !== baseRevision) return { conflict: current };
+  if (current && !samePlan(JSON.parse(current.draft), draft)) return { invalid: true };
   const now = new Date().toISOString();
   const serialized = JSON.stringify(draft);
   const changes = JSON.stringify(changesBetween(current && JSON.parse(current.draft), draft));
@@ -143,6 +157,8 @@ export default {
     }
     if (!validDraft(draft)) return response({ error: 'Invalid draft' }, 400, origin);
     const result = await saveDraft(env.DB, body.baseRevision, draft, editor, action, sourceRevision);
-    return result.conflict ? conflictResponse(result.conflict, origin) : response(result, 200, origin);
+    return result.conflict ? conflictResponse(result.conflict, origin) :
+      result.invalid ? response({ error: 'Draft belongs to a different plan' }, 400, origin) :
+      response(result, 200, origin);
   }
 };

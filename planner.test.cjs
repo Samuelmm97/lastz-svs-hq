@@ -42,4 +42,7 @@ const draft = P.exportDraft(state), restored = P.create(plan);
 P.importDraft(restored, draft);
 assert.deepEqual(P.exportDraft(restored), draft);
 assert.throws(() => P.importDraft(restored, { ...draft, signature: 'wrong' }), /different base/);
+const wrongSite = structuredClone(draft);
+wrongSite.assignments[0][1] = '999,999';
+assert.throws(() => P.importDraft(restored, wrongSite), /unknown players or sites/);
 console.log('Manual locks, wedge fill, strike swap, and draft validation passed');
