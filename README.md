@@ -43,6 +43,9 @@ python generate_placement.py --atlas PATH_TO_FIELD_ATLAS_REPOSITORY
 
 The base plan should not be regenerated while a shared draft exists: the draft
 references its player IDs and legal sites. Migrate or archive the draft first.
+The live shared draft includes an HQ ordering correction from revision 7. The
+checked-in base JSON retains its original assignments so older history snapshots
+stay compatible; a future base regeneration needs a draft and history migration.
 Backend setup and local tests are in `backend/README.md`.
 
 * outer hexagon = buildable dirt zone (35 tiles from the capital centre)
