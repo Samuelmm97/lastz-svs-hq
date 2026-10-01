@@ -50,7 +50,7 @@ function usePlan(data) {
     option.textContent = `${tag} (${data.sections[tag].players})`; $('section').append(option);
   }
   if (data.sections[previousSection]) $('section').value = previousSection;
-  $('snapshotNote').textContent = `Roster/power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}`;
+  $('snapshotNote').textContent = `Power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}` + (data.meta.refreshProgress ? `. ${data.meta.refreshProgress}` : '');
   $('explain').textContent = `Roster/power: ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'}. ` +
     `Shield/attendance: previous SvS (${data.meta.eventCaptured || '2026-09-26'}). ` +
     'Mud ranks total hero power, then total power, then HQ. Grass ranks HQ within the previous SvS priority groups. ' +
