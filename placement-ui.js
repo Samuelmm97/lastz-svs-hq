@@ -84,6 +84,7 @@ function draw() {
     ctx.strokeStyle = '#aebbc088'; ctx.stroke();
   }
   boundaryHandles = [];
+  const areaLabels = [];
   for (const [tag,area] of Object.entries(state.sections)) {
     if (tag === 'Other') continue;
     const selected=$('section').value===tag, color=sectionColor(tag);
@@ -104,7 +105,7 @@ function draw() {
     ctx.strokeStyle=color;ctx.lineWidth=selected?2:1;ctx.globalAlpha=selected?1:.45;
     for (const a of [start,start+width]) { const [x1,y1]=point(a,19),[x2,y2]=point(a,118);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke(); }
     ctx.globalAlpha=1;
-    const [lx,ly]=point(center,102);ctx.fillStyle=color;ctx.font=`${selected?14:11}px system-ui`;ctx.textAlign='center';ctx.fillText(tag,lx,ly);
+    areaLabels.push({tag,color,selected,point,center});
     if (selected && editMode) for (const [kind,a] of [['start',start],['end',start+width],['center',center]]) {
       const [x,y]=point(a,115);ctx.beginPath();ctx.arc(x,y,7,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#fff';ctx.stroke();
       boundaryHandles.push({kind,x,y});
@@ -127,6 +128,20 @@ function draw() {
     const [x, y] = project(s);
     ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2);
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+  }
+  const labelBoxes=[];
+  for (const {tag,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
+    ctx.font=`${selected?'bold 13':'11'}px system-ui`;
+    const width=ctx.measureText(tag).width+10,height=20;
+    let box;
+    for (const radius of [102,86,70,54]) {
+      const [x,y]=point(center,radius);
+      box={x:Math.max(4,Math.min(r.width-width-4,x-width/2)),y:y-height/2,width,height};
+      if (!labelBoxes.some(b=>box.x<b.x+b.width+3&&box.x+width+3>b.x&&box.y<b.y+b.height+3&&box.y+height+3>b.y)) break;
+    }
+    labelBoxes.push(box);
+    ctx.fillStyle='#131e25';ctx.globalAlpha=.92;ctx.fillRect(box.x,box.y,width,height);ctx.globalAlpha=1;
+    ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(tag,box.x+width/2,box.y+14);
   }
 }
 function render() {
