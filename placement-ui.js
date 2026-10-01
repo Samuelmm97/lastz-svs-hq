@@ -86,9 +86,15 @@ function draw() {
   }
   boundaryHandles = [];
   const areaLabels = [];
+  const drawnGroups=new Set();
   for (const [tag,area] of Object.entries(state.sections)) {
     if (tag === 'Other') continue;
-    const selected=$('section').value===tag, color=sectionColor(tag);
+    const group=area.group||tag;
+    if (drawnGroups.has(group)) continue;
+    drawnGroups.add(group);
+    const selected=$('section').value===tag ||
+      (area.group && state.sections[$('section').value]?.group===area.group), color=sectionColor(tag);
+    const label=area.label||tag;
     const preview=selected&&editMode ? bounds() : null;
     const start=preview ? preview.start*Math.PI/180 : area.start;
     const difference=preview ? (preview.end-preview.start)*Math.PI/180 : area.end-area.start;
@@ -106,14 +112,14 @@ function draw() {
     ctx.strokeStyle=color;ctx.lineWidth=selected?2:1;ctx.globalAlpha=selected?1:.45;
     for (const a of [start,start+width]) { const [x1,y1]=point(a,19),[x2,y2]=point(a,118);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke(); }
     ctx.globalAlpha=1;
-    areaLabels.push({tag,color,selected,point,center});
+    areaLabels.push({tag:label,color,selected,point,center});
     if (selected && editMode) for (const [kind,a] of [['start',start],['end',start+width],['center',center]]) {
       const [x,y]=point(a,115);ctx.beginPath();ctx.arc(x,y,7,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#fff';ctx.stroke();
       boundaryHandles.push({kind,x,y});
     }
   }
   const [capitalX,capitalY]=project({x:500,y:500});ctx.textAlign='center';ctx.fillStyle='#f0e0c5';ctx.font='bold 13px system-ui';ctx.fillText('CAPITAL',capitalX,capitalY);
-  ctx.fillStyle='#c4d6dc';ctx.font='12px system-ui';ctx.fillText('N ↑',26,90);
+  ctx.fillStyle='#c4d6dc';ctx.font='12px system-ui';ctx.fillText('N ↑',26,20);
   for (const p of visible) {
     if (p.zone === 'unassigned') continue;
     const [x, y] = project(p);

@@ -11,3 +11,10 @@ aside{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;
 .unknown-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;background:#abb0f5}
 
 .unknown-note{display:block;margin-top:3px;font-size:10px;color:#abb0f5}.selected .unknown-note{color:#abb0f5}
+
+/* Keep the legend clear of the southern alliance labels. */
+.map{display:flex;flex-direction:column}
+.map-toolbar{position:static;margin:14px 14px 8px;flex-shrink:0}
+canvas{flex:1;min-height:0;height:0}
+.legend{position:static;margin:8px 14px 14px;flex-shrink:0}
+@media(max-width:800px){.map{height:66dvh;min-height:490px}}

@@ -113,7 +113,9 @@
     if (!state.sections[section] || !Number.isFinite(start) || !Number.isFinite(end) ||
         start < 0 || start > 360 || end < 0 || end > 360 || start === end)
       throw Error('Choose an alliance and two different boundary angles between 0° and 360°');
-    state.sections[section] = { ...state.sections[section], start: start*Math.PI/180, end: end*Math.PI/180 };
+    const group=state.sections[section].group;
+    for (const [tag,area] of Object.entries(state.sections)) if (tag===section || (group && area.group===group))
+      state.sections[tag] = { ...area, start: start*Math.PI/180, end: end*Math.PI/180 };
   }
 
   function pushBack(state, section = '') {
