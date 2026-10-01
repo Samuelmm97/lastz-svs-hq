@@ -92,7 +92,11 @@ function draw() {
     const difference=preview ? (preview.end-preview.start)*Math.PI/180 : area.end-area.start;
     const width=(difference+2*Math.PI)%(2*Math.PI)||2*Math.PI;
     const center=start+width/2;
-    const point=(a,rad) => project({x:500+rad*Math.sin(a),y:500-rad*Math.cos(a)});
+    const point=(a,rad) => {
+      const x=Math.sin(a),y=-Math.cos(a);
+      const ring=Math.max(Math.abs(x-y/2),Math.abs(y),Math.abs(x+y/2));
+      return project({x:500+rad*x/ring,y:500+rad*y/ring});
+    };
     ctx.beginPath();
     for (let i=0;i<=24;i++) { const [x,y]=point(start+width*i/24,118); if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y); }
     for (let i=24;i>=0;i--) { const [x,y]=point(start+width*i/24,19);ctx.lineTo(x,y); }
@@ -108,16 +112,6 @@ function draw() {
   }
   const [capitalX,capitalY]=project({x:500,y:500});ctx.textAlign='center';ctx.fillStyle='#f0e0c5';ctx.font='bold 13px system-ui';ctx.fillText('CAPITAL',capitalX,capitalY);
   ctx.fillStyle='#c4d6dc';ctx.font='12px system-ui';ctx.fillText('N ↑',26,90);
-  const b = bounds();
-  if (Number.isFinite(b.start) && Number.isFinite(b.end) && Math.abs(b.end - b.start) < 360) {
-    const [cx, cy] = project({ x: 500, y: 500 });
-    for (const deg of [b.start, b.end]) {
-      const a = deg * Math.PI / 180;
-      const [x, y] = project({ x: 500 + 120 * Math.sin(a), y: 500 - 120 * Math.cos(a) });
-      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y);
-      ctx.strokeStyle = '#fff9'; ctx.lineWidth = 2; ctx.stroke();
-    }
-  }
   for (const p of visible) {
     if (p.zone === 'unassigned') continue;
     const [x, y] = project(p);
@@ -142,6 +136,7 @@ function render() {
   visible = P.rows(state, after).filter(p =>
     (!q || `${p.name} ${p.tag} ${p.id}`.toLocaleLowerCase().includes(q)) &&
     (!section || p.section === section) && (!zone || p.zone === zone));
+  if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} players shown · ` +
     `version ${revision}` +
     (after ? ' · POST-SWAP PREVIEW' : '');
