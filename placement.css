@@ -7,3 +7,5 @@ aside{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;
 @media(max-width:800px){header{padding:12px 14px;align-items:stretch;flex-direction:column;gap:10px}h1{font-size:18px}nav{gap:9px;flex-wrap:wrap;justify-content:space-between;font-size:12px}main{display:flex;flex-direction:column;height:auto;min-height:0}.map{height:53dvh;min-height:350px}aside{border-left:0;border-top:1px solid var(--line);max-height:none}.rows{max-height:55dvh;min-height:220px}.legend{font-size:10px;padding:7px 9px}.legend small{display:none}.map-toolbar>span{display:none}.control{padding:14px}.editing .rows{max-height:none}}
 
 .absent-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;background:#f3b65e}.rear-note{display:block;margin-top:3px;color:#f3b65e;font-size:10px;white-space:normal}.selected .rear-note{color:#f3b65e}
+
+.unknown-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;background:#abb0f5}

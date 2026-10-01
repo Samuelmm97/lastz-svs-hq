@@ -32,6 +32,19 @@ def combat_order(p):
             -(p['totalPower'] if p['totalPower'] is not None else -1),-p['hq'],p['id'])
 
 
+def historic_attendance(record,event):
+    if not record:return 'unknown'
+    if record.get('zone')=='capital':return 'inside_capital_area'
+    if record.get('zone')=='outside':return 'outside_capital_area'
+    # Some original records omitted zone, but retained their SvS coordinates.
+    # Only those historical coordinates may fill the classification gap.
+    x,y=record.get('x'),record.get('y')
+    if isinstance(x,(int,float)) and isinstance(y,(int,float)) and math.isfinite(x) and math.isfinite(y):
+        cx,cy=event.get('center',[500,500]);radius=event.get('radius',100)
+        return 'inside_capital_area' if math.hypot(x-cx,y-cy)<=radius else 'outside_capital_area'
+    return 'unknown'
+
+
 def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_only=False):
     draft=shared['draft']
     if draft['signature']!=signature(previous):
@@ -42,7 +55,8 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
     if len(before)!=2000 or set(before.values())!=set(sites):
         raise ValueError('Current draft is not a complete legal-site bijection')
     observations={r['id']:r for r in load(atlas/'data/shields.json')}
-    attendance={r['id']:r for r in load(atlas/'data/participation.json')['records']}
+    event=load(atlas/'data/participation.json')
+    attendance={r['id']:r for r in event['records']}
     power=load(atlas/'data/power.json')
     ranked_alliances=sorted(power.get('alliances',{}).values(),key=lambda a:a.get('alliance_power',{}).get('rank',9999))
     top_tags={a['tag'] for a in ranked_alliances[:13] if a.get('tag')}
@@ -76,12 +90,11 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
         tag=ALIASES.get(p['tag'],p['tag'])
         status=observations.get(p['id'],{}).get('status','unscanned')
         historic=attendance.get(p['id'])
-        proxy='inside_capital_area' if historic and historic.get('zone')=='capital' else \
-            'outside_capital_area' if historic and historic.get('zone')=='outside' else 'unknown'
+        proxy=historic_attendance(historic,event)
         metric=metrics.get(p['id'],{})
         players[p['id']]={'id':p['id'],'name':p['name'],'hq':p['hq'],'tag':tag,
             'section':tag if tag in own_sections else 'Other','shield':status,'highRisk':status=='unshielded',
-            'attendanceProxy':proxy,'priority':2 if status=='unshielded' or proxy=='outside_capital_area' else 0 if proxy=='inside_capital_area' else 1,
+            'attendanceProxy':proxy,'priority':2 if status=='unshielded' or proxy!='inside_capital_area' else 0,
             'heroPower':metric.get('total_hero_power',{}).get('value'),
             'totalPower':metric.get('personal_power',{}).get('value'),
             'powerCaptured':power['captured_date'],'eventCaptured':'2026-09-26','oldX':p['x'],'oldY':p['y'],
@@ -99,7 +112,7 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
         for p in players.values():
             if p['id'] in locks or sites[assignments[p['id']]]['zone']!='mud' or p['priority']!=2:continue
             candidates=[q for q in players.values() if q['id'] not in locks and q['priority']!=2 and
-                        q['hq']>=24 and sites[assignments[q['id']]]['zone']=='grass']
+                        (q['hq']>=24 or q['tag']!='Helm') and sites[assignments[q['id']]]['zone']=='grass']
             if not candidates:raise ValueError('No safe grass player available to replace a new risk in mud')
             q=min(candidates,key=combat_order)
             assignments[p['id']],assignments[q['id']]=assignments[q['id']],assignments[p['id']]
@@ -107,6 +120,15 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
         if rear_priority_only:
             from rear_priority import place_rear
             rear_report=place_rear(players,sites,assignments,locks,draft.get('sections',previous['sections']))
+            # Safe, high-level attendees replace any low-level mud supporters
+            # displaced by the global rear allocation.
+            for p in players.values():
+                if p['id'] in locks or sites[assignments[p['id']]]['zone']!='mud' or p['hq']>=24:continue
+                candidates=[q for q in players.values() if q['id'] not in locks and q['priority']==0 and
+                            q['hq']>=24 and sites[assignments[q['id']]]['zone']=='grass']
+                if not candidates:continue
+                q=min(candidates,key=combat_order)
+                assignments[p['id']],assignments[q['id']]=assignments[q['id']],assignments[p['id']]
         result=[{**p,**sites[assignments[p['id']]]} for p in players.values()]
         sections={tag:{**info,'players':sum(p['section']==tag for p in result)}
                   for tag,info in draft.get('sections',previous['sections']).items()}
@@ -120,8 +142,11 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
             'sections':sections,'placements':result}
         if rear_priority_only:
             proposed['meta'].update(**rear_report,
+                confirmedCapitalAttendees=sum(p['attendanceProxy']=='inside_capital_area' for p in result),
+                priorCapitalSnapshotCount=sum(historic_attendance(r,event)=='inside_capital_area' for r in event['records']),
+                attendanceNotRecorded=sum(p['attendanceProxy']=='unknown' for p in result),
                 allianceGrouping='Preferred alliance areas; previous SvS rear priority overrides grouping',
-                refreshProgress='October 1 roster and power published. Alliance groups share a preferred area; prior no-shows and unshielded players stage in the farthest grass. Roster reconciliation and turret checks continue.')
+                refreshProgress='October 1 roster and power published. Confirmed prior capital attendees have front priority; players outside the old capital scan, without an attendance record, or previously unshielded stage in back grass. Roster reconciliation and turret checks continue.')
         digest=hashlib.sha256(json.dumps(proposed,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()[:16]
         proposed['planId']='roster-'+date+'-'+digest
         next_draft={**draft,'signature':signature(proposed),'assignments':list(assignments.items())}
@@ -134,7 +159,7 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
     reserve_ids={p['reserve'] for p in draft['pairs']}
     target=315*math.pi/180
     def mud_eligible(p):
-        return p['hq']>=24 and not p['highRisk'] and p['attendanceProxy']!='outside_capital_area'
+        return p['hq']>=24 and not p['highRisk'] and p['attendanceProxy']=='inside_capital_area'
     mud_players=sorted((p for p in players.values() if p['tag']=='Helm' and mud_eligible(p)
                         and p['id'] not in strike_ids and p['id'] not in locks),key=combat_order)
     mud=[(key,s) for key,s in sites.items() if s['zone']=='mud' and key not in reserved]

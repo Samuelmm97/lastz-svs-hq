@@ -11,6 +11,7 @@
   function rearReasons(player) {
     const reasons=[];
     if (player.attendanceProxy==='outside_capital_area') reasons.push('Not in the capital area last SvS');
+    if (player.attendanceProxy==='unknown') reasons.push('Capital attendance not recorded last SvS');
     if (player.highRisk) reasons.push('Unshielded last SvS');
     return reasons;
   }
@@ -150,7 +151,7 @@
     const used=new Set(), rear=rearSites(state); let moved=0, waiting=0;
     for (const zone of ['mud','grass']) {
       const ids=[...state.players].filter(([id,p]) => p.section===section && !state.locks.has(id) &&
-        (zone==='mud')===(p.hq>=24 && !p.highRisk && p.attendanceProxy!=='outside_capital_area'))
+        (zone==='mud')===(p.hq>=24 && !p.highRisk && p.attendanceProxy==='inside_capital_area'))
         .map(([id])=>id);
       ids.sort((a,b) => {
         const x=state.players.get(a),y=state.players.get(b);
@@ -186,7 +187,7 @@
       const ids = [...state.players.keys()].filter(id => {
         const site = state.sites.get(next.get(id));
         const player = state.players.get(id);
-        const mudEligible = player.hq >= 24 && !player.highRisk && player.attendanceProxy !== 'outside_capital_area';
+        const mudEligible = player.hq >= 24 && !player.highRisk && player.attendanceProxy === 'inside_capital_area';
         return !state.locks.has(id) && (site ? site.zone === terrain && inWedge(site, start, end)
           : terrain === 'grass' || mudEligible)
           && (!section || state.players.get(id).section === section);

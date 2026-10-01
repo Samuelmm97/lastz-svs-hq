@@ -3,7 +3,7 @@ const P = PlacementPlanner;
 const canvas = $('map'), ctx = canvas.getContext('2d');
 const apiUrl = globalThis.PLACEMENT_API_URL || '';
 const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
-  risk: '#ef6f77', absent: '#f3b65e', team: '#f9e37e' };
+  risk: '#ef6f77', absent: '#f3b65e', unknown: '#abb0f5', team: '#f9e37e' };
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null;
 let historyEntries = [], selectedHistory = null;
@@ -118,7 +118,7 @@ function draw() {
     if (p.zone === 'unassigned') continue;
     const [x, y] = project(p);
     ctx.beginPath(); ctx.arc(x, y, p.id === selectedId ? 5 : Math.max(2, 2.5 * scale ** .3), 0, Math.PI * 2);
-    ctx.fillStyle = p.role ? palette.team : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : sectionColor(p.section);
+    ctx.fillStyle = p.role ? palette.team : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : p.attendanceProxy==='unknown' ? palette.unknown : sectionColor(p.section);
     ctx.fill();
     if (p.locked) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); }
   }
@@ -156,6 +156,14 @@ function render() {
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} players shown · ` +
     `version ${revision}` +
     (after ? ' · POST-SWAP PREVIEW' : '');
+  const allPlayers=[...state.players.values()];
+  const attended=allPlayers.filter(p=>p.attendanceProxy==='inside_capital_area').length;
+  const unknown=allPlayers.filter(p=>p.attendanceProxy==='unknown').length;
+  const rear=allPlayers.filter(p=>P.rearReasons(p).length).length;
+  const unshieldedAttendees=allPlayers.filter(p=>p.attendanceProxy==='inside_capital_area'&&p.highRisk).length;
+  $('attendanceSummary').textContent = `All alliances: ${(allPlayers.length-rear).toLocaleString()} front priority · ${rear.toLocaleString()} back priority. ` +
+    (plan.meta.priorCapitalSnapshotCount ? `The old scan recorded ${plan.meta.priorCapitalSnapshotCount.toLocaleString()} at the capital; ${attended.toLocaleString()} match this roster, including ${unshieldedAttendees} unshielded players kept in back. ` : '')+
+    `${unknown.toLocaleString()} players have no recorded attendance.`;
   const body = $('rows'); body.replaceChildren();
   for (const p of visible.slice(0, 500)) {
     const tr = document.createElement('tr');

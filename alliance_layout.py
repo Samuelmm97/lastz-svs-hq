@@ -38,7 +38,7 @@ def align_alliances(players, sites, assignments, locks, sections, ranked_tags, c
     for p in mutable:assignments[p['id']]=None
     def inside(site,section):
         return (site['angle']-section['start'])%tau<=section['end']-section['start']+1e-9
-    def mud_ok(p):return p['hq']>=24 and not p['highRisk'] and p['attendanceProxy']!='outside_capital_area'
+    def mud_ok(p):return p['hq']>=24 and not p['highRisk'] and p['attendanceProxy']=='inside_capital_area'
     # Allocate each named alliance within the same area in both terrain bands.
     for tag in tags:
         people=[p for p in mutable if p['section']==tag]
@@ -64,14 +64,14 @@ def align_alliances(players, sites, assignments, locks, sections, ranked_tags, c
     # necessary to retain a complete draft; old risk/absence always stays grass.
     waiting=[p for p in others if assignments[p['id']] is None]
     for p in waiting:
-        choices=[(key,s) for key,s in pool.items() if s['zone']=='mud' and not p['highRisk'] and p['attendanceProxy']!='outside_capital_area']
+        choices=[(key,s) for key,s in pool.items() if s['zone']=='mud' and not p['highRisk'] and p['attendanceProxy']=='inside_capital_area']
         if not choices:
             # Shared open spots may use safe supporters from shared grass.
             # Named alliances always stay within their own boundaries.
             empty=[(key,s) for key,s in pool.items() if s['zone']=='mud']
-            candidates=[q for q in others if assignments[q['id']] and
+            candidates=[q for q in mutable if assignments[q['id']] and
                         sites[assignments[q['id']]]['zone']=='grass' and not q['highRisk'] and
-                        q['attendanceProxy']!='outside_capital_area']
+                        q['attendanceProxy']=='inside_capital_area']
             if not empty or not candidates:raise ValueError('No eligible player for remaining mud capacity')
             q,(key,s)=min(((q,item) for q in candidates for item in empty),
                 key=lambda pair:(angular_distance(pair[1][1]['angle'],

@@ -3,10 +3,16 @@ import math
 from pathlib import Path
 import tempfile
 import unittest
-from generate_helm_layout import propose, signature
+from generate_helm_layout import propose, signature, historic_attendance
 
 
 class LayoutTests(unittest.TestCase):
+    def test_missing_old_zone_uses_only_the_old_location(self):
+        event={'center':[500,500],'radius':100}
+        self.assertEqual(historic_attendance({'zone':None,'x':800,'y':800},event),'outside_capital_area')
+        self.assertEqual(historic_attendance({'zone':None,'x':510,'y':520},event),'inside_capital_area')
+        self.assertEqual(historic_attendance(None,event),'unknown')
+        self.assertEqual(historic_attendance({'zone':None},event),'unknown')
     def test_new_roster_keeps_geometry_and_event_evidence(self):
         previous=json.loads(Path(__file__).with_name('placement-plan.json').read_text(encoding='utf-8'))
         shared={'revision':11,'draft':{'signature':signature(previous),
@@ -34,7 +40,7 @@ class LayoutTests(unittest.TestCase):
                              set(site for id,site in draft['assignments']))
             by_id={p['id']:p for p in plan['placements']}
             for p in added:
-                self.assertEqual(by_id[p['id']]['zone'],'mud')
+                self.assertEqual(by_id[p['id']]['zone'],'grass')
                 self.assertEqual(by_id[p['id']]['attendanceProxy'],'unknown')
             for p in previous['placements']:
                 if p['id'] in by_id:
@@ -46,7 +52,7 @@ class LayoutTests(unittest.TestCase):
             self.assertTrue(plan['planId'].startswith('atlas-2026-10-01-'))
             self.assertEqual(draft['signature'],signature(plan))
             self.assertEqual(report['basedOnRevision'],11)
-            rear=[p for p in plan['placements'] if p['highRisk'] or p['attendanceProxy']=='outside_capital_area']
+            rear=[p for p in plan['placements'] if p['highRisk'] or p['attendanceProxy']!='inside_capital_area']
             ordinary=[p for p in plan['placements'] if p['zone']=='grass' and p not in rear]
             self.assertTrue(all(p['zone']=='grass' for p in rear))
             self.assertGreaterEqual(min(p['ring'] for p in rear),max(p['ring'] for p in ordinary))
