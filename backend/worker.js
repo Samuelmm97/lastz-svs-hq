@@ -66,7 +66,17 @@ function validPlan(plan) {
     Number.isFinite(p.ring) && Number.isFinite(p.angle) && (() => {
       const j = p.y - 500, i = p.x - 500 - Math.floor(j / 2);
       const ring = Math.max(Math.abs(i), Math.abs(j), Math.abs(i + j));
-      return ring === p.ring && (p.zone === 'mud' ? ring >= 20 && ring <= 33 : ring >= 37 && ring <= 119);
+      const compact=plan.meta.mudMinDistance===3;
+      return ring === p.ring && (p.zone === 'mud' ? ring >= (compact?19:20) && ring <= (compact?34:33) : ring >= 37 && ring <= 119);
+    })()) &&
+    (plan.meta.mudMinDistance!==3 || (() => {
+      const mud=plan.placements.filter(p=>p.zone==='mud');
+      for(let a=0;a<mud.length;a++)for(let b=a+1;b<mud.length;b++) {
+        const aj=mud[a].y-500,bj=mud[b].y-500;
+        const di=mud[a].x-Math.floor(aj/2)-mud[b].x+Math.floor(bj/2),dj=aj-bj;
+        if(Math.max(Math.abs(di),Math.abs(dj),Math.abs(di+dj))<3)return false;
+      }
+      return true;
     })()) &&
     new Set(plan.placements.map(p => p.id)).size === 2000 &&
     new Set(plan.placements.map(p => `${p.x},${p.y}`)).size === 2000;

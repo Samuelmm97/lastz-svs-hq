@@ -29,7 +29,8 @@
     if (players.size !== plan.placements.length || allSites.size !== plan.placements.length) throw Error('Base plan has duplicate IDs or sites');
     const signature = (plan.planId ? `${plan.planId}:` : '') + plan.placements.map(p => `${p.id}@${siteKey(p)}`).sort().join('|');
     return { players, sites, signature, assignments: new Map(plan.placements.map(p => [p.id, blocked.has(siteKey(p)) ? null : siteKey(p)])),
-             sections: structuredClone(plan.sections || {}), locks: new Set(), pairs: [] };
+             sections: structuredClone(plan.sections || {}), locks: new Set(), pairs: [],
+             leadershipMudBoundaries: plan.meta?.leadershipMudBoundaries===true };
   }
 
   function playerAt(state, key) {
@@ -91,6 +92,11 @@
     return Math.min(d, 2 * Math.PI - d);
   }
 
+  function inMudArea(site,area) {
+    const tau=2*Math.PI,width=(area.end-area.start+tau)%tau||tau;
+    return ((site.angle-area.start+tau)%tau)<width-1e-10;
+  }
+
   function clear(state, options = {}) {
     const { zone = 'mud', start = 0, end = 360, section = '', includeLocked = false } = options;
     const cleared = [];
@@ -150,8 +156,15 @@
     const area=state.sections[section];
     if (!area) throw Error('Choose an alliance first');
     const used=new Set(), rear=rearSites(state); let moved=0, waiting=0;
+    const inArea=s=>inMudArea(s,area);
+    const members=[...state.players].filter(([id,p])=>p.section===section&&!state.locks.has(id));
+    const mudCapacity=[...state.sites].filter(([key,s])=>s.zone==='mud'&&inArea(s)&&!state.locks.has(playerAt(state,key))).length;
+    const strictMud=members.filter(([,p])=>!needsRear(p)).sort((a,b)=>
+      (b[1].heroPower??-1)-(a[1].heroPower??-1)||(b[1].totalPower??-1)-(a[1].totalPower??-1)||b[1].hq-a[1].hq||a[0]-b[0])
+      .slice(0,mudCapacity).map(([id])=>id);
     for (const zone of ['mud','grass']) {
-      const ids=[...state.players].filter(([id,p]) => p.section===section && !state.locks.has(id) &&
+      const ids=members.filter(([id,p]) => state.leadershipMudBoundaries ?
+        (zone==='mud')===strictMud.includes(id) :
         (zone==='mud')===(p.hq>=24 && !p.highRisk && p.attendanceProxy!=='outside_capital_area'))
         .map(([id])=>id);
       ids.sort((a,b) => {
@@ -163,6 +176,7 @@
       for (const id of ids) {
         const player=state.players.get(id);
         const options=[...state.sites].filter(([key,s]) => s.zone===zone && !used.has(key) &&
+          (zone!=='mud'||!state.leadershipMudBoundaries||inArea(s)) &&
           (zone!=='grass' || (needsRear(player) ? rear.has(key) : !rear.has(key))) &&
           (!state.locks.has(playerAt(state,key)) || playerAt(state,key)===id));
         const score=s=>s.ring*100+angularGap(s.angle,target)*200+
@@ -188,7 +202,8 @@
       const ids = [...state.players.keys()].filter(id => {
         const site = state.sites.get(next.get(id));
         const player = state.players.get(id);
-        const mudEligible = player.hq >= 24 && !player.highRisk && player.attendanceProxy !== 'outside_capital_area';
+        const mudEligible = !player.highRisk && player.attendanceProxy !== 'outside_capital_area' &&
+          (state.leadershipMudBoundaries ? player.section!=='Other' : player.hq>=24);
         return !state.locks.has(id) && (site ? site.zone === terrain && inWedge(site, start, end)
           : terrain === 'grass' || mudEligible)
           && (!section || state.players.get(id).section === section);
@@ -214,6 +229,7 @@
         for (let k = 0; k < open.length; k++) {
           const s = open[k];
           const insideSection = !sectionInfo || inWedge(s, sectionInfo.start*180/Math.PI, sectionInfo.end*180/Math.PI);
+          if (terrain==='mud' && state.leadershipMudBoundaries && (!sectionInfo || player.section==='Other' || !inMudArea(s,sectionInfo))) continue;
           if (terrain==='grass' && needsRear(player)!==rear.has(siteKey(s))) continue;
           const score = (insideSection || needsRear(player) ? 0 : 500) + s.ring * 100 + angularGap(s.angle, target)*200;
           if (score < bestScore) { bestScore = score; best = k; }

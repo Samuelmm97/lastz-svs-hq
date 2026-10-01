@@ -24,7 +24,7 @@ function drawLayout(rows, terrain) {
   }
   const [cx, cy] = project({ x: 500, y: 500 });
   svg.append(svgElement('text', { x: cx, y: cy, fill: '#e2d0ae', 'font-size': 16, 'text-anchor': 'middle' }, 'CAPITAL'));
-  svg.append(svgElement('text', { x: 25, y: 26, fill: '#dbedf2', 'font-size': 14 }, 'N ↑ · West ← · NW 315°'));
+  svg.append(svgElement('text', { x: 25, y: 26, fill: '#dbedf2', 'font-size': 14 }, 'N ↑ · West ←'));
   const points = rows.map(project);
   let spacing = Infinity;
   for (let a = 0; a < points.length; a++) for (let b = a + 1; b < points.length; b++)
@@ -86,7 +86,8 @@ async function loadLayout() {
     const state = PlacementPlanner.create(plan);
     if (shared.draft) PlacementPlanner.importDraft(state, shared.draft);
     const helm = PlacementPlanner.rows(state).filter(p => p.tag === 'Helm');
-    if (plan.meta.helmCenterDegrees === 315) H('layoutNote').textContent = 'Helm groups near 315° around Turret 2. Confirmed prior absences and unshielded players stage in back grass; their rows explain why. Unknown attendance is labeled and receives no back penalty. Match each marker to its row for coordinates. Mud uses total hero power, total power, then HQ. Grass uses HQ within the previous SvS priority groups. Manual strike and reserve assignments remain in place.';
+    if (plan.meta.leadershipMudBoundaries) H('layoutNote').textContent = 'Helm holds the west-to-northwest mud area assigned by leadership (270°–308°). Mud positions are compact and ranked by hero power, total power, then HQ; remaining members support from nearby grass. Confirmed prior absences and unshielded players stage in back grass. Unknown attendance has no back penalty. Match each marker to its row for coordinates.';
+    else if (plan.meta.helmCenterDegrees === 315) H('layoutNote').textContent = 'Helm groups near 315° around Turret 2. Confirmed prior absences and unshielded players stage in back grass; their rows explain why. Unknown attendance is labeled and receives no back penalty. Match each marker to its row for coordinates. Mud uses total hero power, total power, then HQ. Grass uses HQ within the previous SvS priority groups. Manual strike and reserve assignments remain in place.';
     const mud = helm.filter(p => p.zone === 'mud').sort(combatOrder);
     const grass = helm.filter(p => p.zone === 'grass').sort((a, b) => a.priority - b.priority || b.hq - a.hq || a.id - b.id);
     for (const [terrain, rows, prefix] of [['mud', mud, 'M'], ['grass', grass, 'G']]) {

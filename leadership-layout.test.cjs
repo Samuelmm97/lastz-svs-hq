@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const P=require('./placement-planner.js');
-const {applyLeadership,groups,match}=require('./leadership-layout.cjs');
+const {applyLeadership,groups,match,distance,inArea}=require('./leadership-layout.cjs');
 const previous=JSON.parse(fs.readFileSync('placement-plan.json','utf8'));
 assert.deepEqual(match([[8,1,4],[2,9,5]]),[1,0]);
 const state=P.create(previous);
@@ -25,6 +25,17 @@ for(const p of plan.placements){
 assert.equal(plan.placements.length,2000);
 assert.equal(new Set(plan.placements.map(P.siteKey)).size,2000);
 assert(report.rearGrassMinRing>=report.frontGrassMaxRing);
+function checkMud(state) {
+  for(const p of P.rows(state).filter(p=>p.zone==='mud'&&!state.locks.has(p.id))) {
+    const group=groups.find(g=>g.tags.includes(p.tag));
+    assert(group&&inArea(p,group),'Mud player outside their leadership area: '+p.name);
+  }
+}
+checkMud(next);
+const sites=[...next.sites.values()];
+for(const a of sites.filter(s=>s.zone==='mud'))for(const b of sites)if(a!==b)assert(distance(a,b)>=3);
+P.fill(next);checkMud(next);
+for(const tag of ['Helm','SWT','SHSN']){P.arrangeAlliance(next,tag);checkMud(next);}
 for(const g of groups)for(const tag of g.tags){
   assert.equal(plan.sections[tag].start,g.start*Math.PI/180);
   assert.equal(plan.sections[tag].end,g.end*Math.PI/180);

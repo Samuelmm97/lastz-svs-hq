@@ -15,6 +15,9 @@ const groups = [
 ];
 const rad = d => d*Math.PI/180;
 const gap = (a,b) => Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
+const inArea=(s,g)=>{const deg=(s.angle*180/Math.PI+360)%360;return deg>=g.start&&deg<g.end;};
+const grid=s=>{const j=s.y-500;return [s.x-500-Math.floor(j/2),j];};
+const distance=(a,b)=>{const [ai,aj]=grid(a),[bi,bj]=grid(b);return Math.max(Math.abs(ai-bi),Math.abs(aj-bj),Math.abs(ai+aj-bi-bj));};
 const combat = (a,b) => (b.heroPower??-1)-(a.heroPower??-1) ||
   (b.totalPower??-1)-(a.totalPower??-1) || b.hq-a.hq || a.id-b.id;
 
@@ -47,6 +50,26 @@ function match(cost) {
 
 function applyLeadership(previous,shared) {
   const state=P.create(previous);P.importDraft(state,shared.draft);
+  const compactGroups=groups.filter(g=>g.tags.some(tag=>['Helm','SWT'].includes(tag)));
+  const lockedSites=new Set([...state.locks].map(id=>state.assignments.get(id)));
+  const catalog=new Map([...state.sites].filter(([key,s])=>s.zone!=='mud'||lockedSites.has(key)||
+    !compactGroups.some(g=>inArea(s,g))));
+  const blocked=new Set(previous.blockedSites||[]);
+  for(const row of require('./mud-spots-compact.json')) {
+    const j=row.Y-500,i=row.X-500-Math.floor(j/2);
+    const s={x:row.X,y:row.Y,ring:row.ring,angle:(Math.atan2(i+j/2,-j)+2*Math.PI)%(2*Math.PI),zone:'mud',spot:row.n};
+    const key=P.siteKey(s);
+    if(blocked.has(key)||!compactGroups.some(g=>inArea(s,g))||catalog.has(key))continue;
+    if([...catalog.values()].some(other=>distance(s,other)<3))continue;
+    catalog.set(key,s);
+  }
+  const extra=catalog.size-state.players.size;
+  if(extra<0)throw Error('Compact catalog has fewer slots than the existing roster');
+  const removable=[...catalog].filter(([key,s])=>s.zone==='grass'&&!lockedSites.has(key))
+    .sort((a,b)=>a[1].ring-b[1].ring||a[1].angle-b[1].angle);
+  if(removable.length<extra)throw Error('Manual grass reservations prevent compact placement');
+  for(const [key] of removable.slice(0,extra))catalog.delete(key);
+  state.sites=catalog;
   const waiting=new Set([...state.assignments].filter(([,key])=>key===null).map(([id])=>id));
   const people=[...state.players.values()].map(p=>({...p}));
   const byTag=new Map(groups.flatMap(g=>g.tags.map(tag=>[tag,g])));
@@ -67,20 +90,18 @@ function applyLeadership(previous,shared) {
   const mudEligible=p=>p.hq>=24&&!P.rearReasons(p).length;
   const assign=(p,key)=>{placement.set(p.id,key);pool.delete(key);};
   const mudSlots=[...pool].filter(([,s])=>s.zone==='mud');
-  const mudPeople=normal.filter(mudEligible).sort(combat).slice(0,mudSlots.length);
-  // Safe existing support holders fill spare catalog positions after HQ24+.
-  // The joint matching keeps a large alliance together when its group must
-  // extend past the sketch's guide; hard wedges would scatter the overflow.
-  const supports=normal.filter(p=>!mudEligible(p)&&p.tag!=='Helm')
-    .sort((a,b)=>Number(b.zone==='mud')-Number(a.zone==='mud')||b.hq-a.hq||combat(a,b));
-  mudPeople.push(...supports.slice(0,mudSlots.length-mudPeople.length));
-  if(mudPeople.length!==mudSlots.length)throw Error('Not enough eligible players for the mud');
-  grassGroup(mudPeople,mudSlots);
+  for(const g of groups) {
+    const slots=mudSlots.filter(([,s])=>inArea(s,g)).sort((a,b)=>a[1].ring-b[1].ring||
+      gap(a[1].angle,rad((g.start+g.end)/2))-gap(b[1].angle,rad((g.start+g.end)/2)));
+    const candidates=normal.filter(p=>g.tags.includes(p.tag)).sort(combat);
+    if(candidates.length<slots.length)throw Error(g.label+' lacks enough safe players for its mud area');
+    candidates.slice(0,slots.length).forEach((p,i)=>assign(p,slots[i][0]));
+  }
   for(const g of [...groups,{tags:people.filter(p=>!byTag.has(p.tag)).map(p=>p.tag),start:0,end:360}]) {
     const members=normal.filter(p=>g.tags.includes(p.tag)&&placement.has(p.id));
     const slots=members.map(p=>placement.get(p.id)).sort((a,b)=>state.sites.get(a).ring-state.sites.get(b).ring||
       gap(state.sites.get(a).angle,rad((g.start+g.end)/2))-gap(state.sites.get(b).angle,rad((g.start+g.end)/2)));
-    members.sort((a,b)=>Number(mudEligible(b))-Number(mudEligible(a))||combat(a,b));
+    members.sort(combat);
     members.forEach((p,i)=>placement.set(p.id,slots[i]));
   }
   const grass=[...pool].filter(([,s])=>s.zone==='grass').sort((a,b)=>b[1].ring-a[1].ring||a[1].angle-b[1].angle);
@@ -101,11 +122,14 @@ function applyLeadership(previous,shared) {
   const placements=people.map(p=>({...p,...state.sites.get(placement.get(p.id))}));
   if(new Set(placement.values()).size!==people.length)throw Error('Placement collision');
   const plan={...previous,sections,placements,meta:{...previous.meta,
-    allianceGrouping:'October 1 leadership map; shared areas continue through mud and grass',
+    allianceGrouping:'Leadership map enforced in mud; grass groups stay nearby with prior SvS risks in back',
     layoutSource:'Leadership sketch received October 1, 2026; edge angles estimated from the drawn rays',
     leadershipAreas:groups.map(({label,start,end})=>({label,start,end})),
     helmCenterDegrees:289,helmMudEnvelopeDegrees:38,
-    refreshProgress:'Leadership alliance layout applied. Strongest eligible players hold each group’s mud frontage; others support from grass. Confirmed prior absences and unshielded players stay in back grass. Unknown attendance has no back penalty. Roster and turret checks continue.'}};
+    leadershipMudBoundaries:true,mudMinDistance:3,mudSpacingMode:'Footprints touch in Helm and SWT; other mud areas retain the existing gaps',
+    compactAlliances:['Helm','SWT'],mudSpots:[...catalog.values()].filter(s=>s.zone==='mud').length,
+    grassSpots:[...catalog.values()].filter(s=>s.zone==='grass').length,
+    refreshProgress:'Leadership mud boundaries enforced. Helm and SWT use denser positions with nonoverlapping HQ footprints. Hero power, total power, then HQ rank each group’s mud players, including lower tiers when needed. Overflow supports from nearby grass. Confirmed old risks stay in back; unknown attendance has no back penalty. Roster and turret checks continue.'}};
   plan.planId='leadership-2026-10-01-'+crypto.createHash('sha256').update(JSON.stringify(plan)).digest('hex').slice(0,16);
   const next=P.create(plan);
   next.assignments=new Map([...placement].map(([id,key])=>[id,waiting.has(id)?null:key]));
@@ -114,13 +138,14 @@ function applyLeadership(previous,shared) {
   const report={basedOnRevision:shared.revision,waiting:waiting.size,locked:state.locks.size,
     rearPlayers:rear.length,rearGrassMinRing:Math.min(...rearSlots.map(([,s])=>s.ring)),
     frontGrassMaxRing:Math.max(...frontSlots.map(([,s])=>s.ring)),
+    mudSpots:plan.meta.mudSpots,grassSpots:plan.meta.grassSpots,
     groups:groups.map(g=>({label:g.label,start:g.start,end:g.end,
       mud:placements.filter(p=>g.tags.includes(p.tag)&&p.zone==='mud').length,
       grass:placements.filter(p=>g.tags.includes(p.tag)&&p.zone==='grass').length}))};
   return {plan,draft,report};
 }
 
-module.exports={applyLeadership,groups,match};
+module.exports={applyLeadership,groups,match,distance,inArea};
 if(require.main===module) {
   const fs=require('node:fs'),path=require('node:path');
   const [priorFile,sharedFile,output]=process.argv.slice(2);

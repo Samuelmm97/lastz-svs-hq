@@ -72,6 +72,21 @@ Backend setup and local tests are in `backend/README.md`.
 
 ## Space between HQs
 
+The shared planner now follows the October 1 leadership sketch. Mud placement
+stays inside each alliance's assigned area. Helm and SWT use the shipped
+spacing-0 coordinates where they fit alongside neighboring footprints; other
+areas retain spacing-1 coordinates. Hero power, total power, then HQ choose the
+mud players, including lower tiers where needed. Overflow goes to nearby grass.
+Known prior absences and shield risks stay in back grass; unmatched attendance
+is neutral and labeled unknown.
+
+`leadership-layout.cjs PREVIOUS_PLAN SHARED_DRAFT OUTPUT_DIRECTORY` creates a
+reviewable migration using the current roster, preserved locks/waiting/swap pairs,
+shared alliance labels, and the compact catalog. After a roster refresh, apply
+this step to its local proposal before publishing; the older northwest generator
+alone does not implement the current leadership layout. Check the shared revision
+again before applying the migration.
+
 The **space between HQs** buttons choose how many EMPTY tiles sit between two HQ
 footprints (the HQ footprint also keeps that gap from the no-build hexagon and the
 outer edge, so the usable band moves inwards as the gap grows):
