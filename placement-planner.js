@@ -93,8 +93,11 @@
   }
 
   function inMudArea(site,area) {
-    const tau=2*Math.PI,width=(area.end-area.start+tau)%tau||tau;
-    return ((site.angle-area.start+tau)%tau)<width-1e-10;
+    if(Math.abs(area.end-area.start)>=2*Math.PI-1e-10)return true;
+    const start=norm(Math.round(area.start*180/Math.PI*1e9)/1e9);
+    const end=norm(Math.round(area.end*180/Math.PI*1e9)/1e9);
+    const angle=norm(site.angle*180/Math.PI);
+    return start<end ? angle>=start&&angle<end : angle>=start||angle<end;
   }
 
   function clear(state, options = {}) {
