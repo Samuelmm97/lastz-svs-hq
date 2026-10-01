@@ -15,3 +15,9 @@ CREATE TABLE IF NOT EXISTS placement_history (
   source_revision INTEGER,
   changes TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS placement_plans (
+  signature TEXT PRIMARY KEY,
+  plan TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
