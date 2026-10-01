@@ -163,7 +163,7 @@ function render() {
   const unshieldedAttendees=allPlayers.filter(p=>p.attendanceProxy==='inside_capital_area'&&p.highRisk).length;
   $('attendanceSummary').textContent = `All alliances: ${(allPlayers.length-rear).toLocaleString()} front priority · ${rear.toLocaleString()} back priority. ` +
     (plan.meta.priorCapitalSnapshotCount ? `The old scan recorded ${plan.meta.priorCapitalSnapshotCount.toLocaleString()} at the capital; ${attended.toLocaleString()} match this roster, including ${unshieldedAttendees} unshielded players kept in back. ` : '')+
-    `${unknown.toLocaleString()} players have no recorded attendance.`;
+    `${unknown.toLocaleString()} players have unknown attendance and receive no back penalty for a missing record.`;
   const body = $('rows'); body.replaceChildren();
   for (const p of visible.slice(0, 500)) {
     const tr = document.createElement('tr');
@@ -175,6 +175,10 @@ function render() {
     if (P.rearReasons(p).length) {
       const note=document.createElement('span');note.className='rear-note';
       note.textContent='Back priority · '+P.rearReasons(p).join('; ');
+      tr.children[1].append(note);
+    }
+    if (p.attendanceProxy==='unknown') {
+      const note=document.createElement('span');note.className='unknown-note';note.textContent='Attendance unknown';
       tr.children[1].append(note);
     }
     tr.onclick = () => { selectedId = p.id; render(); };
@@ -191,6 +195,8 @@ function render() {
       ['span','detail',`Hero power ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
     if (P.rearReasons(chosen).length) lines.push(['span','detail rear-note',
       `${chosen.locked?'Prior SvS (manual reservation overrides automatic placement)':'Why back grass'}: ${P.rearReasons(chosen).join('; ')} · ${plan.meta.eventCaptured || '2026-09-26'}.`]);
+    if (chosen.attendanceProxy==='unknown') lines.push(['span','detail unknown-note',
+      'Prior SvS attendance unknown: no matched historical record. No back penalty for unknown attendance.']);
     for (const [tag,cl,text] of lines) { const el=document.createElement(tag);el.className=cl;el.textContent=text;$('selectedPlayer').append(el); }
   } else $('selectedPlayer').textContent = 'Choose a player to see their coordinates.';
   const target = targetKey && state.sites.get(targetKey), holder = target && P.playerAt(state, targetKey);

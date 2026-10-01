@@ -94,7 +94,7 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
         metric=metrics.get(p['id'],{})
         players[p['id']]={'id':p['id'],'name':p['name'],'hq':p['hq'],'tag':tag,
             'section':tag if tag in own_sections else 'Other','shield':status,'highRisk':status=='unshielded',
-            'attendanceProxy':proxy,'priority':2 if status=='unshielded' or proxy!='inside_capital_area' else 0,
+            'attendanceProxy':proxy,'priority':2 if status=='unshielded' or proxy=='outside_capital_area' else 0,
             'heroPower':metric.get('total_hero_power',{}).get('value'),
             'totalPower':metric.get('personal_power',{}).get('value'),
             'powerCaptured':power['captured_date'],'eventCaptured':'2026-09-26','oldX':p['x'],'oldY':p['y'],
@@ -146,7 +146,7 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
                 priorCapitalSnapshotCount=sum(historic_attendance(r,event)=='inside_capital_area' for r in event['records']),
                 attendanceNotRecorded=sum(p['attendanceProxy']=='unknown' for p in result),
                 allianceGrouping='Preferred alliance areas; previous SvS rear priority overrides grouping',
-                refreshProgress='October 1 roster and power published. Confirmed prior capital attendees have front priority; players outside the old capital scan, without an attendance record, or previously unshielded stage in back grass. Roster reconciliation and turret checks continue.')
+                refreshProgress='October 1 roster and power published. Confirmed prior absences and unshielded players use back grass. Unknown attendance is labeled and has no back penalty. Roster reconciliation and turret checks continue.')
         digest=hashlib.sha256(json.dumps(proposed,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()[:16]
         proposed['planId']='roster-'+date+'-'+digest
         next_draft={**draft,'signature':signature(proposed),'assignments':list(assignments.items())}
@@ -159,7 +159,7 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
     reserve_ids={p['reserve'] for p in draft['pairs']}
     target=315*math.pi/180
     def mud_eligible(p):
-        return p['hq']>=24 and not p['highRisk'] and p['attendanceProxy']=='inside_capital_area'
+        return p['hq']>=24 and not p['highRisk'] and p['attendanceProxy']!='outside_capital_area'
     mud_players=sorted((p for p in players.values() if p['tag']=='Helm' and mud_eligible(p)
                         and p['id'] not in strike_ids and p['id'] not in locks),key=combat_order)
     mud=[(key,s) for key,s in sites.items() if s['zone']=='mud' and key not in reserved]
@@ -221,7 +221,7 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
     proposed={**previous,'meta':{**previous['meta'],'capturedDate':date,'powerCaptured':power['captured_date'],
         'eventCaptured':'2026-09-26','selected':2000,'helmCenterDegrees':315,
         **rear_report,'allianceGrouping':'Preferred alliance areas; previous SvS rear priority overrides grouping',
-        'refreshProgress':'October 1 player selection, power readings and aligned alliance areas published. Alliance roster reconciliation and turret space checks are continuing.',
+        'refreshProgress':'October 1 roster and power published. Confirmed prior absences and unshielded players use back grass. Unknown attendance is labeled and has no back penalty. Roster reconciliation and turret checks continue.',
         'helmMudEnvelopeDegrees':round(cutoff*360/math.pi,2),
         'selection':'Highest fresh readable HQ level, including all readable Helm supporters; previous SvS attendance then stable atlas ID break ties',
         'mudRanking':'Total hero power, personal/total power, HQ level; unknown metrics follow known values',

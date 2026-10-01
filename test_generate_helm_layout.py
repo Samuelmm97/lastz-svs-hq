@@ -40,7 +40,7 @@ class LayoutTests(unittest.TestCase):
                              set(site for id,site in draft['assignments']))
             by_id={p['id']:p for p in plan['placements']}
             for p in added:
-                self.assertEqual(by_id[p['id']]['zone'],'grass')
+                self.assertEqual(by_id[p['id']]['zone'],'mud')
                 self.assertEqual(by_id[p['id']]['attendanceProxy'],'unknown')
             for p in previous['placements']:
                 if p['id'] in by_id:
@@ -52,7 +52,7 @@ class LayoutTests(unittest.TestCase):
             self.assertTrue(plan['planId'].startswith('atlas-2026-10-01-'))
             self.assertEqual(draft['signature'],signature(plan))
             self.assertEqual(report['basedOnRevision'],11)
-            rear=[p for p in plan['placements'] if p['highRisk'] or p['attendanceProxy']!='inside_capital_area']
+            rear=[p for p in plan['placements'] if p['highRisk'] or p['attendanceProxy']=='outside_capital_area']
             ordinary=[p for p in plan['placements'] if p['zone']=='grass' and p not in rear]
             self.assertTrue(all(p['zone']=='grass' for p in rear))
             self.assertGreaterEqual(min(p['ring'] for p in rear),max(p['ring'] for p in ordinary))

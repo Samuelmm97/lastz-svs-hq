@@ -3,7 +3,7 @@ from generate_placement import angular_distance
 
 
 def rear_player(player):
-    return player['highRisk'] or player['attendanceProxy']!='inside_capital_area'
+    return player['highRisk'] or player['attendanceProxy']=='outside_capital_area'
 
 
 def place_rear(players,sites,assignments,locks,sections):

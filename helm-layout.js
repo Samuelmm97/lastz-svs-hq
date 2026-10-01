@@ -65,7 +65,7 @@ function table(rows, terrain) {
     if (p.highRisk || p.attendanceProxy !== 'inside_capital_area') {
       const note = document.createElement('div'); note.className = p.highRisk ? 'note risk' : 'note';
       note.textContent = PlacementPlanner.rearReasons(p).length ?
-        'Back priority: '+PlacementPlanner.rearReasons(p).join('; ') : 'No prior attendance scan';
+        'Back priority: '+PlacementPlanner.rearReasons(p).join('; ') : 'Attendance unknown · no matched historical record';
       name.append(note);
     }
     tr.insertCell().textContent = format(p.heroPower);
@@ -86,7 +86,7 @@ async function loadLayout() {
     const state = PlacementPlanner.create(plan);
     if (shared.draft) PlacementPlanner.importDraft(state, shared.draft);
     const helm = PlacementPlanner.rows(state).filter(p => p.tag === 'Helm');
-    if (plan.meta.helmCenterDegrees === 315) H('layoutNote').textContent = 'Helm groups near 315° around Turret 2. Players with no recorded capital attendance and prior unshielded players stage in the farthest grass, even away from the main group; their rows explain why. Match each marker to its row for coordinates. Mud uses total hero power, total power, then HQ. Grass uses HQ within the previous SvS priority groups. Manual strike and reserve assignments remain in place.';
+    if (plan.meta.helmCenterDegrees === 315) H('layoutNote').textContent = 'Helm groups near 315° around Turret 2. Confirmed prior absences and unshielded players stage in back grass; their rows explain why. Unknown attendance is labeled and receives no back penalty. Match each marker to its row for coordinates. Mud uses total hero power, total power, then HQ. Grass uses HQ within the previous SvS priority groups. Manual strike and reserve assignments remain in place.';
     const mud = helm.filter(p => p.zone === 'mud').sort(combatOrder);
     const grass = helm.filter(p => p.zone === 'grass').sort((a, b) => a.priority - b.priority || b.hq - a.hq || a.id - b.id);
     for (const [terrain, rows, prefix] of [['mud', mud, 'M'], ['grass', grass, 'G']]) {

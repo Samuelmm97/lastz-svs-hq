@@ -116,5 +116,5 @@ const manualKey=rearPlan.assignments.get(risk.id);
 P.arrangeAlliance(rearPlan,'Helm');
 assert.equal(rearPlan.assignments.get(risk.id),manualKey);
 assert(P.rearReasons(P.current(rearPlan,risk.id)).length);
-assert.deepEqual(P.rearReasons({highRisk:false,attendanceProxy:'unknown'}),['Capital attendance not recorded last SvS']);
+assert.deepEqual(P.rearReasons({highRisk:false,attendanceProxy:'unknown'}),[]);
 console.log('Global rear priority survives alliance arrange/fill; manual reservations preserved and missing attendance labeled');

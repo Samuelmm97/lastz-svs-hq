@@ -9,3 +9,5 @@ aside{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;
 .absent-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;background:#f3b65e}.rear-note{display:block;margin-top:3px;color:#f3b65e;font-size:10px;white-space:normal}.selected .rear-note{color:#f3b65e}
 
 .unknown-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;background:#abb0f5}
+
+.unknown-note{display:block;margin-top:3px;font-size:10px;color:#abb0f5}.selected .unknown-note{color:#abb0f5}
