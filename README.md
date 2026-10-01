@@ -14,7 +14,9 @@ capital-area location and atlas ID break ties. It uses the 181 published spacing
 and packs the rest across the grass out to ring 119. Grass HQ centers stay at least
 four hex tiles apart. The known top 13 alliance tags get angular sections sized
 separately in mud and grass to keep members near each other. Within each section,
-higher HQ levels lead each priority group. HQs recorded inside the 100-tile capital
+higher HQ levels lead each grass priority group. Mud refill orders total hero
+power, personal/total power, then HQ level; missing metrics follow known values.
+HQs recorded inside the 100-tile capital
 area last time get first placement priority; HQs recorded outside go later in grass.
 This location is only a proxy for attendance. Players marked unshielded in the
 September 26 atlas scan are assigned last in grass.
@@ -41,11 +43,27 @@ boundaries need review before anyone teleports. To regenerate the base plan:
 python generate_placement.py --atlas PATH_TO_FIELD_ATLAS_REPOSITORY
 ```
 
-The base plan should not be regenerated while a shared draft exists: the draft
-references its player IDs and legal sites. Migrate or archive the draft first.
-The live shared draft includes an HQ ordering correction from revision 7. The
-checked-in base JSON retains its original assignments so older history snapshots
-stay compatible; a future base regeneration needs a draft and history migration.
+Use `generate_helm_layout.py` for the reviewed northwest Helm refresh. It starts
+from the latest shared assignments, keeps manual locks and strike/reserve pairs,
+places eligible Helm HQ24+ in northwest mud by combat power, and groups other HQs in the
+grass using the previous SvS priority groups. The normal highest-HQ roster also
+includes all readable Helm supporters. `helm-layout.html` shows numbered mud
+and grass maps with names, powers, and teleport coordinates from the shared draft.
+Previous SvS shield failures stay last in grass, including higher HQs; confirmed
+previous absences also stay in their grass priority group. New players with unknown
+attendance are not treated as confirmed absences.
+
+Map and leaderboard dates are separate from shield/attendance dates. A fresh
+leaderboard can confirm a roster member whose current map location was not
+captured. Their old location remains dated, or unknown; it does not become a new
+SvS attendance observation. Old records not seen in the scan or leaderboard are
+excluded from the refreshed roster without treating them as confirmed quitters.
+
+Each refreshed base has a unique `planId`. Use the authenticated
+`/api/placement/migrate` route to archive the old and new metadata and update the
+draft atomically at its expected revision. The frontend loads the matching base
+from the database when the shared draft belongs to another roster version. Old
+history keeps old names and can be restored as a new revision.
 Backend setup and local tests are in `backend/README.md`.
 
 * outer hexagon = buildable dirt zone (35 tiles from the capital centre)

@@ -11,11 +11,13 @@
 
   function create(plan) {
     const players = new Map(plan.placements.map(p => [p.id, p]));
-    const sites = new Map(plan.placements.map(p => [siteKey(p), siteOf(p)]));
-    if (players.size !== plan.placements.length || sites.size !== plan.placements.length) throw Error('Base plan has duplicate IDs or sites');
-    const signature = plan.placements.map(p => `${p.id}@${siteKey(p)}`).sort().join('|');
-    return { players, sites, signature, assignments: new Map(plan.placements.map(p => [p.id, siteKey(p)])),
-             locks: new Set(), pairs: [] };
+    const blocked = new Set(plan.blockedSites || []);
+    const allSites = new Map(plan.placements.map(p => [siteKey(p), siteOf(p)]));
+    const sites = new Map([...allSites].filter(([key]) => !blocked.has(key)));
+    if (players.size !== plan.placements.length || allSites.size !== plan.placements.length) throw Error('Base plan has duplicate IDs or sites');
+    const signature = (plan.planId ? `${plan.planId}:` : '') + plan.placements.map(p => `${p.id}@${siteKey(p)}`).sort().join('|');
+    return { players, sites, signature, assignments: new Map(plan.placements.map(p => [p.id, blocked.has(siteKey(p)) ? null : siteKey(p)])),
+             sections: structuredClone(plan.sections || {}), locks: new Set(), pairs: [] };
   }
 
   function playerAt(state, key) {
@@ -25,7 +27,8 @@
 
   function current(state, id) {
     const player = state.players.get(Number(id)), key = state.assignments.get(Number(id));
-    if (!player || !key) return null;
+    if (!player) return null;
+    if (key == null) return { ...player, x: null, y: null, zone: 'unassigned', ring: null, angle: null, spot: null, locked: false };
     return { ...player, ...state.sites.get(key), locked: state.locks.has(Number(id)) };
   }
 
@@ -35,7 +38,7 @@
       overrides.set(pair.strike, state.assignments.get(pair.reserve));
       overrides.set(pair.reserve, state.assignments.get(pair.strike));
     }
-    return [...state.players.keys()].map(id => ({ ...state.players.get(id),
+    return [...state.players.keys()].map(id => ({ ...current(state, id),
       ...state.sites.get(overrides.get(id) || state.assignments.get(id)),
       locked: state.locks.has(id),
       role: state.pairs.some(p => p.strike === id) ? 'strike' : state.pairs.some(p => p.reserve === id) ? 'reserve' : '' }));
@@ -58,7 +61,7 @@
     if (occupant !== id && state.locks.has(occupant)) throw Error('That site is held by another locked player');
     const next = new Map(state.assignments);
     next.set(id, targetKey);
-    if (occupant !== id) next.set(occupant, prior);
+    if (occupant !== id && occupant != null) next.set(occupant, prior);
     assertPairZones(state, next);
     state.assignments = next;
     state.locks.add(id);
@@ -76,6 +79,88 @@
     return Math.min(d, 2 * Math.PI - d);
   }
 
+  function clear(state, options = {}) {
+    const { zone = 'mud', start = 0, end = 360, section = '', includeLocked = false } = options;
+    const cleared = [];
+    for (const [id, key] of state.assignments) {
+      const site = state.sites.get(key), player = state.players.get(id);
+      if (!site || site.zone !== zone || !inWedge(site, start, end) ||
+          (section && player.section !== section) || (!includeLocked && state.locks.has(id))) continue;
+      cleared.push(id);
+    }
+    const ids = new Set(cleared);
+    for (const pair of state.pairs) if (ids.has(pair.strike) || ids.has(pair.reserve)) {
+      state.locks.delete(pair.strike); state.locks.delete(pair.reserve);
+    }
+    state.pairs = state.pairs.filter(p => !ids.has(p.strike) && !ids.has(p.reserve));
+    for (const id of ids) { state.assignments.set(id, null); state.locks.delete(id); }
+    return cleared.length;
+  }
+
+  function setSection(state, section, start, end) {
+    if (!state.sections[section] || !Number.isFinite(start) || !Number.isFinite(end) ||
+        start < 0 || start > 360 || end < 0 || end > 360 || start === end)
+      throw Error('Choose an alliance and two different boundary angles between 0° and 360°');
+    state.sections[section] = { ...state.sections[section], start: start*Math.PI/180, end: end*Math.PI/180 };
+  }
+
+  function pushBack(state, section = '') {
+    const ids = [...state.players.keys()].filter(id => state.assignments.get(id) == null &&
+      (!section || state.players.get(id).section === section));
+    ids.sort((a,b) => state.players.get(b).priority - state.players.get(a).priority ||
+      state.players.get(a).hq - state.players.get(b).hq || a-b);
+    const used = new Set();
+    for (const id of ids) {
+      const player = state.players.get(id), area = state.sections[player.section];
+      const choices = [...state.sites].filter(([key,s]) => s.zone === 'grass' && !used.has(key) &&
+        (!area || inWedge(s, area.start*180/Math.PI, area.end*180/Math.PI)) &&
+        !state.locks.has(playerAt(state,key)));
+      choices.sort((a,b) => b[1].ring-a[1].ring);
+      if (!choices.length) continue;
+      const key=choices[0][0], occupant=playerAt(state,key);
+      state.assignments.set(id,key); if (occupant != null) state.assignments.set(occupant,null);
+      used.add(key);
+    }
+    return used.size;
+  }
+
+  function unassign(state, id) {
+    id=Number(id);
+    if (!state.players.has(id)) throw Error('Choose a player first');
+    if (state.pairs.some(p => p.strike===id || p.reserve===id)) throw Error('Remove their swap pair first');
+    state.assignments.set(id,null); state.locks.delete(id);
+  }
+
+  function arrangeAlliance(state, section) {
+    const area=state.sections[section];
+    if (!area) throw Error('Choose an alliance first');
+    const used=new Set(); let moved=0, waiting=0;
+    for (const zone of ['mud','grass']) {
+      const ids=[...state.players].filter(([id,p]) => p.section===section && !state.locks.has(id) &&
+        (zone==='mud')===(p.hq>=24 && !p.highRisk && p.attendanceProxy!=='outside_capital_area'))
+        .map(([id])=>id);
+      ids.sort((a,b) => {
+        const x=state.players.get(a),y=state.players.get(b);
+        return zone==='mud' ? (y.heroPower??-1)-(x.heroPower??-1) || (y.totalPower??-1)-(x.totalPower??-1) || y.hq-x.hq || a-b
+          : x.priority-y.priority || y.hq-x.hq || a-b;
+      });
+      const target=area.start+((area.end-area.start+2*Math.PI)%(2*Math.PI))/2;
+      for (const id of ids) {
+        const options=[...state.sites].filter(([key,s]) => s.zone===zone && !used.has(key) &&
+          inWedge(s,area.start*180/Math.PI,area.end*180/Math.PI) &&
+          (!state.locks.has(playerAt(state,key)) || playerAt(state,key)===id));
+        options.sort((a,b)=>a[1].ring-b[1].ring || angularGap(a[1].angle,target)-angularGap(b[1].angle,target));
+        if (!options.length) { waiting++; continue; }
+        const key=options[0][0],prior=state.assignments.get(id),other=playerAt(state,key);
+        state.assignments.set(id,key);
+        if (other!=null && other!==id) state.assignments.set(other,prior);
+        used.add(key);if(key!==prior)moved++;
+      }
+    }
+    assertPairZones(state);
+    return {moved,waiting};
+  }
+
   function fill(state, options = {}) {
     const { start = 0, end = 360, section = '', zone = '' } = options;
     if (!Number.isFinite(start) || !Number.isFinite(end)) throw Error('Wedge angles must be numbers');
@@ -84,26 +169,38 @@
     for (const terrain of (zone ? [zone] : ['mud', 'grass'])) {
       const ids = [...state.players.keys()].filter(id => {
         const site = state.sites.get(next.get(id));
-        return !state.locks.has(id) && site.zone === terrain && inWedge(site, start, end)
+        const player = state.players.get(id);
+        const mudEligible = player.hq >= 24 && !player.highRisk && player.attendanceProxy !== 'outside_capital_area';
+        return !state.locks.has(id) && (site ? site.zone === terrain && inWedge(site, start, end)
+          : terrain === 'grass' || mudEligible)
           && (!section || state.players.get(id).section === section);
       });
-      const open = ids.map(id => state.sites.get(next.get(id)));
+      const movable = new Set(ids);
+      const open = [...state.sites].filter(([key,s]) => s.zone === terrain && inWedge(s,start,end) &&
+        (playerAt({ ...state, assignments: next },key) == null || movable.has(playerAt({ ...state, assignments: next },key))))
+        .map(([,site]) => site);
+      for (const id of ids) next.set(id,null);
       ids.sort((a, b) => {
         const x = state.players.get(a), y = state.players.get(b);
+        if (terrain === 'mud') return (y.heroPower ?? -1) - (x.heroPower ?? -1) ||
+          (y.totalPower ?? -1) - (x.totalPower ?? -1) || y.hq - x.hq || a - b;
         return x.priority - y.priority || y.hq - x.hq || a - b;
       });
       const full = Math.abs(end - start) >= 360;
       for (const id of ids) {
         const player = state.players.get(id);
-        const sectionInfo = options.sections?.[player.section];
+        const sectionInfo = state.sections[player.section] || options.sections?.[player.section];
         const target = !full ? norm(start + ((end - start + 360) % 360) / 2) * Math.PI / 180
           : sectionInfo ? (sectionInfo.start + sectionInfo.end) / 2 : 0;
-        let best = 0, bestScore = Infinity;
+        let best = -1, bestScore = Infinity;
         for (let k = 0; k < open.length; k++) {
           const s = open[k];
-          const score = s.ring * 100 + angularGap(s.angle, target);
+          const insideSection = !sectionInfo || inWedge(s, sectionInfo.start*180/Math.PI, sectionInfo.end*180/Math.PI);
+          if (section && !insideSection) continue;
+          const score = (insideSection ? 0 : 50000) + s.ring * 100 + angularGap(s.angle, target);
           if (score < bestScore) { bestScore = score; best = k; }
         }
+        if (best < 0) continue;
         const site = open.splice(best, 1)[0];
         const key = siteKey(site);
         if (key !== next.get(id)) changed++;
@@ -134,27 +231,35 @@
 
   function exportDraft(state) {
     return { version: 1, signature: state.signature,
-      assignments: [...state.assignments], locks: [...state.locks], pairs: state.pairs.map(p => ({ ...p })) };
+      assignments: [...state.assignments], sections: structuredClone(state.sections), locks: [...state.locks], pairs: state.pairs.map(p => ({ ...p })) };
   }
 
   function importDraft(state, draft) {
     if (draft?.version !== 1 || draft.signature !== state.signature) throw Error('Draft belongs to a different base plan');
     if (!Array.isArray(draft.assignments) || draft.assignments.length !== state.players.size) throw Error('Draft is missing players');
     const assignments = new Map(draft.assignments.map(([id, key]) => [Number(id), key]));
-    if (assignments.size !== state.players.size || new Set(assignments.values()).size !== state.sites.size ||
+    const placed = [...assignments.values()].filter(key => key !== null);
+    if (assignments.size !== state.players.size || new Set(placed).size !== placed.length ||
         [...assignments.keys()].some(id => !state.players.has(id)) ||
-        [...assignments.values()].some(key => !state.sites.has(key))) throw Error('Draft has duplicate or unknown players or sites');
+        placed.some(key => !state.sites.has(key))) throw Error('Draft has duplicate or unknown players or sites');
     const locks = new Set((draft.locks || []).map(Number));
-    if ([...locks].some(id => !state.players.has(id))) throw Error('Draft has an unknown locked player');
+    if ([...locks].some(id => !state.players.has(id) || assignments.get(id) == null)) throw Error('Draft has an unknown or unassigned locked player');
     const pairs = (draft.pairs || []).map(p => ({ strike: Number(p.strike), reserve: Number(p.reserve) }));
     const members = pairs.flatMap(p => [p.strike, p.reserve]);
     if (new Set(members).size !== members.length || members.some(id => !state.players.has(id) || !locks.has(id)))
       throw Error('Draft has an invalid swap pair');
     const candidate = { ...state, assignments, pairs };
     assertPairZones(candidate);
+    if (draft.sections !== undefined) {
+      if (!draft.sections || typeof draft.sections !== 'object' || Array.isArray(draft.sections) ||
+          Object.keys(draft.sections).some(tag => !Object.hasOwn(state.sections,tag)) ||
+          Object.values(draft.sections).some(s => !s || !Number.isFinite(s.start) || !Number.isFinite(s.end)))
+        throw Error('Draft has invalid alliance boundaries');
+      state.sections = structuredClone(draft.sections);
+    }
     state.assignments = assignments; state.locks = locks; state.pairs = pairs;
   }
 
   return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill,
-           addPair, removePair, exportDraft, importDraft };
+           clear, unassign, setSection, pushBack, arrangeAlliance, addPair, removePair, exportDraft, importDraft };
 });

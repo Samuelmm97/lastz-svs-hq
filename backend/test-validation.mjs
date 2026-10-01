@@ -39,3 +39,27 @@ unpairedLock.pairs = [{ strike: draft.assignments[0][0], reserve: draft.assignme
 assert(!validDraft(unpairedLock));
 
 console.log('Draft structure, plan identity, and pair validation passed');
+
+const waitingState=P.create(plan);
+P.clear(waitingState);
+const waitingDraft=P.exportDraft(waitingState);
+assert(validDraft(waitingDraft));
+assert(draftFitsPlan(waitingDraft,plan));
+const nullLock=structuredClone(waitingDraft);
+nullLock.locks=[nullLock.assignments.find(([,key])=>key===null)[0]];
+assert(!validDraft(nullLock));
+const collision=structuredClone(waitingDraft);
+const placed=collision.assignments.filter(([,key])=>key!==null);
+placed[1][1]=placed[0][1];
+assert(!validDraft(collision));
+P.setSection(waitingState,'Helm',285,345);
+assert(draftFitsPlan(P.exportDraft(waitingState),plan));
+const invalidBoundary=P.exportDraft(waitingState);
+invalidBoundary.sections.Helm.start=Infinity;
+assert(!validDraft(invalidBoundary));
+const blockedSite=`${plan.placements[0].x},${plan.placements[0].y}`;
+const blocked={...plan,blockedSites:[blockedSite]};
+assert(validPlan(blocked));
+assert(!draftFitsPlan(draft,blocked));
+assert(draftFitsPlan(P.exportDraft(P.create(blocked)),blocked));
+console.log('Unassigned slots, saved boundaries, and blocked-site validation passed');

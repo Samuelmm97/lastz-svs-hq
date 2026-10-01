@@ -7,8 +7,55 @@ const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null;
 let historyEntries = [], selectedHistory = null;
+const editMode = new URLSearchParams(location.search).get('edit') === '1';
+document.body.classList.toggle('editing', editMode);
+$('modeLink').textContent = editMode ? 'View plan' : 'Edit plan';
+$('modeLink').href = editMode ? 'placement.html' : 'placement.html?edit=1';
+$('mapMode').textContent = editMode ? 'Editor workspace' : 'Shared team plan';
+let boundaryHandles = [];
+const sectionColor = tag => `hsl(${[...tag].reduce((n,c) => (n*31+c.charCodeAt(0))%360,0)} 65% 70%)`;
+const normalDegrees = angle => ((angle%360)+360)%360;
+function syncBoundary() {
+  if (!state) return;
+  const area = state.sections[$('section').value];
+  if (area) {
+    const difference = (area.end-area.start)*180/Math.PI;
+    const width = Math.abs(difference)>=360 ? 360 : normalDegrees(difference);
+    $('wedgeStart').value = width===360 ? 0 : normalDegrees(area.start*180/Math.PI);
+    $('wedgeEnd').value = width===360 ? 360 : normalDegrees(area.end*180/Math.PI);
+    $('boundaryCenter').value = Math.round(normalDegrees(area.start*180/Math.PI+width/2));
+    $('boundaryWidth').value = Math.round(width);
+  } else {
+    $('wedgeStart').value=0;$('wedgeEnd').value=360;
+    $('boundaryCenter').value=0;$('boundaryWidth').value=360;
+  }
+  renderCapacity();
+}
+function renderCapacity() {
+  if (!state) return;
+  const b=bounds(), counts={mud:0,grass:0};
+  for (const site of state.sites.values()) if (P.inWedge(site,b.start,b.end)) counts[site.zone]++;
+  $('areaCapacity').textContent = `${counts.mud} mud spots · ${counts.grass} grass spots in this area`;
+}
 
 function message(value) { $('status').textContent = value; }
+function usePlan(data) {
+  const previousSection = $('section').value;
+  plan = data;
+  $('section').replaceChildren();
+  const all = document.createElement('option'); all.value = ''; all.textContent = 'All alliances';
+  $('section').append(all);
+  for (const tag of Object.keys(data.sections)) {
+    const option = document.createElement('option'); option.value = tag;
+    option.textContent = `${tag} (${data.sections[tag].players})`; $('section').append(option);
+  }
+  if (data.sections[previousSection]) $('section').value = previousSection;
+  $('snapshotNote').textContent = `Roster/power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}`;
+  $('explain').textContent = `Roster/power: ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'}. ` +
+    `Shield/attendance: previous SvS (${data.meta.eventCaptured || '2026-09-26'}). ` +
+    'Mud ranks total hero power, then total power, then HQ. Grass ranks HQ within the previous SvS priority groups. ' +
+    'Lock manual edge placements before filling your wedge. Strike players stage in grass with paired mud reserves.';
+}
 function bounds() { return { start: Number($('wedgeStart').value), end: Number($('wedgeEnd').value) }; }
 function project(p) {
   const r = canvas.getBoundingClientRect(), base = Math.min(r.width / 260, r.height / 250) * scale;
@@ -36,6 +83,31 @@ function draw() {
     ctx.closePath(); ctx.fillStyle = color; ctx.fill();
     ctx.strokeStyle = '#aebbc088'; ctx.stroke();
   }
+  boundaryHandles = [];
+  for (const [tag,area] of Object.entries(state.sections)) {
+    if (tag === 'Other') continue;
+    const selected=$('section').value===tag, color=sectionColor(tag);
+    const preview=selected&&editMode ? bounds() : null;
+    const start=preview ? preview.start*Math.PI/180 : area.start;
+    const difference=preview ? (preview.end-preview.start)*Math.PI/180 : area.end-area.start;
+    const width=(difference+2*Math.PI)%(2*Math.PI)||2*Math.PI;
+    const center=start+width/2;
+    const point=(a,rad) => project({x:500+rad*Math.sin(a),y:500-rad*Math.cos(a)});
+    ctx.beginPath();
+    for (let i=0;i<=24;i++) { const [x,y]=point(start+width*i/24,118); if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y); }
+    for (let i=24;i>=0;i--) { const [x,y]=point(start+width*i/24,19);ctx.lineTo(x,y); }
+    ctx.closePath();ctx.fillStyle=color;ctx.globalAlpha=selected ? .16 : .035;ctx.fill();ctx.globalAlpha=1;
+    ctx.strokeStyle=color;ctx.lineWidth=selected?2:1;ctx.globalAlpha=selected?1:.45;
+    for (const a of [start,start+width]) { const [x1,y1]=point(a,19),[x2,y2]=point(a,118);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke(); }
+    ctx.globalAlpha=1;
+    const [lx,ly]=point(center,102);ctx.fillStyle=color;ctx.font=`${selected?14:11}px system-ui`;ctx.textAlign='center';ctx.fillText(tag,lx,ly);
+    if (selected && editMode) for (const [kind,a] of [['start',start],['end',start+width],['center',center]]) {
+      const [x,y]=point(a,115);ctx.beginPath();ctx.arc(x,y,7,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#fff';ctx.stroke();
+      boundaryHandles.push({kind,x,y});
+    }
+  }
+  const [capitalX,capitalY]=project({x:500,y:500});ctx.textAlign='center';ctx.fillStyle='#f0e0c5';ctx.font='bold 13px system-ui';ctx.fillText('CAPITAL',capitalX,capitalY);
+  ctx.fillStyle='#c4d6dc';ctx.font='12px system-ui';ctx.fillText('N ↑',26,90);
   const b = bounds();
   if (Number.isFinite(b.start) && Number.isFinite(b.end) && Math.abs(b.end - b.start) < 360) {
     const [cx, cy] = project({ x: 500, y: 500 });
@@ -47,15 +119,15 @@ function draw() {
     }
   }
   for (const p of visible) {
+    if (p.zone === 'unassigned') continue;
     const [x, y] = project(p);
     ctx.beginPath(); ctx.arc(x, y, p.id === selectedId ? 5 : Math.max(2, 2.5 * scale ** .3), 0, Math.PI * 2);
-    ctx.fillStyle = p.role ? palette.team : p.highRisk ? palette.risk
-      : p.attendanceProxy === 'outside_capital_area' ? palette.outside : palette[p.zone];
+    ctx.fillStyle = p.role ? palette.team : p.highRisk ? palette.risk : sectionColor(p.section);
     ctx.fill();
     if (p.locked) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); }
   }
   const highlights = [[targetKey, '#fff'],
-    [selectedId ? P.siteKey(P.current(state, selectedId)) : null, '#ffdf73']];
+    [selectedId != null && P.current(state,selectedId)?.zone !== 'unassigned' ? P.siteKey(P.current(state, selectedId)) : null, '#ffdf73']];
   for (const [key, color] of highlights) {
     const s = key && state.sites.get(key); if (!s) continue;
     const [x, y] = project(s);
@@ -71,28 +143,35 @@ function render() {
     (!q || `${p.name} ${p.tag} ${p.id}`.toLocaleLowerCase().includes(q)) &&
     (!section || p.section === section) && (!zone || p.zone === zone));
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} players shown · ` +
-    `${state.locks.size} locked · ${state.pairs.length} swap pairs · revision ${revision}` +
+    `version ${revision}` +
     (after ? ' · POST-SWAP PREVIEW' : '');
   const body = $('rows'); body.replaceChildren();
   for (const p of visible.slice(0, 500)) {
     const tr = document.createElement('tr');
     if (p.id === selectedId) tr.className = 'active';
     for (const value of [p.hq, `${p.locked ? '🔒 ' : ''}${p.name}${p.role ? ' · ' + p.role : ''}`,
-      p.tag || '—', `${p.x}, ${p.y}`]) {
+      p.tag || '—', p.zone === 'unassigned' ? 'Waiting' : `${p.x}, ${p.y}`]) {
       const td = document.createElement('td'); td.textContent = value; tr.append(td);
     }
     tr.onclick = () => { selectedId = p.id; render(); };
     body.append(tr);
   }
-  const chosen = selectedId && P.current(state, selectedId);
-  $('selectedPlayer').textContent = chosen ? `${chosen.name} · HQ ${chosen.hq} · ${chosen.tag || 'No tag'} · ` +
-    `${chosen.zone.toUpperCase()} X ${chosen.x}, Y ${chosen.y}${chosen.locked ? ' · locked' : ''}`
-    : 'Select a player from the list.';
+  $('listNote').textContent = visible.length > 500 ? 'Showing the first 500 players. Choose an alliance or search a name to narrow the list.' : '';
+  $('waitingCount').textContent = P.rows(state).filter(p => p.zone === 'unassigned').length;
+  const chosen = selectedId != null && P.current(state, selectedId);
+  $('selectedPlayer').replaceChildren();
+  if (chosen) {
+    const lines = [['strong','',`${chosen.name} · HQ ${chosen.hq}`],
+      ['span','coordinates',chosen.zone==='unassigned' ? 'Waiting for a spot' : `X ${chosen.x} · Y ${chosen.y}`],
+      ['span','detail',`${chosen.tag || 'No alliance'} · ${chosen.zone === 'unassigned' ? 'Unassigned' : chosen.zone === 'mud' ? 'Mud front' : 'Grass support'}${chosen.locked ? ' · Reserved' : ''}`],
+      ['span','detail',`Hero power ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
+    for (const [tag,cl,text] of lines) { const el=document.createElement(tag);el.className=cl;el.textContent=text;$('selectedPlayer').append(el); }
+  } else $('selectedPlayer').textContent = 'Choose a player to see their coordinates.';
   const target = targetKey && state.sites.get(targetKey), holder = target && P.playerAt(state, targetKey);
   $('targetInfo').textContent = target ? `Target: ${target.zone.toUpperCase()} X ${target.x}, Y ${target.y}` +
-    `${target.spot ? ' · mud spot #' + target.spot : ''} · held by ${state.players.get(holder).name}` +
+    `${target.spot ? ' · mud spot #' + target.spot : ''} · ${holder == null ? 'Open spot' : 'held by '+state.players.get(holder).name}` +
     `${state.locks.has(holder) ? ' (locked)' : ''}` : 'Click a map dot or enter a legal site’s X/Y.';
-  $('pendingStrike').textContent = pendingStrike ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
+  $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
   for (const pair of state.pairs) {
     const strike = P.current(state, pair.strike), reserve = P.current(state, pair.reserve);
@@ -103,11 +182,12 @@ function render() {
       `${reserve.name} (mud ${reserve.x},${reserve.y})`;
     li.append(remove); pairs.append(li);
   }
-  draw();
+  draw(); renderCapacity();
 }
 function changeSummary(changes) {
-  const parts = [['moved', 'moved'], ['locked', 'locked'], ['unlocked', 'unlocked'],
-    ['paired', 'paired'], ['unpaired', 'unpaired']]
+  const parts = [['added', 'added to roster'], ['removed', 'removed from roster'],
+    ['moved', 'moved'], ['locked', 'locked'], ['unlocked', 'unlocked'],
+    ['paired', 'paired'], ['unpaired', 'unpaired'], ['boundaries', 'alliance areas changed']]
     .filter(([key]) => changes[key]?.length)
     .map(([key, label]) => `${changes[key].length} ${label}`);
   return parts.join(' · ') || 'No placement changes';
@@ -117,7 +197,7 @@ function renderHistoryList() {
   for (const entry of historyEntries) {
     const li = document.createElement('li'), button = document.createElement('button');
     const action = entry.action === 'restore' ? `restored revision ${entry.sourceRevision}`
-      : entry.action === 'baseline' ? 'history begins here' : changeSummary(entry.changes);
+      : entry.action === 'baseline' ? 'history begins here' : entry.action === 'atlas_refresh' ? 'atlas and roster refreshed' : changeSummary(entry.changes);
     li.append(document.createTextNode(`Revision ${entry.revision} · ${new Date(entry.updatedAt).toLocaleString()} · ` +
       `${entry.updatedBy} · ${action}`));
     button.textContent = 'View'; button.onclick = () => showHistory(entry.revision);
@@ -141,11 +221,12 @@ async function showHistory(number) {
     const r = await fetch(`${apiUrl}/api/placement/history/${number}`, { cache: 'no-store' });
     if (!r.ok) throw Error(`Revision unavailable (${r.status})`);
     const entry = await r.json();
-    const check = P.create(plan); P.importDraft(check, entry.draft);
+    const check = P.create(entry.plan || plan); P.importDraft(check, entry.draft);
     selectedHistory = entry;
     const detail = $('historyDetail'); detail.replaceChildren();
     const title = document.createElement('p');
-    title.textContent = `Revision ${number} by ${entry.updatedBy} · ${changeSummary(entry.changes)}`;
+    title.textContent = `Revision ${number} by ${entry.updatedBy} · ${changeSummary(entry.changes)}` +
+      ` · Roster/power ${entry.plan?.meta.powerCaptured || entry.plan?.meta.capturedDate || 'September 2026'}`;
     detail.append(title);
     if (entry.action === 'restore') {
       const source = document.createElement('p');
@@ -153,8 +234,11 @@ async function showHistory(number) {
     }
     const list = document.createElement('ul'); list.className = 'history-changes';
     const add = value => { const li = document.createElement('li'); li.textContent = value; list.append(li); };
-    const name = id => state.players.get(id)?.name || `Atlas ID ${id}`;
-    for (const move of entry.changes.moved) add(`${name(move.id)}: ${move.from} → ${move.to}`);
+    const name = id => check.players.get(id)?.name || `Atlas ID ${id}`;
+    for (const player of entry.changes.added || []) add(`${player.name || name(player.id)}: added to roster at ${player.to}`);
+    for (const player of entry.changes.removed || []) add(`${player.name || name(player.id)}: removed from roster (previously ${player.from})`);
+    for (const move of entry.changes.moved) add(`${name(move.id)}: ${move.from || 'Waiting'} → ${move.to || 'Waiting'}`);
+    for (const area of entry.changes.boundaries || []) add(`${area.tag}: area ${Math.round(normalDegrees(area.start*180/Math.PI))}°–${Math.round(normalDegrees(area.end*180/Math.PI))}°`);
     for (const id of entry.changes.locked) add(`${name(id)}: locked`);
     for (const id of entry.changes.unlocked) add(`${name(id)}: unlocked`);
     for (const pair of entry.changes.paired) add(`${name(pair.strike)} ⇄ ${name(pair.reserve)}: paired`);
@@ -172,9 +256,19 @@ async function loadShared(force = false) {
     const data = await r.json();
     if (busy) return;
     if (data.revision !== revision || force) {
+      if (data.draft && data.draft.signature !== P.create(plan).signature) {
+        const response = await fetch(`${apiUrl}/api/placement/plan?signature=${encodeURIComponent(data.draft.signature)}`, { cache: 'no-store' });
+        if (!response.ok) throw Error('This revision’s roster could not be loaded.');
+        usePlan((await response.json()).plan);
+      }
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
-      state = next; revision = data.revision; render();
+      state = next; revision = data.revision;
+      syncBoundary();
+      if (!state.players.has(selectedId)) selectedId = null;
+      if (!state.sites.has(targetKey)) targetKey = null;
+      if (!state.players.has(pendingStrike)) pendingStrike = null;
+      render();
       if (selectedHistory) $('restoreHistory').hidden = selectedHistory.revision === revision;
       loadHistory();
       message(data.revision ? `Shared revision ${revision} by ${data.updatedBy} loaded.`
@@ -183,6 +277,7 @@ async function loadShared(force = false) {
   } catch (e) { if (!busy) message(e.message); }
 }
 async function mutate(action) {
+  if (!editMode) { message('Open Edit plan to make changes.'); return; }
   if (!editorKey) { message('Enter the shared editor key to make changes.'); return; }
   if (busy) { message('A change is still saving.'); return; }
   const before = P.exportDraft(state), baseRevision = revision;
@@ -199,7 +294,7 @@ async function mutate(action) {
     revision = data.revision; render();
     if (selectedHistory) $('restoreHistory').hidden = selectedHistory.revision === revision;
     loadHistory();
-    message(`Saved revision ${revision}${typeof detail === 'number' ? ` · ${detail} positions updated` : ''}.`);
+    message(`Saved version ${revision}${typeof detail === 'number' ? ` · ${detail} players updated` : typeof detail === 'string' ? ` · ${detail}` : ''}.`);
   } catch (e) {
     P.importDraft(state, before); render(); message(e.message);
     if (e.message.startsWith('Another planner')) { busy = false; await loadShared(true); }
@@ -225,17 +320,32 @@ function csv(after) {
 }
 
 canvas.addEventListener('pointerdown', e => {
-  canvas.setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY, moved: false };
+  canvas.setPointerCapture(e.pointerId);
+  const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+  const handle=editMode && editorKey && !busy && boundaryHandles.find(h=>Math.hypot(h.x-x,h.y-y)<14);
+  drag = { x:e.clientX,y:e.clientY,moved:false,handle:handle?.kind,original:bounds() };
 });
 canvas.addEventListener('pointermove', e => {
   if (!drag) return;
+  if (drag.handle) {
+    const r=canvas.getBoundingClientRect(),[cx,cy]=project({x:500,y:500});
+    const angle=normalDegrees(Math.atan2(e.clientX-r.left-cx,-(e.clientY-r.top-cy)/.8)*180/Math.PI);
+    const width=normalDegrees(drag.original.end-drag.original.start)||360;
+    if (drag.handle==='center') { $('wedgeStart').value=normalDegrees(angle-width/2);$('wedgeEnd').value=normalDegrees(angle+width/2); }
+    else $(drag.handle==='start'?'wedgeStart':'wedgeEnd').value=Math.round(angle);
+    const b=bounds(),clampedWidth=normalDegrees(b.end-b.start)||360;
+    $('boundaryCenter').value=Math.round(normalDegrees(b.start+clampedWidth/2));$('boundaryWidth').value=Math.round(clampedWidth);
+    drag.moved=true;draw();renderCapacity();return;
+  }
   const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
   if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
   panX += dx; panY += dy; drag.x = e.clientX; drag.y = e.clientY; draw();
 });
 canvas.addEventListener('pointerup', e => {
   if (!drag) return;
-  const moved = drag.moved; drag = null; if (moved) return;
+  const moved=drag.moved,handle=drag.handle;drag=null;
+  if(handle && moved){const b=bounds();mutate(()=>P.setSection(state,$('section').value,b.start,b.end));return;}
+  if (moved) return;
   if ($('swapPreview').checked) { message('Switch to staging view to choose a site.'); return; }
   const rect = canvas.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
   let best = null, d = 12;
@@ -243,27 +353,52 @@ canvas.addEventListener('pointerup', e => {
     const [px, py] = project(s), pd = Math.hypot(px - x, py - y);
     if (pd < d) { d = pd; best = s; }
   }
-  if (best) setTarget(P.siteKey(best));
+  if (best) {
+    if(editMode)setTarget(P.siteKey(best));
+    else { const holder=P.playerAt(state,P.siteKey(best));if(holder!=null){selectedId=holder;render();} }
+  }
 });
 canvas.addEventListener('wheel', e => {
   e.preventDefault(); scale = Math.max(.5, Math.min(10, scale * (e.deltaY < 0 ? 1.12 : .89))); draw();
 }, { passive: false });
 for (const id of ['search', 'section', 'zone', 'swapPreview'])
   $(id).addEventListener(id === 'search' ? 'input' : 'change', render);
-for (const id of ['wedgeStart', 'wedgeEnd']) $(id).addEventListener('input', draw);
+for (const id of ['wedgeStart', 'wedgeEnd']) $(id).addEventListener('input',()=>{draw();renderCapacity();});
+$('section').addEventListener('change',()=>{syncBoundary();render();});
+$('resetView').onclick=()=>{scale=1;panX=panY=0;draw();};
+$('showWaiting').onclick=()=>{$('zone').value='unassigned';$('search').value='';render();};
+function updateAreaInputs(){
+  const center=Number($('boundaryCenter').value),width=Number($('boundaryWidth').value);
+  if(!Number.isFinite(center)||!Number.isFinite(width)||width<1||width>360)return;
+  $('wedgeStart').value=width===360 ? 0 : normalDegrees(center-width/2);
+  $('wedgeEnd').value=width===360 ? 360 : normalDegrees(center+width/2);
+  draw();renderCapacity();
+}
+for(const id of ['boundaryCenter','boundaryWidth'])$(id).addEventListener('input',updateAreaInputs);
+for(const button of document.querySelectorAll('[data-direction]'))button.onclick=()=>{$('boundaryCenter').value=button.dataset.direction;updateAreaInputs();};
+$('saveBoundary').onclick=()=>mutate(()=>{const b=bounds();P.setSection(state,$('section').value,b.start,b.end);});
+$('arrangeAlliance').onclick=()=>mutate(()=>{
+  const b=bounds();P.setSection(state,$('section').value,b.start,b.end);
+  const report=P.arrangeAlliance(state,$('section').value);
+  return `${report.moved} players arranged${report.waiting ? ` · ${report.waiting} need a wider area` : ''}`;
+});
+$('clearMud').onclick=()=>mutate(()=>P.clear(state,{zone:'mud',includeLocked:!$('keepLocks').checked}));
+$('clearArea').onclick=()=>mutate(()=>P.clear(state,{...bounds(),zone:'mud',includeLocked:!$('keepLocks').checked}));
+$('unassignPlayer').onclick=()=>mutate(()=>{if(selectedId==null)throw Error('Choose a player first');P.unassign(state,selectedId);});
+$('pushBack').onclick=()=>mutate(()=>`${P.pushBack(state,$('section').value)} placed in back grass · ${P.rows(state).filter(p=>p.zone==='unassigned').length} still waiting`);
 $('findSite').onclick = () => {
   try { setTarget(`${Number($('targetX').value)},${Number($('targetY').value)}`); }
   catch (e) { message(e.message); }
 };
 $('lockPlayer').onclick = () => mutate(() => {
   if ($('swapPreview').checked) throw Error('Switch to staging view first');
-  if (!selectedId || !targetKey) throw Error('Choose both a player and a site');
+  if (selectedId == null || !targetKey) throw Error('Choose both a player and a site');
   if (!P.inWedge(state.sites.get(targetKey), bounds().start, bounds().end))
     throw Error('Target site is outside the selected wedge');
   P.moveAndLock(state, selectedId, targetKey);
 });
 $('unlockPlayer').onclick = () => mutate(() => {
-  if (!selectedId) throw Error('Choose a player');
+  if (selectedId == null) throw Error('Choose a player');
   if (state.pairs.some(p => p.strike === selectedId || p.reserve === selectedId))
     throw Error('Remove the swap pair before unlocking this player');
   state.locks.delete(selectedId);
@@ -272,12 +407,12 @@ $('fillWedge').onclick = () => mutate(() => P.fill(state, {
   ...bounds(), section: $('section').value, zone: $('zone').value, sections: plan.sections
 }));
 $('markStrike').onclick = () => {
-  const p = selectedId && P.current(state, selectedId);
+  const p = selectedId == null ? null : P.current(state, selectedId);
   if (!p || p.zone !== 'grass') { message('Choose a grass player first.'); return; }
   pendingStrike = selectedId; render();
 };
 $('pairReserve').onclick = () => mutate(() => {
-  if (!pendingStrike || !selectedId) throw Error('Mark a strike player, then choose a mud reserve');
+  if (pendingStrike == null || selectedId == null) throw Error('Mark a strike player, then choose a mud reserve');
   P.addPair(state, pendingStrike, selectedId); pendingStrike = null;
 });
 $('reloadShared').onclick = () => loadShared(true);
@@ -332,18 +467,21 @@ $('forgetEditor').onclick = () => {
 fetch('placement-plan.json').then(r => {
   if (!r.ok) throw Error('Plan could not be loaded'); return r.json();
 }).then(data => {
-  plan = data; state = P.create(plan);
-  for (const tag of Object.keys(data.sections)) {
-    const option = document.createElement('option'); option.value = tag;
-    option.textContent = `${tag} (${data.sections[tag].players})`; $('section').append(option);
-  }
+  usePlan(data); state = P.create(plan);
   $('editorName').value = localStorage.getItem('state798.editorName') || '';
   $('editorKey').value = localStorage.getItem('state798.editorKey') ||
     sessionStorage.getItem('state798.editorKey') || '';
-  $('explain').textContent = 'Shared plan: lock manual edge placements, then refill unlocked sites in your wedge. ' +
-    'Strike players stage in grass; paired reserves hold mud spots until the planned swap.';
+  const query = new URLSearchParams(location.search);
+  const requestedSection = query.get('alliance');
+  if (plan.sections[requestedSection]) $('section').value = requestedSection;
+  syncBoundary();
+  const requestedPlayer = Number(query.get('player'));
+  if (query.has('player') && state.players.has(requestedPlayer)) selectedId = requestedPlayer;
   render(); size(); loadShared(true);
-  if ($('editorKey').value) $('connectEditor').click();
+  if (editMode) {
+    if ($('editorKey').value) $('connectEditor').click();
+    else $('accessPanel').open=true;
+  }
   setInterval(() => { if (!document.hidden && !busy) loadShared(); }, 10000);
 }).catch(e => { $('summary').textContent = e.message; });
 new ResizeObserver(size).observe(canvas);

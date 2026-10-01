@@ -3,11 +3,15 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const P = require('../placement-planner.js');
-const plan = JSON.parse(readFileSync(new URL('../placement-plan.json', import.meta.url), 'utf8'));
+let plan = JSON.parse(readFileSync(new URL('../placement-plan.json', import.meta.url), 'utf8'));
 const base = process.env.TEST_API_URL || 'http://127.0.0.1:8787';
 const key = process.env.TEST_EDITOR_KEY || 'local-test-key';
 const first = await fetch(`${base}/api/placement`).then(r => r.json());
 assert(Number.isInteger(first.revision));
+if(first.draft && first.draft.signature!==P.create(plan).signature) {
+  const archived=await fetch(`${base}/api/placement/plan?signature=${encodeURIComponent(first.draft.signature)}`).then(r=>r.json());
+  assert(archived.plan,'Existing local draft needs its archived base plan');plan=archived.plan;
+}
 const draft = first.draft || P.exportDraft(P.create(plan));
 const payload = { baseRevision: first.revision, draft, editor: 'Local API test' };
 const save = await fetch(`${base}/api/placement`, { method: 'PUT',
@@ -39,10 +43,10 @@ assert.equal(history.entries[0].revision, saved.revision);
 const detail = await fetch(`${base}/api/placement/history/${saved.revision}`).then(r => r.json());
 assert.deepEqual(detail.draft, draft);
 const changed = P.create(plan); P.importDraft(changed, draft);
-const pair = [...changed.assignments].find(([id, site], index, entries) =>
-  index > 0 && changed.sites.get(site).zone === changed.sites.get(entries[0][1]).zone);
+const firstId = [...changed.assignments].find(([id,site])=>site!==null)[0];
+const pair = [...changed.assignments].find(([id, site]) =>
+  id !== firstId && site!==null && changed.sites.get(site).zone === P.current(changed,firstId).zone);
 assert(pair);
-const firstId = changed.assignments.keys().next().value;
 const firstSite = changed.assignments.get(firstId);
 changed.assignments.set(firstId, pair[1]); changed.assignments.set(pair[0], firstSite);
 changed.locks.add(firstId);
@@ -69,7 +73,7 @@ console.log('D1 save, history, change details, restore, auth, and revision confl
 const nextPlan = structuredClone(plan);
 nextPlan.planId = 'test-atlas-' + Date.now();
 nextPlan.meta.powerCaptured = '2026-10-01';
-nextPlan.placements[0].name = 'New snapshot display name';
+nextPlan.placements[0].name = 'New snapshot display name '+Date.now();
 nextPlan.placements[0].id = Math.max(...plan.placements.map(p => p.id)) + 1;
 const nextDraft = P.exportDraft(P.create(nextPlan));
 const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` };
@@ -112,3 +116,37 @@ assert.equal(restoreRefresh.status, 200, await restoreRefresh.clone().text());
 const loadedPlan = await fetch(`${base}/api/placement/plan?signature=${encodeURIComponent(nextDraft.signature)}`).then(r => r.json());
 assert.deepEqual(loadedPlan.plan, nextPlan);
 console.log('Atlas migration preserves old names/roster, immutable snapshots, CAS, and restores across snapshots');
+
+const clearState=P.create(nextPlan);
+const mudPlayer=[...clearState.players.keys()].find(id=>P.current(clearState,id).zone==='mud');
+const emptySite=clearState.assignments.get(mudPlayer);
+P.unassign(clearState,mudPlayer);P.setSection(clearState,'Helm',280,350);
+const afterRefresh=await restoreRefresh.json();
+const cleared=await fetch(`${base}/api/placement`,{method:'PUT',headers,body:JSON.stringify({
+  baseRevision:afterRefresh.revision,draft:P.exportDraft(clearState),editor:'Clear and boundary test'})});
+assert.equal(cleared.status,200,await cleared.clone().text());
+const clearRevision=await cleared.json();
+assert.equal(clearRevision.changes.moved[0].to,null);
+assert.equal(clearRevision.changes.boundaries[0].tag,'Helm');
+const clearHistory=await fetch(`${base}/api/placement/history/${clearRevision.revision}`).then(r=>r.json());
+assert.equal(new Map(clearHistory.draft.assignments).get(mudPlayer),null);
+P.moveAndLock(clearState,mudPlayer,emptySite);
+const refill=await fetch(`${base}/api/placement`,{method:'PUT',headers,body:JSON.stringify({
+  baseRevision:clearRevision.revision,draft:P.exportDraft(clearState),editor:'Refill an empty site test'})});
+assert.equal(refill.status,200,await refill.clone().text());
+const refilled=await refill.json();
+const blockedPlan=structuredClone(nextPlan);blockedPlan.planId+='-blocked';blockedPlan.blockedSites=[emptySite];
+const blockedDraft=P.exportDraft(P.create(blockedPlan));
+const blocked=await fetch(`${base}/api/placement/migrate`,{method:'POST',headers,body:JSON.stringify({
+  baseRevision:refilled.revision,previousPlan:nextPlan,plan:blockedPlan,draft:blockedDraft,editor:'Turret blocking test'})});
+assert.equal(blocked.status,200,await blocked.clone().text());
+const blockedRevision=await blocked.json();
+const illegal=structuredClone(blockedDraft);
+illegal.assignments.find(([id])=>id===mudPlayer)[1]=emptySite;
+const illegalSave=await fetch(`${base}/api/placement`,{method:'PUT',headers,body:JSON.stringify({
+  baseRevision:blockedRevision.revision,draft:illegal,editor:'Blocked spot rejection test'})});
+assert.equal(illegalSave.status,400);
+const back=await fetch(`${base}/api/placement/restore`,{method:'POST',headers,body:JSON.stringify({
+  baseRevision:blockedRevision.revision,sourceRevision:afterRefresh.revision,editor:'Return to QA plan'})});
+assert.equal(back.status,200,await back.clone().text());
+console.log('Clear/refill, waiting history, saved alliance boundaries, and turret-blocked sites passed through D1');

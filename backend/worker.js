@@ -18,14 +18,21 @@ function validDraft(draft) {
   const ids = new Set(), sites = new Set();
   for (const pair of draft.assignments) {
     if (!Array.isArray(pair) || pair.length !== 2 || !Number.isSafeInteger(pair[0]) ||
-        typeof pair[1] !== 'string' || !/^\d{1,3},\d{1,3}$/.test(pair[1])) return false;
-    ids.add(pair[0]); sites.add(pair[1]);
+        (pair[1] !== null && (typeof pair[1] !== 'string' || !/^\d{1,3},\d{1,3}$/.test(pair[1])))) return false;
+    if (ids.has(pair[0]) || (pair[1] !== null && sites.has(pair[1]))) return false;
+    ids.add(pair[0]); if (pair[1] !== null) sites.add(pair[1]);
   }
   if (draft.pairs.some(p => !p || typeof p !== 'object')) return false;
   const locks = new Set(draft.locks);
   const members = draft.pairs.flatMap(p => [p.strike, p.reserve]);
-  return ids.size === 2000 && sites.size === 2000 && locks.size === draft.locks.length &&
-    draft.locks.every(id => Number.isSafeInteger(id) && ids.has(id)) &&
+  const assignments = new Map(draft.assignments);
+  const sections = draft.sections;
+  if (sections !== undefined && (!sections || Array.isArray(sections) || typeof sections !== 'object' ||
+      Object.keys(sections).length > 100 || Object.entries(sections).some(([tag, s]) =>
+        tag.length > 20 || !s || !Number.isFinite(s.start) || !Number.isFinite(s.end) ||
+        Math.abs(s.start) > 4*Math.PI || Math.abs(s.end) > 4*Math.PI))) return false;
+  return ids.size === 2000 && locks.size === draft.locks.length &&
+    draft.locks.every(id => Number.isSafeInteger(id) && ids.has(id) && assignments.get(id) !== null) &&
     members.length === new Set(members).size &&
     draft.pairs.every(p => Number.isSafeInteger(p.strike) && Number.isSafeInteger(p.reserve) &&
       ids.has(p.strike) && ids.has(p.reserve) && locks.has(p.strike) && locks.has(p.reserve));
@@ -35,7 +42,7 @@ function samePlan(before, after) {
   if (before.signature !== after.signature) return false;
   const ids = new Set(before.assignments.map(([id]) => id));
   const sites = new Set(before.assignments.map(([, site]) => site));
-  return after.assignments.every(([id, site]) => ids.has(id) && sites.has(site));
+  return after.assignments.every(([id, site]) => ids.has(id) && (site === null || sites.has(site)));
 }
 
 export { validDraft, samePlan };
@@ -49,6 +56,9 @@ function validPlan(plan) {
   if (!plan || !Array.isArray(plan.placements) || plan.placements.length !== 2000 ||
       !plan.sections || typeof plan.sections !== 'object' || !plan.meta ||
       (plan.planId !== undefined && (typeof plan.planId !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(plan.planId)))) return false;
+  if (plan.blockedSites !== undefined && (!Array.isArray(plan.blockedSites) ||
+      new Set(plan.blockedSites).size !== plan.blockedSites.length ||
+      plan.blockedSites.some(key => typeof key !== 'string' || !plan.placements.some(p => `${p.x},${p.y}` === key)))) return false;
   return plan.placements.every(p => p && Number.isSafeInteger(p.id) && p.id >= 0 &&
     Number.isInteger(p.x) && p.x >= 0 && p.x <= 999 &&
     Number.isInteger(p.y) && p.y >= 0 && p.y <= 999 &&
@@ -65,9 +75,11 @@ function validPlan(plan) {
 function draftFitsPlan(draft, plan) {
   if (!validDraft(draft) || !validPlan(plan) || draft.signature !== planSignature(plan)) return false;
   const ids = new Set(plan.placements.map(p => p.id));
-  const sites = new Map(plan.placements.map(p => [`${p.x},${p.y}`, p.zone]));
+  const blocked = new Set(plan.blockedSites || []);
+  const sites = new Map(plan.placements.filter(p => !blocked.has(`${p.x},${p.y}`)).map(p => [`${p.x},${p.y}`, p.zone]));
   const assignments = new Map(draft.assignments);
-  return draft.assignments.every(([id, site]) => ids.has(id) && sites.has(site)) &&
+  return (!draft.sections || Object.keys(draft.sections).every(tag => Object.hasOwn(plan.sections, tag))) &&
+    draft.assignments.every(([id, site]) => ids.has(id) && (site === null || sites.has(site))) &&
     draft.pairs.every(p => sites.get(assignments.get(p.strike)) === 'grass' &&
       sites.get(assignments.get(p.reserve)) === 'mud');
 }
@@ -96,6 +108,8 @@ function changesBetween(before, after) {
     unlocked: [...oldLocks].filter(id => !nextLocks.has(id)),
     paired: after.pairs.filter(pair => !oldPairs.has(pairKey(pair))),
     unpaired: (before?.pairs || []).filter(pair => !nextPairs.has(pairKey(pair)))
+    , boundaries: Object.entries(after.sections || {}).filter(([tag,area]) =>
+      JSON.stringify(before?.sections?.[tag]) !== JSON.stringify(area)).map(([tag,area]) => ({tag,...area}))
   };
 }
 
@@ -107,7 +121,12 @@ async function currentDraft(db) {
 async function saveDraft(db, baseRevision, draft, editor, action = 'edit', sourceRevision = null, plans = []) {
   const current = await currentDraft(db);
   if ((current?.revision || 0) !== baseRevision) return { conflict: current };
-  if (current && !samePlan(JSON.parse(current.draft), draft) && action === 'edit') return { invalid: true };
+  if (current && action === 'edit') {
+    const beforeDraft = JSON.parse(current.draft);
+    const snapshot = await archivedPlan(db, draft.signature);
+    if (beforeDraft.signature !== draft.signature || (snapshot ? !draftFitsPlan(draft, snapshot) : !samePlan(beforeDraft, draft)))
+      return { invalid: true };
+  }
   const now = new Date().toISOString();
   const serialized = JSON.stringify(draft);
   const before = current && JSON.parse(current.draft);
