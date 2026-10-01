@@ -69,7 +69,8 @@ function table(rows, terrain) {
       name.append(note);
     }
     tr.insertCell().textContent = format(p.heroPower);
-    tr.insertCell().textContent = format(p.totalPower);
+    const total=tr.insertCell();total.textContent=(p.totalPowerApproximate ? '≈ ' : '')+format(p.totalPower);
+    if(p.totalPowerApproximate)total.title='Rounded reading from the saved alliance roster card';
     const coordinate = tr.insertCell(); coordinate.className = 'coordinate'; coordinate.textContent = `${p.x}, ${p.y}`;
   }
   H(`${terrain}Table`).replaceChildren(table);

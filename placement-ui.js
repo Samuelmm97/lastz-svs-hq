@@ -198,12 +198,19 @@ function render() {
     const lines = [['strong','',`${chosen.name} · HQ ${chosen.hq}`],
       ['span','coordinates',chosen.zone==='unassigned' ? 'Waiting for a spot' : `X ${chosen.x} · Y ${chosen.y}`],
       ['span','detail',`${chosen.tag || 'No alliance'} · ${chosen.zone === 'unassigned' ? 'Unassigned' : chosen.zone === 'mud' ? 'Mud front' : P.rearReasons(chosen).length && !chosen.locked ? 'Back grass' : 'Grass support'}${chosen.locked ? ' · Reserved' : ''}`],
-      ['span','detail',`Hero power ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
+      ['span','detail',`Hero power ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPowerApproximate ? '≈ ' : ''}${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
+    if (chosen.totalPowerApproximate) lines.push(['span','detail','Total power is a rounded reading from the alliance roster.']);
+    if (chosen.nameReadingStatus==='partial') lines.push(['span','detail','Name partly unreadable; check the saved roster card.']);
     if (P.rearReasons(chosen).length) lines.push(['span','detail rear-note',
       `${chosen.locked?'Prior SvS (manual reservation overrides automatic placement)':'Why back grass'}: ${P.rearReasons(chosen).join('; ')} · ${plan.meta.eventCaptured || '2026-09-26'}.`]);
     if (chosen.attendanceProxy==='unknown') lines.push(['span','detail unknown-note',
       'Prior SvS attendance unknown: no matched historical record. No back penalty for unknown attendance.']);
     for (const [tag,cl,text] of lines) { const el=document.createElement(tag);el.className=cl;el.textContent=text;$('selectedPlayer').append(el); }
+    if (chosen.rosterPhoto) {
+      const link=document.createElement('a');link.textContent='View roster card';
+      link.href='https://samuelmm97.github.io/last-z-state-798-map/'+chosen.rosterPhoto;
+      link.target='_blank';link.rel='noopener';$('selectedPlayer').append(link);
+    }
   } else $('selectedPlayer').textContent = 'Choose a player to see their coordinates.';
   const target = targetKey && state.sites.get(targetKey), holder = target && P.playerAt(state, targetKey);
   $('targetInfo').textContent = target ? `Target: ${target.zone.toUpperCase()} X ${target.x}, Y ${target.y}` +

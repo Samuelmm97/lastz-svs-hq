@@ -62,7 +62,8 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
     top_tags={a['tag'] for a in ranked_alliances[:13] if a.get('tag')}
     own_sections=top_tags|{tag for tag in previous['sections'] if tag!='Other'}
     metrics={p['atlas_id']:p for p in power['players'].values() if p.get('atlas_id') is not None}
-    hqs=[p for p in load(atlas/'data/hqs.json') if (p.get('current') is not False or p.get('roster_current')) and
+    atlas_hqs=load(atlas/'data/hqs.json')
+    hqs=[p for p in atlas_hqs if (p.get('current') is not False or p.get('roster_current')) and
          p.get('placement_eligible',True) and
          p.get('hq') is not None and observations.get(p['id'],{}).get('status')!='not_hq']
     hqs.sort(key=lambda p:(-p['hq'],0 if attendance.get(p['id'],{}).get('zone')=='capital' else 1,p['id']))
@@ -97,9 +98,12 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
             'attendanceProxy':proxy,'priority':2 if status=='unshielded' or proxy=='outside_capital_area' else 0,
             'heroPower':metric.get('total_hero_power',{}).get('value'),
             'totalPower':metric.get('personal_power',{}).get('value'),
+            'totalPowerApproximate':bool(metric.get('personal_power',{}).get('approximate')),
+            'nameReadingStatus':p.get('name_reading_status','readable'),
+            'rosterPhoto':p.get('roster_photo'),
             'powerCaptured':power['captured_date'],'eventCaptured':'2026-09-26','oldX':p['x'],'oldY':p['y'],
             'locationCaptured':p.get('observed_date'),'hqCaptured':p.get('hq_observed_date'),
-            'rosterSource':'map' if p.get('current') is not False else 'leaderboard'}
+            'rosterSource':'verified alliance roster' if p.get('roster_status')=='verified_member' else 'map' if p.get('current') is not False else 'leaderboard'}
     assignments={id:key for id,key in before.items() if id in ids}
     vacants=[key for key in sites if key not in assignments.values()]
     for p,key in zip((p for p in selected if p['id'] not in assignments),vacants):
@@ -140,6 +144,19 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_o
             'selection':'Highest current readable HQ level, including all readable Helm supporters',
             'selected':2000,'topAlliances':[a['tag'] for a in ranked_alliances[:13] if a.get('tag')]},
             'sections':sections,'placements':result}
+        audit_path=atlas/'data/roster-audit.json'
+        if audit_path.exists():
+            audit=load(audit_path)
+            if audit.get('status')=='accounted_for':
+                proposed['meta'].update(rosterVerifiedMembers=audit['verified_members'],
+                    rosterVerifiedAlliances=len(audit['alliances']),
+                    rosterApproximatePowerCount=sum(bool(m.get('personal_power',{}).get('approximate')) for m in power['players'].values()))
+        proposed['meta'].update(
+            atlasCount=len(atlas_hqs),
+            deduplicatedCount=len({(norm(ALIASES.get(p['tag'],p['tag'])),norm(p['name'])) for p in hqs}),
+            confirmedCapitalAttendees=sum(p['attendanceProxy']=='inside_capital_area' for p in result),
+            priorCapitalSnapshotCount=sum(historic_attendance(r,event)=='inside_capital_area' for r in event['records']),
+            attendanceNotRecorded=sum(p['attendanceProxy']=='unknown' for p in result))
         if rear_priority_only:
             proposed['meta'].update(**rear_report,
                 confirmedCapitalAttendees=sum(p['attendanceProxy']=='inside_capital_area' for p in result),

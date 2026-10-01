@@ -129,7 +129,8 @@ function applyLeadership(previous,shared) {
     leadershipMudBoundaries:true,mudMinDistance:3,mudSpacingMode:'Footprints touch in Helm and SWT; other mud areas retain the existing gaps',
     compactAlliances:['Helm','SWT'],mudSpots:[...catalog.values()].filter(s=>s.zone==='mud').length,
     grassSpots:[...catalog.values()].filter(s=>s.zone==='grass').length,
-    refreshProgress:'Leadership mud boundaries enforced. Helm and SWT use denser positions with nonoverlapping HQ footprints. Hero power, total power, then HQ rank each group’s mud players, including lower tiers when needed. Overflow supports from nearby grass. Confirmed old risks stay in back; unknown attendance has no back penalty. Roster and turret checks continue.'}};
+    rearPlayers:rear.length,rearGrassMinRing:Math.min(...rearSlots.map(([,s])=>s.ring)),
+    refreshProgress:'Leadership mud boundaries enforced. Helm and SWT use denser positions with nonoverlapping HQ footprints. Hero power, total power, then HQ rank each group’s mud players, including lower tiers when needed. Overflow supports from nearby grass. Confirmed old risks stay in back; unknown attendance has no back penalty. '+(previous.meta.rosterVerifiedMembers?'Top '+previous.meta.rosterVerifiedAlliances+' alliance rosters verified ('+previous.meta.rosterVerifiedMembers+' members). Rounded roster power readings are labeled. Turret footprint checks are in progress.':'Roster and turret checks continue.')}};
   plan.planId='leadership-2026-10-01-'+crypto.createHash('sha256').update(JSON.stringify(plan)).digest('hex').slice(0,16);
   const next=P.create(plan);
   next.assignments=new Map([...placement].map(([id,key])=>[id,waiting.has(id)?null:key]));
