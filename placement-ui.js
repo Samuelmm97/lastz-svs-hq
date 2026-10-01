@@ -3,7 +3,7 @@ const P = PlacementPlanner;
 const canvas = $('map'), ctx = canvas.getContext('2d');
 const apiUrl = globalThis.PLACEMENT_API_URL || '';
 const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
-  risk: '#ef6f77', team: '#f9e37e' };
+  risk: '#ef6f77', absent: '#f3b65e', team: '#f9e37e' };
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null;
 let historyEntries = [], selectedHistory = null;
@@ -54,7 +54,8 @@ function usePlan(data) {
   $('explain').textContent = `Roster/power: ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'}. ` +
     `Shield/attendance: previous SvS (${data.meta.eventCaptured || '2026-09-26'}). ` +
     'Mud ranks total hero power, then total power, then HQ. Grass ranks HQ within the previous SvS priority groups. ' +
-    'Lock manual edge placements before filling your wedge. Strike players stage in grass with paired mud reserves.';
+    'Alliance areas guide grouping. Prior no-shows and unshielded players use the farthest grass across all alliances. ' +
+    'Lock manual edge placements before filling your area. Strike players stage in grass with paired mud reserves.';
 }
 function bounds() { return { start: Number($('wedgeStart').value), end: Number($('wedgeEnd').value) }; }
 function project(p) {
@@ -117,7 +118,7 @@ function draw() {
     if (p.zone === 'unassigned') continue;
     const [x, y] = project(p);
     ctx.beginPath(); ctx.arc(x, y, p.id === selectedId ? 5 : Math.max(2, 2.5 * scale ** .3), 0, Math.PI * 2);
-    ctx.fillStyle = p.role ? palette.team : p.highRisk ? palette.risk : sectionColor(p.section);
+    ctx.fillStyle = p.role ? palette.team : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : sectionColor(p.section);
     ctx.fill();
     if (p.locked) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); }
   }
@@ -150,7 +151,7 @@ function render() {
   const section = $('section').value, zone = $('zone').value;
   visible = P.rows(state, after).filter(p =>
     (!q || `${p.name} ${p.tag} ${p.id}`.toLocaleLowerCase().includes(q)) &&
-    (!section || p.section === section) && (!zone || p.zone === zone));
+    (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
   if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} players shown · ` +
     `version ${revision}` +
@@ -163,6 +164,11 @@ function render() {
       p.tag || '—', p.zone === 'unassigned' ? 'Waiting' : `${p.x}, ${p.y}`]) {
       const td = document.createElement('td'); td.textContent = value; tr.append(td);
     }
+    if (P.rearReasons(p).length) {
+      const note=document.createElement('span');note.className='rear-note';
+      note.textContent='Back priority · '+P.rearReasons(p).join('; ');
+      tr.children[1].append(note);
+    }
     tr.onclick = () => { selectedId = p.id; render(); };
     body.append(tr);
   }
@@ -173,8 +179,10 @@ function render() {
   if (chosen) {
     const lines = [['strong','',`${chosen.name} · HQ ${chosen.hq}`],
       ['span','coordinates',chosen.zone==='unassigned' ? 'Waiting for a spot' : `X ${chosen.x} · Y ${chosen.y}`],
-      ['span','detail',`${chosen.tag || 'No alliance'} · ${chosen.zone === 'unassigned' ? 'Unassigned' : chosen.zone === 'mud' ? 'Mud front' : 'Grass support'}${chosen.locked ? ' · Reserved' : ''}`],
+      ['span','detail',`${chosen.tag || 'No alliance'} · ${chosen.zone === 'unassigned' ? 'Unassigned' : chosen.zone === 'mud' ? 'Mud front' : P.rearReasons(chosen).length && !chosen.locked ? 'Back grass' : 'Grass support'}${chosen.locked ? ' · Reserved' : ''}`],
       ['span','detail',`Hero power ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
+    if (P.rearReasons(chosen).length) lines.push(['span','detail rear-note',
+      `${chosen.locked?'Prior SvS (manual reservation overrides automatic placement)':'Why back grass'}: ${P.rearReasons(chosen).join('; ')} · ${plan.meta.eventCaptured || '2026-09-26'}.`]);
     for (const [tag,cl,text] of lines) { const el=document.createElement(tag);el.className=cl;el.textContent=text;$('selectedPlayer').append(el); }
   } else $('selectedPlayer').textContent = 'Choose a player to see their coordinates.';
   const target = targetKey && state.sites.get(targetKey), holder = target && P.playerAt(state, targetKey);

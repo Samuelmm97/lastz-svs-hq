@@ -46,12 +46,10 @@ class LayoutTests(unittest.TestCase):
             self.assertTrue(plan['planId'].startswith('atlas-2026-10-01-'))
             self.assertEqual(draft['signature'],signature(plan))
             self.assertEqual(report['basedOnRevision'],11)
-            for p in plan['placements']:
-                if p['section']=='Other':continue
-                area=plan['sections'][p['section']]
-                self.assertLessEqual((p['angle']-area['start'])%(2*math.pi),
-                                     area['end']-area['start']+1e-9,
-                                     f"{p['name']} outside {p['section']} in {p['zone']}")
+            rear=[p for p in plan['placements'] if p['highRisk'] or p['attendanceProxy']=='outside_capital_area']
+            ordinary=[p for p in plan['placements'] if p['zone']=='grass' and p not in rear]
+            self.assertTrue(all(p['zone']=='grass' for p in rear))
+            self.assertGreaterEqual(min(p['ring'] for p in rear),max(p['ring'] for p in ordinary))
 
 
 if __name__=='__main__':unittest.main()

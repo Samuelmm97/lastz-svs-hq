@@ -91,3 +91,30 @@ const blocked=P.create(blockedPlan);
 assert.equal(P.current(blocked,keeper.id).zone,'unassigned');
 assert.throws(()=>P.moveAndLock(blocked,keeper.id,P.siteKey(keeper)),/legal site/);
 console.log('Clear-to-waiting, refill, boundaries, back grass, and blocked sites passed');
+
+const rearPlan=P.create(plan);
+const rearPeople=P.rows(rearPlan).filter(p=>P.rearReasons(p).length);
+assert(rearPeople.some(p=>p.attendanceProxy==='outside_capital_area'));
+assert(rearPeople.some(p=>p.highRisk));
+const assertRear=state=>{
+  const rows=P.rows(state),rear=rows.filter(p=>P.rearReasons(p).length&&!p.locked&&p.zone!=='unassigned');
+  const regular=rows.filter(p=>!P.rearReasons(p).length&&!p.locked&&p.zone==='grass');
+  assert(rear.every(p=>p.zone==='grass'));
+  assert(Math.min(...rear.map(p=>p.ring))>=Math.max(...regular.map(p=>p.ring)));
+};
+assertRear(rearPlan);
+P.arrangeAlliance(rearPlan,'Helm');
+assertRear(rearPlan);
+P.fill(rearPlan);
+assertRear(rearPlan);
+assert.equal(new Set([...rearPlan.assignments.values()].filter(Boolean)).size,2000);
+
+const risk=rearPeople.find(p=>p.section==='Helm');
+const manualTarget=P.rows(rearPlan).find(p=>p.zone==='grass'&&p.ring<60&&!P.rearReasons(p).length);
+P.moveAndLock(rearPlan,risk.id,P.siteKey(manualTarget));
+const manualKey=rearPlan.assignments.get(risk.id);
+P.arrangeAlliance(rearPlan,'Helm');
+assert.equal(rearPlan.assignments.get(risk.id),manualKey);
+assert(P.rearReasons(P.current(rearPlan,risk.id)).length);
+assert.deepEqual(P.rearReasons({highRisk:false,attendanceProxy:'unknown'}),[]);
+console.log('Global rear priority survives alliance arrange/fill; manual reservations and unknown attendance preserved');

@@ -32,7 +32,7 @@ def combat_order(p):
             -(p['totalPower'] if p['totalPower'] is not None else -1),-p['hq'],p['id'])
 
 
-def propose(atlas,previous,shared,date,refresh_roster_only=False):
+def propose(atlas,previous,shared,date,refresh_roster_only=False,rear_priority_only=False):
     draft=shared['draft']
     if draft['signature']!=signature(previous):
         raise ValueError('Shared draft and previous base snapshot differ')
@@ -93,7 +93,7 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False):
         assignments[p['id']]=key
     holder={site:id for id,site in assignments.items()}
     reserved={assignments[id] for id in locks}
-    if refresh_roster_only:
+    if refresh_roster_only or rear_priority_only:
         # Publish the collected roster now while the final geography is audited.
         # Retained players keep their shared positions; additions take vacancies.
         for p in players.values():
@@ -103,9 +103,13 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False):
             if not candidates:raise ValueError('No safe grass player available to replace a new risk in mud')
             q=min(candidates,key=combat_order)
             assignments[p['id']],assignments[q['id']]=assignments[q['id']],assignments[p['id']]
+        rear_report={}
+        if rear_priority_only:
+            from rear_priority import place_rear
+            rear_report=place_rear(players,sites,assignments,locks,draft.get('sections',previous['sections']))
         result=[{**p,**sites[assignments[p['id']]]} for p in players.values()]
         sections={tag:{**info,'players':sum(p['section']==tag for p in result)}
-                  for tag,info in previous['sections'].items()}
+                  for tag,info in draft.get('sections',previous['sections']).items()}
         for tag in own_sections-sections.keys():
             sections[tag]={'start':0,'end':2*math.pi,'players':sum(p['section']==tag for p in result)}
         proposed={**previous,'meta':{**previous['meta'],'capturedDate':date,'rosterCaptured':date,
@@ -114,13 +118,17 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False):
             'selection':'Highest current readable HQ level, including all readable Helm supporters',
             'selected':2000,'topAlliances':[a['tag'] for a in ranked_alliances[:13] if a.get('tag')]},
             'sections':sections,'placements':result}
+        if rear_priority_only:
+            proposed['meta'].update(**rear_report,
+                allianceGrouping='Preferred alliance areas; previous SvS rear priority overrides grouping',
+                refreshProgress='October 1 roster and power published. Alliance groups share a preferred area; prior no-shows and unshielded players stage in the farthest grass. Roster reconciliation and turret checks continue.')
         digest=hashlib.sha256(json.dumps(proposed,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()[:16]
         proposed['planId']='roster-'+date+'-'+digest
         next_draft={**draft,'signature':signature(proposed),'assignments':list(assignments.items())}
         report={'basedOnRevision':shared['revision'],'players':2000,'helm':sum(p['tag']=='Helm' for p in result),
             'rosterAdded':sorted(ids-set(before)),'rosterRemoved':sorted(set(before)-ids),
             'retainedPlayersMoved':sum(before[id]!=key for id,key in assignments.items() if id in before),
-            'status':'roster_checkpoint_layout_pending'}
+            'status':'rear_priority_published' if rear_priority_only else 'roster_checkpoint_layout_pending',**rear_report}
         return proposed,next_draft,report
     strike_ids={p['strike'] for p in draft['pairs']}
     reserve_ids={p['reserve'] for p in draft['pairs']}
@@ -182,14 +190,12 @@ def propose(atlas,previous,shared,date,refresh_roster_only=False):
     from alliance_layout import align_alliances
     sections=align_alliances(players,sites,assignments,locks,sections,
         [a['tag'] for a in ranked_alliances[:13] if a.get('tag')],combat_order)
+    from rear_priority import place_rear
+    rear_report=place_rear(players,sites,assignments,locks,sections)
     result=[{**p,**sites[assignments[p['id']]]} for p in players.values()]
-    for p in result:
-        if p['section']=='Other' or p['id'] in locks:continue
-        area=sections[p['section']]
-        if (p['angle']-area['start'])%(2*math.pi)>area['end']-area['start']+1e-9:
-            raise ValueError(f"{p['name']} is outside the {p['section']} area")
     proposed={**previous,'meta':{**previous['meta'],'capturedDate':date,'powerCaptured':power['captured_date'],
         'eventCaptured':'2026-09-26','selected':2000,'helmCenterDegrees':315,
+        **rear_report,'allianceGrouping':'Preferred alliance areas; previous SvS rear priority overrides grouping',
         'refreshProgress':'October 1 player selection, power readings and aligned alliance areas published. Alliance roster reconciliation and turret space checks are continuing.',
         'helmMudEnvelopeDegrees':round(cutoff*360/math.pi,2),
         'selection':'Highest fresh readable HQ level, including all readable Helm supporters; previous SvS attendance then stable atlas ID break ties',
@@ -222,9 +228,10 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--date',default='2026-10-01')
     p.add_argument('--refresh-roster-only',action='store_true')
+    p.add_argument('--rear-priority-only',action='store_true')
     args=p.parse_args()
     previous=load(args.previous_plan);shared=load(args.shared)
-    plan,draft,report=propose(args.atlas,previous,shared,args.date,args.refresh_roster_only)
+    plan,draft,report=propose(args.atlas,previous,shared,args.date,args.refresh_roster_only,args.rear_priority_only)
     args.output.mkdir(parents=True,exist_ok=True)
     for name,data in [('placement-plan.json',plan),('placement-draft.json',draft),('placement-review.json',report),
         ('migration-request.json',{'baseRevision':shared['revision'],'previousPlan':previous,'plan':plan,'draft':draft,'editor':'Atlas refresh / Helm northwest layout'})]:

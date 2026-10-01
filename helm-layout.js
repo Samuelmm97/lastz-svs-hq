@@ -33,9 +33,9 @@ function drawLayout(rows, terrain) {
   for (const row of rows) {
     const [x, y] = project(row);
     const group = svgElement('g', { tabindex: 0, role: 'button', 'aria-label': `${row.marker}, ${row.name}, HQ${row.hq}, X${row.x} Y${row.y}` });
-    group.append(svgElement('title', {}, `${row.marker} ${row.name} · HQ${row.hq} · ${row.x},${row.y}`));
+    group.append(svgElement('title', {}, `${row.marker} ${row.name} · HQ${row.hq} · ${row.x},${row.y}${PlacementPlanner.rearReasons(row).length ? ' · Back priority: '+PlacementPlanner.rearReasons(row).join('; ') : ''}`));
     group.append(svgElement('circle', { cx: x, cy: y, r: markerRadius,
-      fill: row.highRisk ? '#ef8d94' : terrain === 'mud' ? '#f4c884' : '#8fe4d5', stroke: '#182321', 'stroke-width': 2 }));
+      fill: row.highRisk ? '#ef8d94' : row.attendanceProxy==='outside_capital_area' ? '#f3b65e' : terrain === 'mud' ? '#f4c884' : '#8fe4d5', stroke: '#182321', 'stroke-width': 2 }));
     group.append(svgElement('text', { x, y: y + 4, 'text-anchor': 'middle', fill: '#152320',
       'font-size': Math.min(10, markerRadius * 1.1), 'font-weight': 800 }, row.marker.slice(1)));
     const select = () => {
@@ -64,8 +64,8 @@ function table(rows, terrain) {
     link.textContent = `HQ${p.hq} · ${p.name}${p.role ? ` · ${p.role}` : ''}`; name.append(link);
     if (p.highRisk || p.attendanceProxy !== 'inside_capital_area') {
       const note = document.createElement('div'); note.className = p.highRisk ? 'note risk' : 'note';
-      note.textContent = p.highRisk ? 'Previous SvS: unshielded' : p.attendanceProxy === 'outside_capital_area'
-        ? 'Previous SvS: outside capital radius' : 'No prior attendance scan';
+      note.textContent = PlacementPlanner.rearReasons(p).length ?
+        'Back priority: '+PlacementPlanner.rearReasons(p).join('; ') : 'No prior attendance scan';
       name.append(note);
     }
     tr.insertCell().textContent = format(p.heroPower);
@@ -86,7 +86,7 @@ async function loadLayout() {
     const state = PlacementPlanner.create(plan);
     if (shared.draft) PlacementPlanner.importDraft(state, shared.draft);
     const helm = PlacementPlanner.rows(state).filter(p => p.tag === 'Helm');
-    if (plan.meta.helmCenterDegrees === 315) H('layoutNote').textContent = 'Northwest sector, centered near 315° around Turret 2. Match each marker to its row for the planned coordinates. Mud uses total hero power, total power, then HQ. Grass uses previous SvS priority, then HQ. Manual strike and reserve assignments remain in place.';
+    if (plan.meta.helmCenterDegrees === 315) H('layoutNote').textContent = 'Helm groups near 315° around Turret 2. Prior no-shows and unshielded players stage in the farthest grass, even away from the main group; their rows explain why. Match each marker to its row for coordinates. Mud uses total hero power, total power, then HQ. Grass uses HQ within the previous SvS priority groups. Manual strike and reserve assignments remain in place.';
     const mud = helm.filter(p => p.zone === 'mud').sort(combatOrder);
     const grass = helm.filter(p => p.zone === 'grass').sort((a, b) => a.priority - b.priority || b.hq - a.hq || a.id - b.id);
     for (const [terrain, rows, prefix] of [['mud', mud, 'M'], ['grass', grass, 'G']]) {

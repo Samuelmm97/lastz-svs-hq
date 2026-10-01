@@ -8,6 +8,18 @@
   const siteFields = ['x', 'y', 'zone', 'ring', 'angle', 'spot'];
   const siteOf = row => Object.fromEntries(siteFields.filter(k => row[k] !== undefined).map(k => [k, row[k]]));
   const norm = a => ((a % 360) + 360) % 360;
+  function rearReasons(player) {
+    const reasons=[];
+    if (player.attendanceProxy==='outside_capital_area') reasons.push('Not in the capital area last SvS');
+    if (player.highRisk) reasons.push('Unshielded last SvS');
+    return reasons;
+  }
+  const needsRear = player => rearReasons(player).length>0;
+  function rearSites(state) {
+    const count=[...state.players].filter(([id,p])=>!state.locks.has(id)&&needsRear(p)).length;
+    return new Set([...state.sites].filter(([key,s])=>s.zone==='grass'&&!state.locks.has(playerAt(state,key)))
+      .sort((a,b)=>b[1].ring-a[1].ring||a[1].angle-b[1].angle).slice(0,count).map(([key])=>key));
+  }
 
   function create(plan) {
     const players = new Map(plan.placements.map(p => [p.id, p]));
@@ -109,13 +121,14 @@
       (!section || state.players.get(id).section === section));
     ids.sort((a,b) => state.players.get(b).priority - state.players.get(a).priority ||
       state.players.get(a).hq - state.players.get(b).hq || a-b);
-    const used = new Set();
+    const used = new Set(), rear=rearSites(state);
     for (const id of ids) {
       const player = state.players.get(id), area = state.sections[player.section];
       const choices = [...state.sites].filter(([key,s]) => s.zone === 'grass' && !used.has(key) &&
-        (!area || inWedge(s, area.start*180/Math.PI, area.end*180/Math.PI)) &&
+        (needsRear(player) ? rear.has(key) : !rear.has(key)) &&
         !state.locks.has(playerAt(state,key)));
-      choices.sort((a,b) => b[1].ring-a[1].ring);
+      const center=area ? area.start+((area.end-area.start+2*Math.PI)%(2*Math.PI))/2 : 0;
+      choices.sort((a,b) => b[1].ring-a[1].ring||angularGap(a[1].angle,center)-angularGap(b[1].angle,center));
       if (!choices.length) continue;
       const key=choices[0][0], occupant=playerAt(state,key);
       state.assignments.set(id,key); if (occupant != null) state.assignments.set(occupant,null);
@@ -134,7 +147,7 @@
   function arrangeAlliance(state, section) {
     const area=state.sections[section];
     if (!area) throw Error('Choose an alliance first');
-    const used=new Set(); let moved=0, waiting=0;
+    const used=new Set(), rear=rearSites(state); let moved=0, waiting=0;
     for (const zone of ['mud','grass']) {
       const ids=[...state.players].filter(([id,p]) => p.section===section && !state.locks.has(id) &&
         (zone==='mud')===(p.hq>=24 && !p.highRisk && p.attendanceProxy!=='outside_capital_area'))
@@ -146,10 +159,13 @@
       });
       const target=area.start+((area.end-area.start+2*Math.PI)%(2*Math.PI))/2;
       for (const id of ids) {
+        const player=state.players.get(id);
         const options=[...state.sites].filter(([key,s]) => s.zone===zone && !used.has(key) &&
-          inWedge(s,area.start*180/Math.PI,area.end*180/Math.PI) &&
+          (zone!=='grass' || (needsRear(player) ? rear.has(key) : !rear.has(key))) &&
           (!state.locks.has(playerAt(state,key)) || playerAt(state,key)===id));
-        options.sort((a,b)=>a[1].ring-b[1].ring || angularGap(a[1].angle,target)-angularGap(b[1].angle,target));
+        const score=s=>s.ring*100+angularGap(s.angle,target)*200+
+          (needsRear(player)||inWedge(s,area.start*180/Math.PI,area.end*180/Math.PI)?0:500);
+        options.sort((a,b)=>score(a[1])-score(b[1]));
         if (!options.length) { waiting++; continue; }
         const key=options[0][0],prior=state.assignments.get(id),other=playerAt(state,key);
         state.assignments.set(id,key);
@@ -164,7 +180,7 @@
   function fill(state, options = {}) {
     const { start = 0, end = 360, section = '', zone = '' } = options;
     if (!Number.isFinite(start) || !Number.isFinite(end)) throw Error('Wedge angles must be numbers');
-    const next = new Map(state.assignments);
+    const next = new Map(state.assignments), rear=rearSites(state);
     let changed = 0;
     for (const terrain of (zone ? [zone] : ['mud', 'grass'])) {
       const ids = [...state.players.keys()].filter(id => {
@@ -196,8 +212,8 @@
         for (let k = 0; k < open.length; k++) {
           const s = open[k];
           const insideSection = !sectionInfo || inWedge(s, sectionInfo.start*180/Math.PI, sectionInfo.end*180/Math.PI);
-          if (section && !insideSection) continue;
-          const score = (insideSection ? 0 : 50000) + s.ring * 100 + angularGap(s.angle, target);
+          if (terrain==='grass' && needsRear(player)!==rear.has(siteKey(s))) continue;
+          const score = (insideSection || needsRear(player) ? 0 : 500) + s.ring * 100 + angularGap(s.angle, target)*200;
           if (score < bestScore) { bestScore = score; best = k; }
         }
         if (best < 0) continue;
@@ -260,6 +276,6 @@
     state.assignments = assignments; state.locks = locks; state.pairs = pairs;
   }
 
-  return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill,
+  return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons,
            clear, unassign, setSection, pushBack, arrangeAlliance, addPair, removePair, exportDraft, importDraft };
 });
