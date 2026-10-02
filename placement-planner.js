@@ -15,6 +15,13 @@
     return reasons;
   }
   const needsRear = player => rearReasons(player).length>0;
+  function clearOfTurrets(site, turrets = []) {
+    const j=site.y-500, i=site.x-500-Math.floor(j/2);
+    return turrets.every(t => {
+      const tj=t.y-500, ti=t.x-500-Math.floor(tj/2), di=i-ti, dj=j-tj;
+      return Math.max(Math.abs(di),Math.abs(dj),Math.abs(di+dj))>=t.minCenterDistance;
+    });
+  }
   function rearSites(state) {
     const count=[...state.players].filter(([id,p])=>!state.locks.has(id)&&needsRear(p)).length;
     return new Set([...state.sites].filter(([key,s])=>s.zone==='grass'&&!state.locks.has(playerAt(state,key)))
@@ -25,6 +32,7 @@
     const players = new Map(plan.placements.map(p => [p.id, p]));
     const blocked = new Set(plan.blockedSites || []);
     const allSites = new Map(plan.placements.map(p => [siteKey(p), siteOf(p)]));
+    for(const [key,site] of allSites)if(!clearOfTurrets(site,plan.meta?.turrets))blocked.add(key);
     const sites = new Map([...allSites].filter(([key]) => !blocked.has(key)));
     if (players.size !== plan.placements.length || allSites.size !== plan.placements.length) throw Error('Base plan has duplicate IDs or sites');
     const signature = (plan.planId ? `${plan.planId}:` : '') + plan.placements.map(p => `${p.id}@${siteKey(p)}`).sort().join('|');
@@ -297,6 +305,6 @@
     state.assignments = assignments; state.locks = locks; state.pairs = pairs;
   }
 
-  return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons,
+  return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, clearOfTurrets,
            clear, unassign, setSection, pushBack, arrangeAlliance, addPair, removePair, exportDraft, importDraft };
 });

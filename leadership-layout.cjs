@@ -1,6 +1,7 @@
 /* Apply the October 1 leadership sketch to an existing roster and shared draft. */
 const P = require('./placement-planner.js');
 const crypto = require('node:crypto');
+const terrain = require('./terrain-clearance.json');
 const groups = [
   {id:'north',label:'SHSN / MOVR',tags:['SHSN','movR'],start:0,end:20},
   {id:'northeast',label:'E45Y / AYAA',tags:['E45Y','Ayaa'],start:20,end:61},
@@ -52,14 +53,16 @@ function applyLeadership(previous,shared) {
   const state=P.create(previous);P.importDraft(state,shared.draft);
   const compactGroups=groups.filter(g=>g.tags.some(tag=>['Helm','SWT'].includes(tag)));
   const lockedSites=new Set([...state.locks].map(id=>state.assignments.get(id)));
-  const catalog=new Map([...state.sites].filter(([key,s])=>s.zone!=='mud'||lockedSites.has(key)||
-    !compactGroups.some(g=>inArea(s,g))));
+  if([...lockedSites].some(key=>!P.clearOfTurrets(state.sites.get(key),terrain.turrets)))
+    throw Error('A reserved spot overlaps turret clearance; move that reservation before rearranging');
+  const catalog=new Map([...state.sites].filter(([key,s])=>P.clearOfTurrets(s,terrain.turrets)&&
+    (s.zone!=='mud'||lockedSites.has(key)||!compactGroups.some(g=>inArea(s,g)))));
   const blocked=new Set(previous.blockedSites||[]);
   for(const row of require('./mud-spots-compact.json')) {
     const j=row.Y-500,i=row.X-500-Math.floor(j/2);
     const s={x:row.X,y:row.Y,ring:row.ring,angle:(Math.atan2(i+j/2,-j)+2*Math.PI)%(2*Math.PI),zone:'mud',spot:row.n};
     const key=P.siteKey(s);
-    if(blocked.has(key)||!compactGroups.some(g=>inArea(s,g))||catalog.has(key))continue;
+    if(blocked.has(key)||!P.clearOfTurrets(s,terrain.turrets)||!compactGroups.some(g=>inArea(s,g))||catalog.has(key))continue;
     if([...catalog.values()].some(other=>distance(s,other)<3))continue;
     catalog.set(key,s);
   }
@@ -128,6 +131,7 @@ function applyLeadership(previous,shared) {
     helmCenterDegrees:289,helmMudEnvelopeDegrees:38,
     leadershipMudBoundaries:true,mudMinDistance:3,mudSpacingMode:'Footprints touch in Helm and SWT; other mud areas retain the existing gaps',
     compactAlliances:['Helm','SWT'],mudSpots:[...catalog.values()].filter(s=>s.zone==='mud').length,
+    turrets:terrain.turrets,terrainCheckedAt:terrain.checkedAt,terrainCheckScope:terrain.scope,
     grassSpots:[...catalog.values()].filter(s=>s.zone==='grass').length,
     rearPlayers:rear.length,rearGrassMinRing:Math.min(...rearSlots.map(([,s])=>s.ring)),
     refreshProgress:'Leadership mud boundaries enforced. Helm and SWT use denser positions with nonoverlapping HQ footprints. Hero power, total power, then HQ rank each group’s mud players, including lower tiers when needed. Overflow supports from nearby grass. Confirmed old risks stay in back; unknown attendance has no back penalty. '+(previous.meta.rosterVerifiedMembers?'Top '+previous.meta.rosterVerifiedAlliances+' alliance rosters verified ('+previous.meta.rosterVerifiedMembers+' members). Rounded roster power readings are labeled. Turret footprint checks are in progress.':'Roster and turret checks continue.')}};

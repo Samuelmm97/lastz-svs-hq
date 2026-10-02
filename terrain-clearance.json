@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-10-01",
+  "basis": "Teleport previews: Turret 1 distance 4 blocked and distance 5 clear; Turret 3 distances 3 and 4 blocked, distance 5 clear. Apply the same conservative clearance to Turret 2, whose adjacent sample is occupied by another HQ.",
+  "scope": "Sampled boundaries and conservative turret clearance; individual map tiles have not all been tested.",
+  "samples": [
+    {"x":518,"y":498,"result":"unplaceable"},
+    {"x":518,"y":502,"result":"unplaceable"},
+    {"x":491,"y":520,"result":"unplaceable"},
+    {"x":491,"y":480,"result":"occupied by another HQ; permanent terrain result inconclusive"},
+    {"x":520,"y":500,"result":"placeable"},
+    {"x":500,"y":481,"result":"placeable"},
+    {"x":519,"y":503,"result":"placeable"},
+    {"x":517,"y":504,"result":"placeable"},
+    {"x":491,"y":521,"result":"placeable"},
+    {"x":499,"y":481,"result":"placeable"}
+  ],
+  "turrets": [
+    {"name": "Turret 1", "x": 492, "y": 516, "minCenterDistance": 5},
+    {"name": "Turret 2", "x": 492, "y": 484, "minCenterDistance": 5},
+    {"name": "Turret 3", "x": 515, "y": 499, "minCenterDistance": 5}
+  ]
+}

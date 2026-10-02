@@ -5,6 +5,11 @@ const {applyLeadership,groups,match,distance,inArea}=require('./leadership-layou
 const previous=JSON.parse(fs.readFileSync('placement-plan.json','utf8'));
 assert.deepEqual(match([[8,1,4],[2,9,5]]),[1,0]);
 const state=P.create(previous);
+const turrets=require('./terrain-clearance.json').turrets;
+for(const [x,y,expected] of [[518,498,false],[518,502,false],[491,520,false],
+  [520,500,true],[500,481,true],[491,521,true],[517,504,true],[519,503,true]])
+  assert.equal(P.clearOfTurrets({x,y},turrets),expected,`Preview clearance at ${x},${y}`);
+assert([...state.sites.values()].every(s=>P.clearOfTurrets(s,turrets)));
 const reserve=P.rows(state).find(p=>p.zone==='mud'&&!P.rearReasons(p).length);
 const strike=P.rows(state).find(p=>p.zone==='grass'&&!P.rearReasons(p).length);
 P.addPair(state,strike.id,reserve.id);
@@ -33,6 +38,7 @@ function checkMud(state) {
 }
 checkMud(next);
 const sites=[...next.sites.values()];
+assert(sites.every(s=>P.clearOfTurrets(s,turrets)),'Rearrangement reintroduced turret overlap');
 for(const a of sites.filter(s=>s.zone==='mud'))for(const b of sites)if(a!==b)assert(distance(a,b)>=3);
 P.fill(next);checkMud(next);
 for(const tag of ['Helm','SWT','SHSN']){P.arrangeAlliance(next,tag);checkMud(next);}

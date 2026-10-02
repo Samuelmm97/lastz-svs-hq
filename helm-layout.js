@@ -9,7 +9,7 @@ const svgElement = (tag, attrs = {}, content) => {
   return element;
 };
 
-function drawLayout(rows, terrain) {
+function drawLayout(rows, terrain, turrets = []) {
   const svg = svgElement('svg', { viewBox: '0 0 800 760', role: 'img',
     'aria-label': `Helm ${terrain} map; markers match the coordinate table` });
   const xs = rows.map(p => p.x).concat(500), ys = rows.map(p => p.y).concat(500);
@@ -23,6 +23,14 @@ function drawLayout(rows, terrain) {
     svg.append(svgElement('polygon', { points, fill, stroke: '#8e9e91', 'stroke-width': 1 }));
   }
   const [cx, cy] = project({ x: 500, y: 500 });
+  for(const turret of turrets) {
+    const radius=turret.minCenterDistance-1;
+    const points=[[1,0],[.5,1],[-.5,1],[-1,0],[-.5,-1],[.5,-1]]
+      .map(([x,y])=>project({x:turret.x+radius*x,y:turret.y+radius*y}).join(',')).join(' ');
+    const area=svgElement('polygon',{points,fill:'#422e29',stroke:'#dfa66c','stroke-width':1});
+    area.append(svgElement('title',{},turret.name+' · HQ clearance area'));svg.append(area);
+    const [x,y]=project(turret);svg.append(svgElement('text',{x,y:y+3,fill:'#f3d2a9','font-size':10,'text-anchor':'middle'},turret.name.replace('Turret ','T')));
+  }
   svg.append(svgElement('text', { x: cx, y: cy, fill: '#e2d0ae', 'font-size': 16, 'text-anchor': 'middle' }, 'CAPITAL'));
   svg.append(svgElement('text', { x: 25, y: 26, fill: '#dbedf2', 'font-size': 14 }, 'N ↑ · West ←'));
   const points = rows.map(project);
@@ -94,7 +102,7 @@ async function loadLayout() {
     for (const [terrain, rows, prefix] of [['mud', mud, 'M'], ['grass', grass, 'G']]) {
       rows.forEach((p, index) => p.marker = prefix + String(index + 1).padStart(2, '0'));
       H(`${terrain}Title`).textContent = `${terrain === 'mud' ? 'Mud front' : 'Grass support'} · ${rows.length} HQs`;
-      table(rows, terrain); drawLayout(rows, terrain);
+      table(rows, terrain); drawLayout(rows, terrain, plan.meta.turrets);
     }
     const waiting=helm.filter(p=>p.zone==='unassigned').length;
     H('snapshot').textContent = `Shared version ${shared.revision} · Roster/power ${plan.meta.powerCaptured || plan.meta.capturedDate || 'September 2026'} · Shield/attendance ${plan.meta.eventCaptured || '2026-09-26'}${waiting ? ` · ${waiting} Helm players waiting for a spot` : ''}`;

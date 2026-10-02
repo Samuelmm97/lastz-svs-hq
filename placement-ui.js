@@ -119,6 +119,16 @@ function draw() {
     }
   }
   const [capitalX,capitalY]=project({x:500,y:500});ctx.textAlign='center';ctx.fillStyle='#f0e0c5';ctx.font='bold 13px system-ui';ctx.fillText('CAPITAL',capitalX,capitalY);
+  for(const turret of plan.meta.turrets || []) {
+    const radius=turret.minCenterDistance-1;
+    ctx.beginPath();
+    for(const [k,[dx,dy]] of [[1,0],[.5,1],[-.5,1],[-1,0],[-.5,-1],[.5,-1]].entries()) {
+      const [x,y]=project({x:turret.x+radius*dx,y:turret.y+radius*dy});
+      if(k)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+    }
+    ctx.closePath();ctx.fillStyle='#422e29';ctx.fill();ctx.strokeStyle='#dfa66c';ctx.lineWidth=1;ctx.stroke();
+    const [x,y]=project(turret);ctx.fillStyle='#f3d2a9';ctx.font='bold 9px system-ui';ctx.fillText(turret.name.replace('Turret ','T'),x,y+3);
+  }
   ctx.fillStyle='#c4d6dc';ctx.font='12px system-ui';ctx.fillText('N ↑',26,20);
   for (const p of visible) {
     if (p.zone === 'unassigned') continue;
