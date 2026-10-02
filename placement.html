@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>State 798 · Capital war placements</title><link rel="stylesheet" href="placement.css?v=20261001-copy-list"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>State 798 · Capital war placements</title><link rel="stylesheet" href="placement.css?v=20261001-chat-parts"></head>
 <body>
 <header><div><a class="brand" href="placement.html">STATE 798</a><h1>Capital war placements</h1></div><nav><a href="helm-layout.html">Helm coordinates</a><a href="https://samuelmm97.github.io/last-z-state-798-map/">Field atlas</a><a id="modeLink" class="button" href="placement.html?edit=1">Edit plan</a></nav></header>
 <main>
@@ -8,7 +8,7 @@
 <aside>
 <div class="control overview"><strong id="summary">Loading shared plan…</strong><p id="snapshotNote"></p><p id="attendanceSummary"></p><div id="status" class="status" role="status" aria-live="polite"></div></div>
 <div class="control"><h2>Find your spot</h2><label for="search">Player name</label><input id="search" placeholder="Search your name or alliance"><div class="line"><div><label for="section">Alliance</label><select id="section"><option value="">All alliances</option></select></div><div><label for="zone">Show</label><select id="zone"><option value="">All positions</option><option value="mud">Mud</option><option value="grass">Grass</option><option value="rear">Back priority (prior SvS)</option><option value="unassigned">Waiting for a spot</option></select></div></div>
-<div class="actions"><button id="copyList" class="primary" disabled>Copy list</button></div><p id="copyHint">Choose an alliance to copy its list for game chat. Search and Show filters apply.</p><div id="copyStatus" class="status" role="status" aria-live="polite"></div><details id="copyPreview"><summary>Preview text</summary><label for="placementText">Player names and coordinates</label><textarea id="placementText" rows="8" readonly></textarea></details>
+<div id="copyParts" hidden><label for="copyPart">Message</label><select id="copyPart"></select></div><div class="actions"><button id="copyList" class="primary" disabled>Copy list</button><button id="nextCopyPart" hidden>Next part</button></div><p id="copyHint">Choose an alliance to copy its list for game chat. Search and Show filters apply.</p><div id="copyStatus" class="status" role="status" aria-live="polite"></div><details id="copyPreview"><summary>Preview text and message size</summary><label for="copySize">Message size</label><select id="copySize"><option value="900">Standard</option><option value="450">Short</option></select><p>If the game still cuts off a message, choose Short.</p><label for="placementText">Player names and coordinates</label><textarea id="placementText" rows="8" readonly></textarea></details>
 <div id="selectedPlayer" class="selected">Choose a player to see their coordinates.</div><label class="check"><input id="swapPreview" type="checkbox">Show strike team after swaps</label></div>
 <section id="editTools" class="editor-only" aria-label="Editor tools">
 <details class="control" id="accessPanel"><summary>Editor access</summary><p>Enter the team key once on this device. Your edits save automatically for everyone.</p><label>Your name<input id="editorName" maxlength="60" placeholder="Your name"></label><label>Editor key<input id="editorKey" type="password" autocomplete="off" placeholder="Shared team key"></label><div class="actions"><button id="connectEditor" class="primary">Enable editing</button><button id="forgetEditor">Forget saved key</button></div></details>
@@ -20,5 +20,5 @@
 <details class="control"><summary>Placement rules and downloads</summary><p id="explain"></p><div class="actions"><button id="exportCurrent">Download staging CSV</button><button id="exportSwap">Download post-swap CSV</button></div></details>
 </section>
 <div class="rows"><table><thead><tr><th>HQ</th><th>Player</th><th>Alliance</th><th>Spot</th></tr></thead><tbody id="rows"></tbody></table><p id="listNote"></p></div>
-</aside></main><script src="placement-planner.js?v=20261001-turret-clearance"></script><script src="placement-config.js"></script><script src="placement-ui.js?v=20261001-copy-list"></script>
+</aside></main><script src="placement-planner.js?v=20261001-turret-clearance"></script><script src="placement-config.js"></script><script src="placement-chat.js?v=20261001-chat-parts"></script><script src="placement-ui.js?v=20261001-chat-parts"></script>
 </body></html>

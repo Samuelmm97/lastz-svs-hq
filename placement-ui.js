@@ -7,6 +7,8 @@ const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null;
 let historyEntries = [], selectedHistory = null;
+let copyMessages = [], copyIndex = 0, copyFingerprint = '';
+let copiedParts = new Set();
 const editMode = new URLSearchParams(location.search).get('edit') === '1';
 document.body.classList.toggle('editing', editMode);
 $('modeLink').textContent = editMode ? 'View plan' : 'Edit plan';
@@ -39,22 +41,38 @@ function renderCapacity() {
 }
 
 function message(value) { $('status').textContent = value; }
-function placementText() {
-  const clean = value => String(value || '').replace(/[\r\n\t]+/g, ' ').trim();
-  const section = $('section').value;
-  const lines = [`${section || 'All alliances'} placements - v${revision}${$('swapPreview').checked ? ' - After swaps' : ''}`];
-  if ($('zone').value) lines.push($('zone').selectedOptions[0].textContent);
-  for (const [zone, label] of [['mud','Mud'], ['grass','Grass'], ['unassigned','Waiting for a spot']]) {
-    const players = visible.filter(p => p.zone === zone);
-    if (!players.length) continue;
-    lines.push('', label);
-    for (const p of players) {
-      const alliance = !section || section === 'Other' ? `[${clean(p.tag) || 'No alliance'}] ` : '';
-      const role = p.role ? ` (${p.role})` : '';
-      lines.push(`${alliance}${clean(p.name)}${role}: ${zone === 'unassigned' ? 'Waiting' : `X${p.x} Y${p.y}`}`);
+function showCopyPart() {
+  const multiple = copyMessages.length > 1;
+  $('copyParts').hidden = !multiple;
+  $('nextCopyPart').hidden = !multiple;
+  $('nextCopyPart').disabled = copyIndex >= copyMessages.length - 1;
+  $('copyList').disabled = !copyMessages.length;
+  $('copyList').textContent = multiple ? `Copy part ${copyIndex + 1} of ${copyMessages.length}` : 'Copy list';
+  $('placementText').value = copyMessages[copyIndex]?.text || '';
+  $('copyPart').replaceChildren();
+  copyMessages.forEach((part, i) => {
+    const option = document.createElement('option'); option.value = i;
+    option.textContent = `Part ${i + 1} of ${copyMessages.length} - ${part.label} (${part.players})${copiedParts.has(i) ? ' - Copied' : ''}`;
+    $('copyPart').append(option);
+  });
+  $('copyPart').value = String(copyIndex);
+  $('copyHint').textContent = `${visible.length.toLocaleString()} players in ${copyMessages.length} ${multiple ? 'messages' : 'message'}. Copy each part and paste it separately.` +
+    (copiedParts.size ? ` ${copiedParts.size} of ${copyMessages.length} copied.` : '');
+}
+function renderCopyMessages() {
+  try {
+    const parts = PlacementChat.messages(visible, { section: $('section').value, revision,
+      afterSwap: $('swapPreview').checked, limit: Number($('copySize').value) });
+    const fingerprint = JSON.stringify(parts);
+    if (fingerprint !== copyFingerprint) {
+      copyMessages = parts; copyFingerprint = fingerprint; copyIndex = 0; copiedParts = new Set();
+      $('copyStatus').textContent = '';
+      showCopyPart();
     }
+  } catch (e) {
+    copyMessages = []; copyFingerprint = ''; copyIndex = 0; copiedParts = new Set();
+    showCopyPart(); $('copyStatus').textContent = e.message;
   }
-  return lines.join('\n');
 }
 function usePlan(data) {
   const previousSection = $('section').value;
@@ -185,13 +203,7 @@ function render() {
   visible = P.rows(state, after).filter(p =>
     (!q || `${p.name} ${p.tag} ${p.id}`.toLocaleLowerCase().includes(q)) &&
     (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
-  const text = visible.length ? placementText() : '';
-  if ($('placementText').value !== text) {
-    $('placementText').value = text;
-    $('copyStatus').textContent = '';
-  }
-  $('copyList').disabled = !visible.length;
-  $('copyHint').textContent = `Copies all ${visible.length.toLocaleString()} players matching your filters as text for game chat.`;
+  renderCopyMessages();
   if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} players shown · ` +
     `version ${revision}` +
@@ -523,18 +535,29 @@ $('restoreHistory').onclick = async () => {
 $('exportCurrent').onclick = () => download('state-798-staging.csv', csv(false));
 $('exportSwap').onclick = () => download('state-798-post-swap.csv', csv(true));
 $('copyList').onclick = async () => {
-  const text = $('placementText').value, count = visible.length;
-  if (!text) return;
+  const part = copyMessages[copyIndex], index = copyIndex, fingerprint = copyFingerprint, total = copyMessages.length;
+  if (!part) return;
+  $('copyList').disabled = true;
   try {
-    await navigator.clipboard.writeText(text);
-    $('copyStatus').textContent = `Copied ${count} players. Paste into game chat.`;
+    await navigator.clipboard.writeText(part.text);
+    if (fingerprint !== copyFingerprint) return;
+    copiedParts.add(index); showCopyPart();
+    $('copyStatus').textContent = `Copied part ${index + 1} of ${total}. Paste into game chat.${index + 1 < total ? ' Then choose Next part.' : ''}`;
   } catch {
+    if (fingerprint !== copyFingerprint) return;
     $('copyPreview').open = true;
     $('placementText').focus();
     $('placementText').select();
     $('copyStatus').textContent = 'Select and copy the text below, then paste into game chat.';
+  } finally {
+    $('copyList').disabled = !copyMessages.length;
   }
 };
+$('copyPart').onchange = () => { copyIndex = Number($('copyPart').value); $('copyStatus').textContent = ''; showCopyPart(); };
+$('nextCopyPart').onclick = () => {
+  if (copyIndex + 1 < copyMessages.length) { copyIndex++; $('copyStatus').textContent = ''; showCopyPart(); }
+};
+$('copySize').onchange = renderCopyMessages;
 $('connectEditor').onclick = async () => {
   const key = $('editorKey').value.trim();
   if (!key) { message('Enter the shared editor key.'); return; }
