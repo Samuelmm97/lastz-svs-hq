@@ -39,6 +39,23 @@ function renderCapacity() {
 }
 
 function message(value) { $('status').textContent = value; }
+function placementText() {
+  const clean = value => String(value || '').replace(/[\r\n\t]+/g, ' ').trim();
+  const section = $('section').value;
+  const lines = [`${section || 'All alliances'} placements - v${revision}${$('swapPreview').checked ? ' - After swaps' : ''}`];
+  if ($('zone').value) lines.push($('zone').selectedOptions[0].textContent);
+  for (const [zone, label] of [['mud','Mud'], ['grass','Grass'], ['unassigned','Waiting for a spot']]) {
+    const players = visible.filter(p => p.zone === zone);
+    if (!players.length) continue;
+    lines.push('', label);
+    for (const p of players) {
+      const alliance = !section || section === 'Other' ? `[${clean(p.tag) || 'No alliance'}] ` : '';
+      const role = p.role ? ` (${p.role})` : '';
+      lines.push(`${alliance}${clean(p.name)}${role}: ${zone === 'unassigned' ? 'Waiting' : `X${p.x} Y${p.y}`}`);
+    }
+  }
+  return lines.join('\n');
+}
 function usePlan(data) {
   const previousSection = $('section').value;
   plan = data;
@@ -168,6 +185,13 @@ function render() {
   visible = P.rows(state, after).filter(p =>
     (!q || `${p.name} ${p.tag} ${p.id}`.toLocaleLowerCase().includes(q)) &&
     (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
+  const text = visible.length ? placementText() : '';
+  if ($('placementText').value !== text) {
+    $('placementText').value = text;
+    $('copyStatus').textContent = '';
+  }
+  $('copyList').disabled = !visible.length;
+  $('copyHint').textContent = `Copies all ${visible.length.toLocaleString()} players matching your filters as text for game chat.`;
   if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} players shown · ` +
     `version ${revision}` +
@@ -498,6 +522,19 @@ $('restoreHistory').onclick = async () => {
 };
 $('exportCurrent').onclick = () => download('state-798-staging.csv', csv(false));
 $('exportSwap').onclick = () => download('state-798-post-swap.csv', csv(true));
+$('copyList').onclick = async () => {
+  const text = $('placementText').value, count = visible.length;
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    $('copyStatus').textContent = `Copied ${count} players. Paste into game chat.`;
+  } catch {
+    $('copyPreview').open = true;
+    $('placementText').focus();
+    $('placementText').select();
+    $('copyStatus').textContent = 'Select and copy the text below, then paste into game chat.';
+  }
+};
 $('connectEditor').onclick = async () => {
   const key = $('editorKey').value.trim();
   if (!key) { message('Enter the shared editor key.'); return; }
