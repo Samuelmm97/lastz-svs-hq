@@ -60,6 +60,14 @@ becomes available for a legal target; occupied targets explain the proposed swap
 Footprint collisions, turret buffers, no-build terrain, and wedge violations are
 rejected. New legal tiles are saved with the shared draft and revision history.
 
+Editors can also drag an HQ on the map. Dropping it on an empty tile reserves that tile
+straight away. Dropping it on a tile another HQ holds offers **Swap positions** or
+**Move occupant to the unplaced list**; each choice is offered only when the planner
+accepts it, and the panel names the tile, the occupant, and why a refused choice fails.
+While dragging, amber outlines show every teleport-sized gap the drop would open, and the
+same collision, spacing, anchor, turret and teleport-opening checks run before the move is
+saved, so an unsafe drag never reaches the shared plan.
+
 Before saving a manual move, amber HQ outlines and a warning identify newly
 exposed spaces where a seven-tile HQ could teleport. The warning remains after
 the move in that browser session. Detection checks actual hex footprint clearance

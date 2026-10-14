@@ -11,6 +11,7 @@ let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, d
 let historyEntries = [], selectedHistory = null;
 let copyMessages = [], copyIndex = 0, copyFingerprint = '';
 let layoutPreview = null;
+let pendingDrop = null;
 let lastMoveGaps=[],shownGaps=[];
 let openingCache=null;
 let defenceCache=null;
@@ -379,7 +380,7 @@ function render() {
   $('defenceInfo').textContent=$('section').value?`${defence.gapFree?'PASS: no enemy HQ fits inside the formation.':`FAIL: ${defence.openings.length} landing centers in ${defence.holes?.length||0} connected openings.`} ${defence.vulnerable} HQ losses expose two or more non-overlapping enemy spots.`+($('simulateDestroyed').checked?(removal?` Removing ${removal.name}: ${removal.capacity===2?'at least 2':removal.capacity} new enemy HQ spaces.`:' Select a member to simulate their removal.'):''):'Choose an alliance to run the footprint test.';
   $('defenceInfo').classList.toggle('has-gap',!defence.gapFree);
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
-  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag to pan; scroll to zoom.':'Tap a tile to preview placement. Drag to pan; scroll to zoom.') : 'Tap a player or search their name. Drag to pan; scroll to zoom.';
+  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll to zoom.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll to zoom.') : 'Tap a player or search their name. Drag to pan; scroll to zoom.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
   for (const pair of state.pairs) {
@@ -547,14 +548,131 @@ function csv(after) {
     P.rows(state, after).map(p => columns.map(k => cell(p[k])).join(',')).join('\r\n');
 }
 
+// Drag an HQ to a new tile. Dropping onto a held tile offers a swap or sends the holder to
+// the unplaced list; every drop is checked for wedge, spacing and teleport-gap safety first.
+function hqAt(x,y,radius=14) {
+  let best=null,d=radius;
+  for(const [id,key] of state.assignments) {
+    if(key==null)continue;
+    const site=state.sites.get(key);if(!site)continue;
+    const [px,py]=project(site),pd=Math.hypot(px-x,py-y);
+    if(pd<d){d=pd;best={id,key,site};}
+  }
+  return best;
+}
+function tileAt(x,y) {
+  const r=canvas.getBoundingClientRect(),base=Math.min(r.width/260,r.height/250)*scale;
+  const tileY=Math.round(500+(y-r.height/2-panY)/(.8*base));
+  return {x:Math.round(500+(x-r.width/2-panX)/base-((tileY-500)%2!==0?.5:0)),y:tileY};
+}
+function dropAttempt(id,key,action) {
+  try {
+    const check=P.checkPlacement(state,id,key,action?{occupied:action}:undefined);
+    const gaps=state.assignments.get(id)===key?[]:P.teleportGaps(state,state.assignments,check.next);
+    return {action,ok:true,gaps,error:null};
+  } catch(e) { return {action,ok:false,gaps:e.openings||[],error:e}; }
+}
+function dropPreview(id,key) {
+  const occupant=P.playerAt(state,key),mine=state.assignments.get(id),mover=state.players.get(id);
+  if(occupant==null||occupant===id)return {id,key,occupant,mover,move:dropAttempt(id,key,null)};
+  const preview={id,key,occupant,mover};
+  if(mine!=null)preview.swap=dropAttempt(id,key,'swap');
+  preview.unplace=dropAttempt(id,key,'unplace');
+  return preview;
+}
+function bestDrop(preview) {
+  return preview.move?.ok?preview.move:preview.swap?.ok?preview.swap:preview.unplace?.ok?preview.unplace:null;
+}
+function dropHint(preview) {
+  if(!preview)return '';
+  const holder=preview.occupant!=null&&preview.occupant!==preview.id?state.players.get(preview.occupant).name:null;
+  if(holder)return `${holder} holds this tile. Drop to choose: swap positions, or move ${holder} to the unplaced list.`;
+  return preview.move?.ok?`Drop to reserve this tile for ${preview.mover.name}.`:preview.move?.error?.message||'That tile cannot hold this HQ.';
+}
+function dropGapText(preview) {
+  const attempt=preview?bestDrop(preview):null;
+  if(!attempt)return '';
+  if(!attempt.gaps.length)return 'This move creates no new teleport-sized gap.';
+  return `Teleport-sized gap${attempt.gaps.length>1?'s':''} would open with this move: `+
+    attempt.gaps.slice(0,6).map(s=>`${s.x}, ${s.y}`).join(' \u00b7 ')+(attempt.gaps.length>6?' \u2026':'')+'. Close the opening or reserve a replacement there.';
+}
+function showDropChoice(preview) {
+  const holder=state.players.get(preview.occupant).name,tile=state.sites.get(preview.key);
+  const note=attempt=>attempt.gaps.length?` \u00b7 ${attempt.gaps.length} teleport-sized gap${attempt.gaps.length>1?'s':''} would open`:' \u00b7 no new teleport gap';
+  const lines=[`${holder} already holds X ${tile.x}, Y ${tile.y}.`];
+  if(preview.swap)lines.push(preview.swap.ok?`Swap keeps ${holder} in the formation${note(preview.swap)}.`:`Swap refused: ${preview.swap.error.message}`);
+  if(preview.unplace)lines.push(preview.unplace.ok?`The unplaced list keeps ${holder} on the roster${note(preview.unplace)}.`:`Unplaced list refused: ${preview.unplace.error.message}`);
+  $('dropChoiceText').textContent=lines.join(' ');
+  $('dropSwap').hidden=!preview.swap;$('dropSwap').disabled=!preview.swap?.ok;
+  $('dropUnplace').disabled=!preview.unplace?.ok;
+  $('dropChoice').hidden=false;
+  pendingDrop=preview;
+  render();
+  shownGaps=bestDrop(preview)?.gaps||[];
+  $('gapWarning').textContent=dropGapText(preview);
+  $('gapWarning').classList.toggle('has-gap',shownGaps.length>0);
+  draw();
+}
+async function commitDrop(action) {
+  const preview=pendingDrop;
+  if(!preview)return;
+  const attempt=action?preview[action]:preview.move;
+  if(!attempt?.ok){message(attempt?.error?.message||'That drop is not allowed.');return;}
+  const previousGaps=lastMoveGaps;
+  pendingDrop=null;$('dropChoice').hidden=true;shownGaps=[];
+  const result=await mutate(() => {
+    const before=new Map(state.assignments);
+    const occupant=P.moveAndLock(state,preview.id,preview.key,action?{occupied:action}:undefined);
+    lastMoveGaps=P.teleportGaps(state,before);
+    selectedId=preview.id;targetKey=preview.key;
+    const holder=occupant!=null&&occupant!==preview.id?state.players.get(occupant).name:null;
+    return (action==='swap'?`Swapped with ${holder}`:action==='unplace'?`${holder} moved to the unplaced list`:`Dropped on ${preview.key}`)+
+      (lastMoveGaps.length?` \u00b7 ${lastMoveGaps.length} teleport-sized gap${lastMoveGaps.length>1?'s':''} opened; see the amber outlines`:' \u00b7 no new teleport-sized gap');
+  });
+  if(result===false)lastMoveGaps=previousGaps;
+  render();
+}
+function finishHqDrop(id,fromKey,tile) {
+  pendingDrop=null;$('dropChoice').hidden=true;shownGaps=[];
+  const key=tile?`${tile.x},${tile.y}`:null;
+  if(!key||key===fromKey){render();message('Drag an HQ onto another tile to move it.');return;}
+  let preview=null,error=null;
+  try { P.defineSite(state,tile.x,tile.y); preview=dropPreview(id,key); } catch(e) { error=e.message; }
+  if(!preview){render();message(error||'That tile cannot hold this HQ.');return;}
+  if(preview.occupant==null||preview.occupant===id) {
+    if(preview.move.ok){pendingDrop=preview;commitDrop(null);return;}
+    render();message(preview.move.error.message);return;
+  }
+  if(preview.swap?.ok||preview.unplace?.ok){showDropChoice(preview);return;}
+  render();message(preview.swap?.error?.message||preview.unplace?.error?.message||'That drop is not allowed.');
+}
+$('dropSwap').onclick=()=>commitDrop('swap');
+$('dropUnplace').onclick=()=>commitDrop('unplace');
+$('dropCancel').onclick=()=>{pendingDrop=null;$('dropChoice').hidden=true;shownGaps=[];render();message('Drop canceled.');};
 canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
   const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
   const handle=editMode && editorKey && !busy && !layoutPreview && boundaryHandles.find(h=>Math.hypot(h.x-x,h.y-y)<14);
-  drag = { x:e.clientX,y:e.clientY,moved:false,handle:handle?.kind,original:bounds() };
+  const grab=!handle&&editMode&&editorKey&&!busy&&!layoutPreview?hqAt(x,y,14):null;
+  drag = { x:e.clientX,y:e.clientY,moved:false,handle:handle?.kind,original:bounds(),hq:grab?.id,hqKey:grab?.key };
 });
 canvas.addEventListener('pointermove', e => {
   if (!drag) return;
+  if (drag.hq!=null) {
+    const hx=e.clientX-drag.x,hy=e.clientY-drag.y;
+    if(Math.abs(hx)+Math.abs(hy)>3)drag.moved=true;
+    if(!drag.moved)return;
+    const r=canvas.getBoundingClientRect(),tile=tileAt(e.clientX-r.left,e.clientY-r.top);
+    drag.tile=tile;drag.preview=null;drag.error=null;
+    try { P.defineSite(state,tile.x,tile.y); drag.preview=dropPreview(drag.hq,`${tile.x},${tile.y}`); }
+    catch(err) { drag.error=err.message; }
+    shownGaps=drag.preview?bestDrop(drag.preview)?.gaps||[]:[];
+    $('placementHint').textContent=drag.preview?dropHint(drag.preview):drag.error||'';
+    $('gapWarning').textContent=dropGapText(drag.preview);
+    $('gapWarning').classList.toggle('has-gap',shownGaps.length>0);
+    draw();
+    return;
+  }
   if (drag.handle) {
     const r=canvas.getBoundingClientRect(),[cx,cy]=project({x:500,y:500});
     const angle=normalDegrees(Math.atan2(e.clientX-r.left-cx,-(e.clientY-r.top-cy)/.8)*180/Math.PI);
@@ -571,7 +689,8 @@ canvas.addEventListener('pointermove', e => {
 });
 canvas.addEventListener('pointerup', e => {
   if (!drag) return;
-  const moved=drag.moved,handle=drag.handle;drag=null;
+  const moved=drag.moved,handle=drag.handle,hq=drag.hq,hqKey=drag.hqKey,tile=drag.tile;drag=null;
+  if(hq!=null&&moved){finishHqDrop(hq,hqKey,tile);return;}
   if(handle && moved){const b=bounds();mutate(()=>P.setSection(state,$('section').value,b.start,b.end,areaRules()));return;}
   if (moved) return;
   if ($('swapPreview').checked) { message('Switch to staging view to choose a site.'); return; }

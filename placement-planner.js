@@ -141,7 +141,15 @@
     const area=state.sections[player.section];
     return !area || area.sharedOpenSpots || (!area.grassOnly && site.zone==='grass') || inMudArea(site,area);
   }
-  function checkPlacement(state, id, targetKey) {
+  function occupiedAction(options = {}) {
+    const action = (options || {}).occupied;
+    if (action === undefined || action === null || action === '') return null;
+    if (action !== 'swap' && action !== 'unplace')
+      throw Error('Choose a valid occupied target action: swap positions or move the occupant to waiting');
+    return action;
+  }
+  function checkPlacement(state, id, targetKey, options = {}) {
+    const action = occupiedAction(options);
     id=Number(id);
     if (!state.players.has(id)) throw Error('Choose a player first');
     if(state.players.get(id).placementEligible===false)throw Error('This identity is not confirmed in the current roster; choose the current player record');
@@ -153,10 +161,19 @@
     const occupant=playerAt(state,targetKey), prior=state.assignments.get(id);
     if (occupant!==id && state.locks.has(occupant)) throw Error('That site is held by another locked player');
     const next=new Map(state.assignments);next.set(id,targetKey);
-    if (occupant!=null && occupant!==id) next.set(occupant,prior);
-    if (occupant!=null && occupant!==id && prior && !allowsSite(state,state.players.get(occupant),state.sites.get(prior)))
-      throw Error('That swap would move the other player outside their wedge. Move them to waiting first.');
-    const moved=[id,...(occupant!=null&&occupant!==id?[occupant]:[])];
+    if (occupant!=null && occupant!==id) {
+      if (action==='unplace') {
+        if (state.pairs.some(p=>p.strike===occupant||p.reserve===occupant))
+          throw Error('Remove the occupant’s swap pair before moving them to waiting');
+        next.set(occupant,null);
+      } else {
+        if (action==='swap' && !prior) throw Error('That player has no tile to swap; move the occupant to waiting instead');
+        next.set(occupant,prior);
+        if (prior && !allowsSite(state,state.players.get(occupant),state.sites.get(prior)))
+          throw Error('That swap would move the other player outside their wedge. Move them to waiting first.');
+      }
+    }
+    const moved=[id,...(occupant!=null&&occupant!==id&&action!=='unplace'?[occupant]:[])];
     for (const who of moved) {
       const s=state.sites.get(next.get(who));if(!s)continue;
       for(const [other,key] of next) {
@@ -250,11 +267,11 @@
     }
   }
 
-  function moveAndLock(state, id, targetKey) {
+  function moveAndLock(state, id, targetKey, options = {}) {
     id = Number(id);
     if (!state.players.has(id)) throw Error('Choose a player first');
     if (!state.sites.has(targetKey)) throw Error('Choose an existing legal site');
-    const {next,occupant}=checkPlacement(state,id,targetKey);
+    const {next,occupant}=checkPlacement(state,id,targetKey,options);
     state.assignments = next;
     state.locks.add(id);
     return occupant === id ? null : occupant;
