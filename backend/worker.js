@@ -1,3 +1,5 @@
+import '../placement-planner.js';
+const P = globalThis.PlacementPlanner;
 const ORIGIN = 'https://samuelmm97.github.io';
 
 function response(body, status = 200, origin = '') {
@@ -27,10 +29,16 @@ function validDraft(draft) {
   const members = draft.pairs.flatMap(p => [p.strike, p.reserve]);
   const assignments = new Map(draft.assignments);
   const sections = draft.sections;
+  if(draft.sites!==undefined && (!Array.isArray(draft.sites)||draft.sites.length>2000||draft.sites.some(s=>
+    !s||!Number.isInteger(s.x)||!Number.isInteger(s.y)||s.x<0||s.x>999||s.y<0||s.y>999)))return false;
   if (sections !== undefined && (!sections || Array.isArray(sections) || typeof sections !== 'object' ||
       Object.keys(sections).length > 100 || Object.entries(sections).some(([tag, s]) =>
         tag.length > 20 || !s || !Number.isFinite(s.start) || !Number.isFinite(s.end) ||
-        Math.abs(s.start) > 4*Math.PI || Math.abs(s.end) > 4*Math.PI))) return false;
+        Math.abs(s.start) > 4*Math.PI || Math.abs(s.end) > 4*Math.PI ||
+        (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
+        (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
+        (s.frontLayers!==undefined&&![0,1,2,3].includes(s.frontLayers)) ||
+        (s.bodyGap!==undefined&&![0,1,2,3].includes(s.bodyGap))))) return false;
   return ids.size === 2000 && locks.size === draft.locks.length &&
     draft.locks.every(id => Number.isSafeInteger(id) && ids.has(id) && assignments.get(id) !== null) &&
     members.length === new Set(members).size &&
@@ -84,14 +92,8 @@ function validPlan(plan) {
 
 function draftFitsPlan(draft, plan) {
   if (!validDraft(draft) || !validPlan(plan) || draft.signature !== planSignature(plan)) return false;
-  const ids = new Set(plan.placements.map(p => p.id));
-  const blocked = new Set(plan.blockedSites || []);
-  const sites = new Map(plan.placements.filter(p => !blocked.has(`${p.x},${p.y}`)).map(p => [`${p.x},${p.y}`, p.zone]));
-  const assignments = new Map(draft.assignments);
-  return (!draft.sections || Object.keys(draft.sections).every(tag => Object.hasOwn(plan.sections, tag))) &&
-    draft.assignments.every(([id, site]) => ids.has(id) && (site === null || sites.has(site))) &&
-    draft.pairs.every(p => sites.get(assignments.get(p.strike)) === 'grass' &&
-      sites.get(assignments.get(p.reserve)) === 'mud');
+  try { P.importDraft(P.create(plan),draft); } catch { return false; }
+  return true;
 }
 
 async function archivedPlan(db, signature) {

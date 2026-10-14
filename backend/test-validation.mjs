@@ -63,3 +63,18 @@ assert(validPlan(blocked));
 assert(!draftFitsPlan(draft,blocked));
 assert(draftFitsPlan(P.exportDraft(P.create(blocked)),blocked));
 console.log('Unassigned slots, saved boundaries, and blocked-site validation passed');
+
+const layout=P.create(plan);
+P.setSection(layout,'Helm',270,328,{grassOnly:true,frontLayers:2,bodyGap:2});
+P.arrangeAlliance(layout,'Helm');
+const layoutDraft=P.exportDraft(layout);
+assert(layoutDraft.sites.length>0);
+assert(draftFitsPlan(layoutDraft,plan),'New exact coordinates and rules must be accepted by the Worker');
+const invalidTile=structuredClone(layoutDraft);
+invalidTile.sites[0]={x:500,y:500};
+assert(!draftFitsPlan(invalidTile,plan),'Reject arbitrary no-build coordinates');
+const badRules=structuredClone(layoutDraft);badRules.sections.Helm.bodyGap=99;
+assert(!validDraft(badRules));
+const duplicateTile=structuredClone(layoutDraft);duplicateTile.sites.push(duplicateTile.sites[0]);
+assert(!draftFitsPlan(duplicateTile,plan));
+console.log('Worker accepts persisted frontline/spacing rules and legal exact tiles; rejects no-build tiles, duplicate tiles and invalid spacing');

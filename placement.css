@@ -12,9 +12,11 @@ aside{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;
 .unknown-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;background:#abb0f5}
 
 .unknown-note{display:block;margin-top:3px;font-size:10px;color:#abb0f5}.selected .unknown-note{color:#abb0f5}
+button:disabled{opacity:.45;cursor:default}h3{font-size:14px;margin:18px 0 4px}.placement-steps{padding-left:20px;font-size:12px;color:var(--muted)}.placement-steps li{margin:6px 0}.map-action{display:flex;align-items:center;gap:6px;margin:0;font-size:11px}.map-action select{width:auto;padding:4px;font-size:12px}body:not(.editing) .map-action{display:none}#layoutPreview{border:1px solid var(--accent);border-radius:8px;padding:10px;margin-top:12px}#wedgeHealth,#placementHint{color:#eed398}.nudges button{min-width:55px}
 
 /* Keep the legend clear of the southern alliance labels. */
 .map{display:flex;flex-direction:column}
+.map-gap-toggle{display:flex;align-items:center;gap:5px;margin:0;font-size:11px}.map-gap-toggle input{width:auto}body:not(.editing) .map-gap-toggle{display:none}.gap-dot{display:inline-block;width:10px;height:10px;border:2px solid #ffb347;margin:0 4px 0 10px}#gapWarning.has-gap{border:1px solid #ffb347;border-radius:7px;padding:9px;color:#ffcf85}
 .map-toolbar{position:static;margin:14px 14px 8px;flex-shrink:0}
 canvas{flex:1;min-height:0;height:0}
 .legend{position:static;margin:8px 14px 14px;flex-shrink:0}

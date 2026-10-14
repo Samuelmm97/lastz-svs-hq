@@ -5,6 +5,45 @@ tap a dot, type your name, and it is reserved on the shared sheet in real time.
 
 Live page: https://samuelmm97.github.io/lastz-svs-hq/
 
+## Manual placement, front spacing, and grass groups
+
+In **Edit plan**, select an alliance. Choose **Touching front rows** and the
+number of **Empty tiles behind front**, then **Preview alliance layout**.
+The front rows touch; the selected gap separates the body from the front and
+spaces the body HQs. Preview shows waiting players and reserved positions outside
+the wedge. **Apply preview** saves; **Cancel preview** restores the shared layout.
+
+**Keep grass inside this alliance’s wedge** prevents spillover, including prior
+SvS risks. **Keep grass together in current player order** makes a connected grass
+group, including lower HQs, using the current position order instead of reranking
+power. This is selected by default for Helm. **Preview grass grouping only** keeps
+mud and other alliance groups fixed. **Preview all alliance wedges** can reclaim
+cross-alliance grass space together using saved boundaries. Shared alliance areas
+arrange as one group; reserved positions and swap pairs remain fixed. A shortage
+goes to waiting, never silently outside the wedge.
+
+For a manual move, select a player in the list or with the map’s **Select player**
+mode. Switch to **Choose target tile**, tap the map, or enter exact X/Y and choose
+**Check tile**. The X/Y buttons nudge the target one tile. **Place and reserve**
+becomes available for a legal target; occupied targets explain the proposed swap.
+Footprint collisions, turret buffers, no-build terrain, and wedge violations are
+rejected. New legal tiles are saved with the shared draft and revision history.
+
+Before saving a manual move, amber HQ outlines and a warning identify newly
+exposed spaces where a seven-tile HQ could teleport. The warning remains after
+the move in that browser session. Detection checks actual hex footprint clearance
+(center distance 3), including grass, rather than treating every visual gap as a
+landing spot. An occupied-for-occupied swap creates no gap. The **Teleport gaps**
+map checkbox toggles the outlines.
+
+Regression checks: `node placement-controls.test.cjs`, `node planner.test.cjs`,
+`node backend/test-validation.mjs`, and `node backend/test-api.mjs` against a local
+Worker. `node placement-browser.test.cjs` uses Playwright and an isolated in-memory
+QA server with the production frontend and Worker validation. `QA_PLAN`,
+`QA_SHARED`, and `QA_OUTPUT` optionally select a real shared snapshot and screenshot
+directory; no QA save touches the production database. Deploy the Worker before
+the frontend because exact coordinates require the updated draft validation.
+
 ## Proposed 2,000 player placement
 
 `placement.html` starts from a placement proposal built by `generate_placement.py`

@@ -8,6 +8,8 @@ let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrik
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null;
 let historyEntries = [], selectedHistory = null;
 let copyMessages = [], copyIndex = 0, copyFingerprint = '';
+let layoutPreview = null;
+let lastMoveGaps=[],shownGaps=[];
 let copiedParts = new Set();
 const editMode = new URLSearchParams(location.search).get('edit') === '1';
 document.body.classList.toggle('editing', editMode);
@@ -20,6 +22,10 @@ const normalDegrees = angle => ((angle%360)+360)%360;
 function syncBoundary() {
   if (!state) return;
   const area = state.sections[$('section').value];
+  $('grassOnly').checked=area?.grassOnly??true;
+  $('grassCompact').checked=area?.grassCompact??($('section').value==='Helm');
+  $('frontLayers').value=area?.frontLayers??1;
+  $('bodyGap').value=area?.bodyGap??1;
   if (area) {
     const difference = (area.end-area.start)*180/Math.PI;
     const width = Math.abs(difference)>=360 ? 360 : normalDegrees(difference);
@@ -38,6 +44,15 @@ function renderCapacity() {
   const b=bounds(), counts={mud:0,grass:0};
   for (const site of state.sites.values()) if (P.inWedge(site,b.start,b.end)) counts[site.zone]++;
   $('areaCapacity').textContent = `${counts.mud} mud spots · ${counts.grass} grass spots in this area`;
+  const report=P.areaReport(state,$('section').value);
+  $('wedgeHealth').textContent=report ? `${report.members} members in this shared area · ${report.grassOutside} grass outside wedge · ${report.waiting} waiting`+
+    (report.lockedOutside?` · ${report.lockedOutside} reserved outside: release or move those reservations to bring them inside`:'') : 'Choose an alliance to adjust its layout.';
+}
+function areaRules(){return {grassOnly:$('grassOnly').checked,grassCompact:$('grassCompact').checked,frontLayers:Number($('frontLayers').value),bodyGap:Number($('bodyGap').value)};}
+function cancelPreview(){
+  if(!layoutPreview)return;
+  P.importDraft(state,layoutPreview.before);layoutPreview=null;
+  $('layoutPreview').hidden=true;$('mapMode').textContent='Editor workspace';render();
 }
 
 function message(value) { $('status').textContent = value; }
@@ -89,7 +104,7 @@ function usePlan(data) {
   $('explain').textContent = `Roster/power: ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'}. ` +
     `Shield/attendance: previous SvS (${data.meta.eventCaptured || '2026-09-26'}). ` +
     'Mud ranks total hero power, then total power, then HQ. Grass ranks HQ within the previous SvS priority groups. ' +
-    'Alliance areas guide grouping. Prior no-shows and unshielded players use the farthest grass across all alliances. ' +
+    'Enable grass inside the wedge to keep all members in their alliance area, including prior no-shows and unshielded players at its back. ' +
     'Lock manual edge placements before filling your area. Strike players stage in grass with paired mud reserves.';
 }
 function bounds() { return { start: Number($('wedgeStart').value), end: Number($('wedgeEnd').value) }; }
@@ -181,6 +196,23 @@ function draw() {
     ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2);
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
   }
+  if(editMode&&$('showGaps').checked)for(const gap of shownGaps) {
+    // A real seven-tile HQ outline, projected with the same hex coordinate system.
+    ctx.beginPath();
+    for(let k=0;k<6;k++) {
+      const a=Math.PI/3*k, [x,y]=project({x:gap.x+1.7*Math.cos(a),y:gap.y+1.7*Math.sin(a)});
+      if(k)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+    }
+    ctx.closePath();ctx.fillStyle='#ffb34744';ctx.fill();ctx.strokeStyle='#ffb347';ctx.lineWidth=2;ctx.stroke();
+    if(scale>=2){const [x,y]=project(gap);ctx.fillStyle='#ffcf85';ctx.font='bold 10px system-ui';ctx.fillText('GAP',x,y-8);}
+  }
+  if(editMode&&$('mapAction').value==='place')for(const [key,s] of state.sites) {
+    if(P.playerAt(state,key)!=null)continue;
+    const area=state.sections[$('section').value];
+    if(area&&!P.inWedge(s,area.start*180/Math.PI,area.end*180/Math.PI))continue;
+    const [x,y]=project(s);ctx.beginPath();ctx.arc(x,y,Math.max(2,2.5*scale**.3),0,2*Math.PI);
+    ctx.strokeStyle='#c7d9d077';ctx.lineWidth=1;ctx.stroke();
+  }
   const labelBoxes=[];
   for (const {tag,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
     ctx.font=`${selected?'bold 13':'11'}px system-ui`;
@@ -233,7 +265,7 @@ function render() {
       const note=document.createElement('span');note.className='unknown-note';note.textContent='Attendance unknown';
       tr.children[1].append(note);
     }
-    tr.onclick = () => { selectedId = p.id; render(); };
+    tr.onclick = () => { selectedId = p.id; targetKey=null; $('mapAction').value='place'; render(); };
     body.append(tr);
   }
   $('listNote').textContent = visible.length > 500 ? 'Showing the first 500 players. Choose an alliance or search a name to narrow the list.' : '';
@@ -262,6 +294,20 @@ function render() {
   $('targetInfo').textContent = target ? `Target: ${target.zone.toUpperCase()} X ${target.x}, Y ${target.y}` +
     `${target.spot ? ' · mud spot #' + target.spot : ''} · ${holder == null ? 'Open spot' : 'held by '+state.players.get(holder).name}` +
     `${state.locks.has(holder) ? ' (locked)' : ''}` : 'Click a map dot or enter a legal site’s X/Y.';
+  let hint='Select a player, then choose a target tile.',valid=false;
+  shownGaps=lastMoveGaps;
+  if(chosen&&target) {
+    try {const check=P.checkPlacement(state,selectedId,targetKey);valid=true;
+      if(state.assignments.get(selectedId)!==targetKey)shownGaps=P.teleportGaps(state,state.assignments,check.next);
+      hint=holder!=null&&holder!==selectedId ? `This swaps with ${state.players.get(holder).name} and reserves ${chosen.name}.` : `Ready to reserve this tile for ${chosen.name}.`;
+    } catch(e){hint=e.message;}
+  } else if(chosen)hint=`Choose a target tile for ${chosen.name}.`;
+  $('placementHint').textContent=hint;
+  $('gapWarning').textContent=shownGaps.length ? `Teleport-sized gap${shownGaps.length>1?'s':''} ${chosen&&target&&state.assignments.get(selectedId)!==targetKey?'would open with this move':'opened by the last move'}. Amber outlines mark ${shownGaps.length} possible HQ landing tile${shownGaps.length>1?'s':''}: `+
+    shownGaps.slice(0,6).map(s=>`${s.x}, ${s.y}`).join(' · ')+(shownGaps.length>6?' …':'')+'. Close the opening or reserve a replacement there.' : chosen&&target&&valid ? 'This move creates no new teleport-sized gap.' : '';
+  $('gapWarning').classList.toggle('has-gap',shownGaps.length>0);
+  $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
+  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag to pan; scroll to zoom.':'Tap a tile to preview placement. Drag to pan; scroll to zoom.') : 'Tap a player or search their name. Drag to pan; scroll to zoom.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
   for (const pair of state.pairs) {
@@ -339,6 +385,7 @@ async function showHistory(number) {
   } catch (e) { $('historyDetail').textContent = e.message; $('restoreHistory').hidden = true; }
 }
 async function loadShared(force = false) {
+  if(layoutPreview)return;
   if (!apiUrl) { message('Shared backend URL is not configured yet.'); return; }
   if (busy) { if (force) message('Wait for the current save to finish.'); return; }
   try {
@@ -355,6 +402,7 @@ async function loadShared(force = false) {
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
       state = next; revision = data.revision;
+      lastMoveGaps=[];
       syncBoundary();
       if (!state.players.has(selectedId)) selectedId = null;
       if (!state.sites.has(targetKey)) targetKey = null;
@@ -368,6 +416,7 @@ async function loadShared(force = false) {
   } catch (e) { if (!busy) message(e.message); }
 }
 async function mutate(action) {
+  if(layoutPreview){message('Apply or cancel the layout preview before making another change.');return;}
   if (!editMode) { message('Open Edit plan to make changes.'); return; }
   if (!editorKey) { message('Enter the shared editor key to make changes.'); return; }
   if (busy) { message('A change is still saving.'); return; }
@@ -386,13 +435,16 @@ async function mutate(action) {
     if (selectedHistory) $('restoreHistory').hidden = selectedHistory.revision === revision;
     loadHistory();
     message(`Saved version ${revision}${typeof detail === 'number' ? ` · ${detail} players updated` : typeof detail === 'string' ? ` · ${detail}` : ''}.`);
+    return true;
   } catch (e) {
-    P.importDraft(state, before); render(); message(e.message);
+    P.importDraft(state, before); syncBoundary();render(); message(e.message);
     if (e.message.startsWith('Another planner')) { busy = false; await loadShared(true); }
+    return false;
   } finally { busy = false; }
 }
 function setTarget(key) {
-  if (!state.sites.has(key)) throw Error('No legal plan site at those coordinates');
+  const [x,y]=key.split(',').map(Number);
+  P.defineSite(state,x,y);
   targetKey = key;
   const s = state.sites.get(key); $('targetX').value = s.x; $('targetY').value = s.y;
   render();
@@ -413,7 +465,7 @@ function csv(after) {
 canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
   const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
-  const handle=editMode && editorKey && !busy && boundaryHandles.find(h=>Math.hypot(h.x-x,h.y-y)<14);
+  const handle=editMode && editorKey && !busy && !layoutPreview && boundaryHandles.find(h=>Math.hypot(h.x-x,h.y-y)<14);
   drag = { x:e.clientX,y:e.clientY,moved:false,handle:handle?.kind,original:bounds() };
 });
 canvas.addEventListener('pointermove', e => {
@@ -435,7 +487,7 @@ canvas.addEventListener('pointermove', e => {
 canvas.addEventListener('pointerup', e => {
   if (!drag) return;
   const moved=drag.moved,handle=drag.handle;drag=null;
-  if(handle && moved){const b=bounds();mutate(()=>P.setSection(state,$('section').value,b.start,b.end));return;}
+  if(handle && moved){const b=bounds();mutate(()=>P.setSection(state,$('section').value,b.start,b.end,areaRules()));return;}
   if (moved) return;
   if ($('swapPreview').checked) { message('Switch to staging view to choose a site.'); return; }
   const rect = canvas.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
@@ -445,8 +497,11 @@ canvas.addEventListener('pointerup', e => {
     if (pd < d) { d = pd; best = s; }
   }
   if (best) {
-    if(editMode)setTarget(P.siteKey(best));
-    else { const holder=P.playerAt(state,P.siteKey(best));if(holder!=null){selectedId=holder;render();} }
+    if(editMode&&$('mapAction').value==='place') {try{setTarget(P.siteKey(best));}catch(e){message(e.message);}}
+    else { const holder=P.playerAt(state,P.siteKey(best));if(holder!=null){selectedId=holder;targetKey=null;if(editMode)$('mapAction').value='place';render();} }
+  } else if(editMode&&$('mapAction').value==='place') {
+    const r=canvas.getBoundingClientRect(),base=Math.min(r.width/260,r.height/250)*scale;
+    try{setTarget(`${Math.round(500+(x-r.width/2-panX)/base)},${Math.round(500+(y-r.height/2-panY)/(.8*base))}`);}catch(e){message(e.message);}
   }
 });
 canvas.addEventListener('wheel', e => {
@@ -455,7 +510,16 @@ canvas.addEventListener('wheel', e => {
 for (const id of ['search', 'section', 'zone', 'swapPreview'])
   $(id).addEventListener(id === 'search' ? 'input' : 'change', render);
 for (const id of ['wedgeStart', 'wedgeEnd']) $(id).addEventListener('input',()=>{draw();renderCapacity();});
-$('section').addEventListener('change',()=>{syncBoundary();render();});
+$('section').addEventListener('change',()=>{cancelPreview();targetKey=null;syncBoundary();render();});
+$('mapAction').onchange=render;
+$('showGaps').onchange=draw;
+$('chooseOnMap').onclick=()=>{$('mapAction').value='place';render();canvas.scrollIntoView({behavior:'smooth',block:'center'});};
+for(const button of document.querySelectorAll('[data-nudge]'))button.onclick=()=>{
+  const current=targetKey?state.sites.get(targetKey):P.current(state,selectedId);
+  if(!current||current.x==null){message('Choose a player or target tile first.');return;}
+  const [dx,dy]=button.dataset.nudge.split(',').map(Number);
+  try{setTarget(`${current.x+dx},${current.y+dy}`);}catch(e){message(e.message);}
+};
 $('resetView').onclick=()=>{scale=1;panX=panY=0;draw();};
 $('showWaiting').onclick=()=>{$('zone').value='unassigned';$('search').value='';render();};
 function updateAreaInputs(){
@@ -467,36 +531,70 @@ function updateAreaInputs(){
 }
 for(const id of ['boundaryCenter','boundaryWidth'])$(id).addEventListener('input',updateAreaInputs);
 for(const button of document.querySelectorAll('[data-direction]'))button.onclick=()=>{$('boundaryCenter').value=button.dataset.direction;updateAreaInputs();};
-$('saveBoundary').onclick=()=>mutate(()=>{const b=bounds();P.setSection(state,$('section').value,b.start,b.end);});
-$('arrangeAlliance').onclick=()=>mutate(()=>{
-  const b=bounds();P.setSection(state,$('section').value,b.start,b.end);
-  const report=P.arrangeAlliance(state,$('section').value);
-  return `${report.moved} players arranged${report.waiting ? ` · ${report.waiting} need a wider area` : ''}`;
-});
+$('saveBoundary').onclick=()=>mutate(()=>{const b=bounds();P.setSection(state,$('section').value,b.start,b.end,areaRules());});
+function previewLayout(mode='alliance'){
+  const all=mode==='all';
+  if(!editorKey){message('Enter the shared editor key to preview changes.');return;}
+  if(busy){message('A change is still saving.');return;}
+  if(layoutPreview){message('Apply or cancel the current preview first.');return;}
+  const before=P.exportDraft(state);
+  try {
+    if($('swapPreview').checked)throw Error('Switch to staging view first');
+    let report;
+    if(all)report=P.arrangeAll(state,areaRules());
+    else {const b=bounds();P.setSection(state,$('section').value,b.start,b.end,areaRules());report=mode==='grass'?P.arrangeGrass(state,$('section').value):P.arrangeAlliance(state,$('section').value);}
+    layoutPreview={before,after:P.exportDraft(state),revision};
+    $('layoutReport').textContent=`Preview: ${report.moved} players changed · ${report.waiting} waiting for room`+
+      (report.lockedOutside?` · ${report.lockedOutside} reserved outside the wedge`:'')+
+      (all?'. All unlocked players rearranged using saved wedges and these spacing rules.':mode==='grass'?'. Grass grouped in current order. Mud and other alliance groups stay fixed.':'. Other alliance groups stay fixed.')+' Apply to save, or cancel.';
+    $('layoutPreview').hidden=false;$('mapMode').textContent='UNSAVED LAYOUT PREVIEW';render();
+    message('Preview only. Apply preview to save this layout.');
+  }catch(e){P.importDraft(state,before);render();message(e.message);}
+}
+$('arrangeAlliance').onclick=()=>previewLayout();
+$('arrangeAll').onclick=()=>previewLayout('all');
+$('arrangeGrass').onclick=()=>previewLayout('grass');
+$('cancelLayout').onclick=()=>{cancelPreview();syncBoundary();message('Preview canceled.');};
+$('applyLayout').onclick=()=>{
+  if(!layoutPreview)return;
+  const after=layoutPreview.after;cancelPreview();
+  mutate(()=>{P.importDraft(state,after);return 'Alliance layout applied';});
+};
+for(const id of ['grassOnly','grassCompact','frontLayers','bodyGap','boundaryCenter','boundaryWidth','wedgeStart','wedgeEnd'])
+  $(id).addEventListener('input',()=>{if(layoutPreview){cancelPreview();message('Preview canceled because the layout settings changed. Preview again to inspect the new settings.');}});
 $('clearMud').onclick=()=>mutate(()=>P.clear(state,{zone:'mud',includeLocked:!$('keepLocks').checked}));
 $('clearArea').onclick=()=>mutate(()=>P.clear(state,{...bounds(),zone:'mud',includeLocked:!$('keepLocks').checked}));
 $('unassignPlayer').onclick=()=>mutate(()=>{if(selectedId==null)throw Error('Choose a player first');P.unassign(state,selectedId);});
 $('pushBack').onclick=()=>mutate(()=>`${P.pushBack(state,$('section').value)} placed in back grass · ${P.rows(state).filter(p=>p.zone==='unassigned').length} still waiting`);
 $('findSite').onclick = () => {
   try { setTarget(`${Number($('targetX').value)},${Number($('targetY').value)}`); }
-  catch (e) { message(e.message); }
+  catch (e) { targetKey=null;render();message(e.message); }
 };
-$('lockPlayer').onclick = () => mutate(() => {
+for(const id of ['targetX','targetY'])$(id).addEventListener('input',()=>{targetKey=null;render();});
+$('lockPlayer').onclick = async () => {
+  const beforeGaps=lastMoveGaps;
+  const result=await mutate(() => {
   if ($('swapPreview').checked) throw Error('Switch to staging view first');
   if (selectedId == null || !targetKey) throw Error('Choose both a player and a site');
-  if (!P.inWedge(state.sites.get(targetKey), bounds().start, bounds().end))
-    throw Error('Target site is outside the selected wedge');
+  const before=new Map(state.assignments);
   P.moveAndLock(state, selectedId, targetKey);
-});
+  lastMoveGaps=P.teleportGaps(state,before);
+  return lastMoveGaps.length ? 'Placement reserved · teleport-sized gap detected; see amber outlines' : 'Placement reserved · no new teleport-sized gap';
+  });
+  if(result===false)lastMoveGaps=beforeGaps;
+  render();
+};
 $('unlockPlayer').onclick = () => mutate(() => {
   if (selectedId == null) throw Error('Choose a player');
   if (state.pairs.some(p => p.strike === selectedId || p.reserve === selectedId))
     throw Error('Remove the swap pair before unlocking this player');
   state.locks.delete(selectedId);
 });
-$('fillWedge').onclick = () => mutate(() => P.fill(state, {
-  ...bounds(), section: $('section').value, zone: $('zone').value, sections: plan.sections
-}));
+$('fillWedge').onclick = () => mutate(() => {
+  const zone=$('zone').value;
+  if(zone==='rear'||zone==='unassigned')throw Error('Choose Mud, Grass, or All positions before refilling.');
+  return P.fill(state,{...bounds(),section:$('section').value,zone,sections:plan.sections});
+});
 $('markStrike').onclick = () => {
   const p = selectedId == null ? null : P.current(state, selectedId);
   if (!p || p.zone !== 'grass') { message('Choose a grass player first.'); return; }

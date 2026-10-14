@@ -150,3 +150,28 @@ const back=await fetch(`${base}/api/placement/restore`,{method:'POST',headers,bo
   baseRevision:blockedRevision.revision,sourceRevision:afterRefresh.revision,editor:'Return to QA plan'})});
 assert.equal(back.status,200,await back.clone().text());
 console.log('Clear/refill, waiting history, saved alliance boundaries, and turret-blocked sites passed through D1');
+
+const priorLayout=await back.json();
+const layoutState=P.create(nextPlan);
+P.setSection(layoutState,'Helm',270,328,{grassOnly:true,frontLayers:2,bodyGap:2});
+P.arrangeAlliance(layoutState,'Helm');
+const layoutDraft=P.exportDraft(layoutState);
+assert(layoutDraft.sites.length>0);
+const layoutSave=await fetch(`${base}/api/placement`,{method:'PUT',headers,body:JSON.stringify({
+  baseRevision:priorLayout.revision,draft:layoutDraft,editor:'Front and body spacing QA'})});
+assert.equal(layoutSave.status,200,await layoutSave.clone().text());
+const layoutRevision=await layoutSave.json();
+const persistedLayout=await fetch(`${base}/api/placement`).then(r=>r.json());
+assert.deepEqual(persistedLayout.draft,layoutDraft);
+const layoutHistory=await fetch(`${base}/api/placement/history/${layoutRevision.revision}`).then(r=>r.json());
+assert.deepEqual(layoutHistory.draft.sites,layoutDraft.sites);
+assert.equal(layoutHistory.draft.sections.Helm.bodyGap,2);
+P.importDraft(P.create(nextPlan),layoutHistory.draft);
+const noBuild=structuredClone(layoutDraft);noBuild.sites[0]={x:500,y:500};
+const rejectedTile=await fetch(`${base}/api/placement`,{method:'PUT',headers,body:JSON.stringify({
+  baseRevision:layoutRevision.revision,draft:noBuild,editor:'Reject no-build exact tile'})});
+assert.equal(rejectedTile.status,400);
+const undoLayout=await fetch(`${base}/api/placement/restore`,{method:'POST',headers,body:JSON.stringify({
+  baseRevision:layoutRevision.revision,sourceRevision:priorLayout.revision,editor:'Undo layout QA'})});
+assert.equal(undoLayout.status,200,await undoLayout.clone().text());
+console.log('Exact frontline tiles and spacing rules survive D1 save/history/restore; illegal custom tiles are rejected');
