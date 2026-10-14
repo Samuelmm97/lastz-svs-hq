@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict'),P=require('./placement-planner.js');
+const center={x:450,y:500},around=[[3,0],[3,-3],[0,-3],[-3,0],[-3,3],[0,3]];
+const coords=around.map(([q,r])=>({x:450+q+Math.floor(r/2),y:500+r})).concat(center);
+const section={start:0,end:2*Math.PI,defencePacking:true};
+const skeleton={placements:[],sections:{Helm:section},meta:{mudMinDistance:3}};
+const grid=P.create(skeleton);
+const plan={...skeleton,placements:coords.map((p,id)=>({...P.coordinateSite(grid,p.x,p.y),id,name:'HQ '+id,section:'Helm',tag:'Helm',hq:25}))};
+const state=P.create(plan),intact=P.defenceReport(state,'Helm');
+assert.equal(intact.openings.length,0);
+const loss=intact.removals.find(p=>p.id===6);
+assert.equal(loss.capacity,1);assert.equal(loss.newLandings.length,1);
+P.unassign(state,6);
+const opened=P.defenceReport(state,'Helm');
+assert.equal(opened.openings.length,1);assert.equal(opened.holes.length,1);assert.equal(opened.openings[0].x,450);assert.equal(opened.openings[0].y,500);
+state.assignments.set(6,P.defineSite(state,450,500));
+assert.throws(()=>P.checkPlacement(state,6,P.defineSite(state,430,500)),e=>/enemy teleport opening/.test(e.message)&&e.openings.some(p=>p.x===450&&p.y===500));
+console.log('Every-hex footprint test, flood-fill grouping, one-HQ removal and unsafe manual-move rejection passed');

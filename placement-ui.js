@@ -2,6 +2,8 @@ const $ = id => document.getElementById(id);
 const P = PlacementPlanner;
 const canvas = $('map'), ctx = canvas.getContext('2d');
 const apiUrl = globalThis.PLACEMENT_API_URL || '';
+let sharedSource=null;
+let sharedSourceError=false;
 const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
   risk: '#ef6f77', absent: '#f3b65e', unknown: '#abb0f5', team: '#f9e37e' };
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
@@ -11,6 +13,13 @@ let copyMessages = [], copyIndex = 0, copyFingerprint = '';
 let layoutPreview = null;
 let lastMoveGaps=[],shownGaps=[];
 let openingCache=null;
+let defenceCache=null;
+let lastSimulatedId=null;
+function currentDefence(){
+  const openings=existingOpenings(),fingerprint=openingCache?.fingerprint;
+  if(defenceCache?.fingerprint!==fingerprint)defenceCache={fingerprint,report:P.defenceReport(state,$('section').value)};
+  return defenceCache.report;
+}
 function existingOpenings(){
   if(!state)return [];
   const fingerprint=state.signature+'|'+$('section').value+'|'+JSON.stringify(state.sections[$('section').value])+'|'+JSON.stringify(state.survey?.obstacles)+'|'+[...state.assignments].map(([id,key])=>`${id}@${key}`).join('|');
@@ -31,6 +40,7 @@ function syncBoundary() {
   const area = state.sections[$('section').value];
   $('grassOnly').checked=area?.grassOnly??true;
   $('grassCompact').checked=area?.grassCompact??($('section').value==='Helm');
+  $('defencePacking').checked=area?.defencePacking??false;
   $('frontLayers').value=area?.frontLayers??1;
   $('bodyGap').value=area?.bodyGap??1;
   if (area) {
@@ -55,7 +65,7 @@ function renderCapacity() {
   $('wedgeHealth').textContent=report ? `${report.members} members in this shared area · ${report.grassOutside} grass outside wedge · ${report.waiting} waiting`+
     (report.lockedOutside?` · ${report.lockedOutside} fixed outside the wedge`:'') : 'Choose an alliance to adjust its layout.';
 }
-function areaRules(){return {grassOnly:$('grassOnly').checked,grassCompact:$('grassCompact').checked,frontLayers:Number($('frontLayers').value),bodyGap:Number($('bodyGap').value)};}
+function areaRules(){return {grassOnly:$('grassOnly').checked,grassCompact:$('grassCompact').checked,defencePacking:$('defencePacking').checked,frontLayers:Number($('frontLayers').value),bodyGap:Number($('bodyGap').value)};}
 $('helmCorners').onclick=()=>{
   cancelPreview();$('section').value='Helm';syncBoundary();
   const start=270,end=360-Math.atan(.5)*180/Math.PI;
@@ -106,7 +116,7 @@ function renderCopyMessages() {
 }
 function usePlan(data) {
   const previousSection = $('section').value;
-  plan = data;
+  plan = sharedSource?LastZSharedState.enrichPlan(data,sharedSource):data;
   $('section').replaceChildren();
   const all = document.createElement('option'); all.value = ''; all.textContent = 'All alliances';
   $('section').append(all);
@@ -115,10 +125,11 @@ function usePlan(data) {
     option.textContent = `${tag} (${data.sections[tag].players})`; $('section').append(option);
   }
   if (data.sections[previousSection]) $('section').value = previousSection;
-  $('snapshotNote').textContent = `Power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}` + (data.meta.refreshProgress ? `. ${data.meta.refreshProgress}` : '');
-  $('explain').textContent = `Roster/power: ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'}. ` +
+  $('snapshotNote').textContent = sharedSource?`Power: States 792–815 workbook · observed ${new Date(sharedSource.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`:`Power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}` + (data.meta.refreshProgress ? `. ${data.meta.refreshProgress}` : '');
+  if(sharedSourceError)$('snapshotNote').textContent='Shared source unavailable; showing the dated saved snapshot. '+$('snapshotNote').textContent;
+  $('explain').textContent = (sharedSource?'Current personal power comes from the States 792–815 workbook; hero component power keeps its own date. Bear’s saved ordering is preserved. ':`Roster/power: ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'}. `) +
     `Shield/attendance: previous SvS (${data.meta.eventCaptured || '2026-09-26'}). ` +
-    'Mud ranks total hero power, then total power, then HQ. Grass ranks HQ within the previous SvS priority groups. ' +
+    'Saved Bear ordering takes priority. Otherwise mud uses hero component power, then personal power and HQ; grass uses HQ within the previous SvS priority groups. ' +
     'Enable grass inside the wedge to keep all members in their alliance area, including prior no-shows and unshielded players at its back. ' +
     'Lock manual edge placements before filling your area. Strike players stage in grass with paired mud reserves.';
 }
@@ -217,6 +228,10 @@ function draw() {
   for (const p of visible) {
     if (p.zone === 'unassigned') continue;
     const [x, y] = project(p);
+    if($('simulateDestroyed').checked&&p.id===selectedId){
+      footprint(p,palette.risk,.08,.7,1);ctx.strokeStyle=palette.risk;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x-6,y-6);ctx.lineTo(x+6,y+6);ctx.moveTo(x+6,y-6);ctx.lineTo(x-6,y+6);ctx.stroke();continue;
+    }
     const color=p.role ? palette.team : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : p.attendanceProxy==='unknown' ? palette.unknown : sectionColor(p.section);
     if(scale>=2)footprint(p,color,.3,.7,.6);
     ctx.beginPath(); ctx.arc(x, y, p.id === selectedId ? 5 : Math.max(2, 2.5 * scale ** .3), 0, Math.PI * 2);
@@ -244,6 +259,11 @@ function draw() {
     footprint(gap,'#ffb347',.15,1,1.2);
     if(scale>=2){const [x,y]=project(gap);ctx.fillStyle='#ffcf85';ctx.font='bold 10px system-ui';ctx.fillText(gap.insideFormation===false?'EDGE':'GAP',x,y-8);}
   }
+  if($('simulateDestroyed').checked&&selectedId!=null){
+    const removal=currentDefence().removals.find(r=>r.id===selectedId);
+    for(const p of removal?.newLandings||[])footprint(p,palette.risk,.18,.85,1);
+    for(const p of removal?.pair||[])footprint(p,palette.risk,.3,1,2);
+  }
   const labelBoxes=[];
   for (const {tag,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
     ctx.font=`${selected?'bold 13':'11'}px system-ui`;
@@ -266,7 +286,7 @@ function render() {
   const after = $('swapPreview').checked, q = $('search').value.toLocaleLowerCase();
   const section = $('section').value, zone = $('zone').value;
   visible = P.rows(state, after).filter(p =>
-    (!q || `${p.name} ${p.tag} ${p.id}`.toLocaleLowerCase().includes(q)) &&
+    (!q || `${p.name} ${p.tag} ${p.id} ${(p.nameAliases||[]).join(' ')}`.toLocaleLowerCase().includes(q)) &&
     (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
   renderCopyMessages();
   if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
@@ -317,9 +337,12 @@ function render() {
     const lines = [['strong','',`${chosen.name} · HQ ${chosen.hq}`],
       ['span','coordinates',chosen.zone==='unassigned' ? 'Waiting for a spot' : `X ${chosen.x} · Y ${chosen.y}`],
       ['span','detail',`${chosen.tag || 'No alliance'} · ${chosen.zone === 'unassigned' ? 'Unassigned' : chosen.zone === 'mud' ? 'Mud front' : P.rearReasons(chosen).length && !chosen.locked ? 'Back grass' : 'Grass support'}${chosen.locked ? ' · Reserved' : ''}`],
-      ['span','detail',`Hero power ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPowerApproximate ? '≈ ' : ''}${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
+      ['span','detail',`${chosen.heroPowerMetric==='hero_component_power'?'Hero component':'Hero power'} ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPowerApproximate ? '≈ ' : ''}${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
+    if(chosen.powerObservedAt)lines.push(['span','detail',`Personal power observed ${new Date(chosen.powerObservedAt).toLocaleString()}${chosen.heroPowerCaptured?` · Hero component ${new Date(chosen.heroPowerCaptured).toLocaleDateString()}`:''}`]);
+    if(Number.isFinite(chosen.actualX)&&Number.isFinite(chosen.actualY))lines.push(['span','detail',`Shared map observation: X ${chosen.actualX}, Y ${chosen.actualY} · ${chosen.actualObservedAt||'date unknown'}.`]);
     if (chosen.totalPowerApproximate) lines.push(['span','detail','Total power is a rounded reading from the alliance roster.']);
     if (chosen.nameReadingStatus==='partial') lines.push(['span','detail','Name partly unreadable; check the saved roster card.']);
+    if(chosen.placementEligible===false)lines.push(['span','detail','Identity unconfirmed in the current roster. Retained for review; excluded from automatic placement.']);
     if(chosen.placedInGame)lines.push(['span','detail',`Already placed in game · ${new Date(chosen.observedAt*1000).toLocaleString()}. Fixed during replanning.`]);
     if(chosen.relocatingInGame)lines.push(['span','detail',`Observed in game at X ${chosen.observedX}, Y ${chosen.observedY}. The coordinates above are the proposed relocation.`]);
     if (P.rearReasons(chosen).length) lines.push(['span','detail rear-note',
@@ -343,7 +366,7 @@ function render() {
     try {const check=P.checkPlacement(state,selectedId,targetKey);valid=true;
       if(state.assignments.get(selectedId)!==targetKey)shownGaps=P.teleportGaps(state,state.assignments,check.next);
       hint=holder!=null&&holder!==selectedId ? `This swaps with ${state.players.get(holder).name} and reserves ${chosen.name}.` : `Ready to reserve this tile for ${chosen.name}.`;
-    } catch(e){hint=e.message;}
+    } catch(e){hint=e.message;if(e.openings)shownGaps=e.openings;}
   } else if(chosen)hint=`Choose a target tile for ${chosen.name}.`;
   $('placementHint').textContent=hint;
   $('gapWarning').textContent=shownGaps.length ? `Teleport-sized gap${shownGaps.length>1?'s':''} ${chosen&&target&&state.assignments.get(selectedId)!==targetKey?'would open with this move':'opened by the last move'}. Amber outlines mark ${shownGaps.length} possible HQ landing tile${shownGaps.length>1?'s':''}: `+
@@ -352,6 +375,9 @@ function render() {
   const currentOpen=existingOpenings();
   const internal=currentOpen.filter(s=>s.insideFormation).length,edges=currentOpen.length-internal;
   $('existingGapInfo').textContent=$('section').value ? `${internal} internal landable tile${internal===1?'':'s'} · ${edges} open-edge landing tile${edges===1?'':'s'}. Open edges are outside the occupied block; use Open edges to inspect them. All alliances and turret buffers are checked.` : 'Choose an alliance to inspect existing teleport openings.';
+  const defence=currentDefence(),removal=defence.removals.find(r=>r.id===selectedId);
+  $('defenceInfo').textContent=$('section').value?`${defence.gapFree?'PASS: no enemy HQ fits inside the formation.':`FAIL: ${defence.openings.length} landing centers in ${defence.holes?.length||0} connected openings.`} ${defence.vulnerable} HQ losses expose two or more non-overlapping enemy spots.`+($('simulateDestroyed').checked?(removal?` Removing ${removal.name}: ${removal.capacity===2?'at least 2':removal.capacity} new enemy HQ spaces.`:' Select a member to simulate their removal.'):''):'Choose an alliance to run the footprint test.';
+  $('defenceInfo').classList.toggle('has-gap',!defence.gapFree);
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
   $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag to pan; scroll to zoom.':'Tap a tile to preview placement. Drag to pan; scroll to zoom.') : 'Tap a player or search their name. Drag to pan; scroll to zoom.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
@@ -365,6 +391,11 @@ function render() {
       `${reserve.name} (mud ${reserve.x},${reserve.y})`;
     li.append(remove); pairs.append(li);
   }
+  if($('simulateDestroyed').checked&&selectedId!==lastSimulatedId){
+    const p=state.sites.get(state.assignments.get(selectedId));
+    if(p){scale=8;const r=canvas.getBoundingClientRect(),base=Math.min(r.width/260,r.height/250)*scale;panX=-(p.x+((p.y-500)%2?.5:0)-500)*base;panY=-(p.y-500)*base*.8;}
+    lastSimulatedId=selectedId;
+  }else if(!$('simulateDestroyed').checked)lastSimulatedId=null;
   draw(); renderCapacity();
 }
 function changeSummary(changes) {
@@ -447,6 +478,7 @@ async function loadShared(force = false) {
       }
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
+      if(sharedSource)LastZSharedState.enrichState(next,sharedSource);
       state = next; revision = data.revision;
       lastMoveGaps=[];
       syncBoundary();
@@ -599,12 +631,14 @@ function previewLayout(mode='alliance'){
     if(all)report=P.arrangeAll(state,areaRules());
     else {const b=bounds();P.setSection(state,$('section').value,b.start,b.end,areaRules());report=mode==='grass'?P.arrangeGrass(state,$('section').value):P.arrangeAlliance(state,$('section').value);}
     layoutPreview={before,after:P.exportDraft(state),revision};
+    const failed=Object.entries(state.sections).filter(([tag,a])=>a.defencePacking&&P.teleportOpenings(state,tag).some(p=>p.insideFormation));
+    layoutPreview.blocked=failed.length>0;$('applyLayout').disabled=layoutPreview.blocked;
     $('layoutReport').textContent=`Preview: ${report.moved} players changed · ${report.waiting} waiting for room`+
       (report.displacedGrass?` · ${report.displacedGrass} blocking grass HQs relocated into their own/shared areas`:'')+
       (report.lockedOutside?` · ${report.lockedOutside} reserved outside the wedge`:'')+
       (all?'. All unlocked players rearranged using saved wedges and these spacing rules.':mode==='grass'?'. Grass grouped in saved order. All mud stays fixed; only blocking grass HQs from other groups may move.':'. Other alliances’ mud stays fixed; only blocking grass HQs may move.')+' Apply to save, or cancel.';
     $('layoutPreview').hidden=false;$('mapMode').textContent='UNSAVED LAYOUT PREVIEW';render();
-    message('Preview only. Apply preview to save this layout.');
+    message(layoutPreview.blocked?'Cannot apply: an enemy HQ still fits inside the formation. Amber footprints show every opening.':'Preview only. Apply preview to save this layout.');
   }catch(e){P.importDraft(state,before);render();message(e.message);}
 }
 $('arrangeAlliance').onclick=()=>previewLayout();
@@ -613,11 +647,14 @@ $('arrangeGrass').onclick=()=>previewLayout('grass');
 $('cancelLayout').onclick=()=>{cancelPreview();syncBoundary();message('Preview canceled.');};
 $('applyLayout').onclick=()=>{
   if(!layoutPreview)return;
+  if(layoutPreview.blocked){message('Close every teleport opening before applying this layout.');return;}
   const after=layoutPreview.after;cancelPreview();
   mutate(()=>{P.importDraft(state,after);return 'Alliance layout applied';});
 };
-for(const id of ['grassOnly','grassCompact','frontLayers','bodyGap','boundaryCenter','boundaryWidth','wedgeStart','wedgeEnd'])
+for(const id of ['grassOnly','grassCompact','defencePacking','frontLayers','bodyGap','boundaryCenter','boundaryWidth','wedgeStart','wedgeEnd'])
   $(id).addEventListener('input',()=>{if(layoutPreview){cancelPreview();message('Preview canceled because the layout settings changed. Preview again to inspect the new settings.');}});
+$('simulateDestroyed').onchange=render;
+$('checkDefence').onclick=()=>{defenceCache=null;render();message(currentDefence().gapFree?'Every legal hex center checked: no enemy HQ fits inside the formation.':'Footprint check failed. Every legal hex center was tested; amber marks show the openings.');};
 $('clearMud').onclick=()=>mutate(()=>P.clear(state,{zone:'mud',includeLocked:!$('keepLocks').checked}));
 $('clearArea').onclick=()=>mutate(()=>P.clear(state,{...bounds(),zone:'mud',includeLocked:!$('keepLocks').checked}));
 $('unassignPlayer').onclick=()=>mutate(()=>{if(selectedId==null)throw Error('Choose a player first');P.unassign(state,selectedId);});
@@ -733,9 +770,9 @@ $('forgetEditor').onclick = () => {
   message('Editor key removed from this device.');
 };
 
-fetch('placement-plan.json').then(r => {
-  if (!r.ok) throw Error('Plan could not be loaded'); return r.json();
-}).then(data => {
+Promise.all([fetch('placement-plan.json').then(r=>{if(!r.ok)throw Error('Plan could not be loaded');return r.json();}),
+  globalThis.PLACEMENT_SHARED_SOURCE_BASE?LastZSharedState.load(globalThis.PLACEMENT_SHARED_SOURCE_BASE).catch(()=>{sharedSourceError=true;return null;}):Promise.resolve(null)]).then(([data,source]) => {
+  sharedSource=source;
   usePlan(data); state = P.create(plan);
   $('editorName').value = localStorage.getItem('state798.editorName') || '';
   $('editorKey').value = localStorage.getItem('state798.editorKey') ||
@@ -752,5 +789,10 @@ fetch('placement-plan.json').then(r => {
     else $('accessPanel').open=true;
   }
   setInterval(() => { if (!document.hidden && !busy) loadShared(); }, 10000);
+  if(globalThis.PLACEMENT_SHARED_SOURCE_BASE)setInterval(async()=>{
+    if(document.hidden||busy||layoutPreview)return;
+    try{const source=await LastZSharedState.load(globalThis.PLACEMENT_SHARED_SOURCE_BASE);if(source.fingerprint&&source.fingerprint===sharedSource?.fingerprint)return;sharedSource=source;sharedSourceError=false;LastZSharedState.enrichState(state,source);$('snapshotNote').textContent=`Power: States 792–815 workbook · observed ${new Date(source.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`;render();}
+    catch{$('snapshotNote').textContent='Shared refresh unavailable; retaining the last dated observation. '+$('snapshotNote').textContent.replace(/^Shared refresh unavailable; retaining the last dated observation\. /,'');}
+  },60000);
 }).catch(e => { $('summary').textContent = e.message; });
 new ResizeObserver(size).observe(canvas);

@@ -10,6 +10,7 @@
   const norm = a => ((a % 360) + 360) % 360;
   const fieldObstacles = state => state.survey?.obstacles || [];
   const isFieldAnchor = (state,id) => state.locks.has(Number(id)) && state.anchorMap?.has(Number(id));
+  const tightPlacement = (state,id) => state.sections[state.players.get(id)?.section]?.defencePacking===true;
   function validateSurvey(state,survey) {
     if(survey===undefined)return;
     if(!survey||survey.state!==798||survey.world!==0||!Number.isFinite(Date.parse(survey.capturedAt))||
@@ -36,10 +37,10 @@
     const buckets=new Map(),seen=new Set(),bucket=s=>`${Math.floor(s.x/12)},${Math.floor(s.y/12)}`;
     const add=s=>{if(seen.has(siteKey(s)))return;seen.add(siteKey(s));const key=bucket(s);if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(s);};
     sites.forEach(add);
-    const fits=(s,gap=0,teleport=false)=>{
+    const fits=(s,gap=0,teleport=false,ignoreKey=null)=>{
       const x=Math.floor(s.x/12),y=Math.floor(s.y/12);
       for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)for(const b of buckets.get(`${x+dx},${y+dy}`)||[])
-        if(distance(s,b)<(teleport?3:s.zone==='grass'&&b.zone==='grass'?4:3+gap))return false;
+        if(siteKey(b)!==ignoreKey&&distance(s,b)<(teleport?3:s.zone==='grass'&&b.zone==='grass'?4:3+gap))return false;
       return true;
     };
     const near=(s,radius=4)=>{
@@ -94,6 +95,33 @@
       if(result.every(b=>distance(s,b)>=3))result.push(s);
     return result;
   }
+  function defenceReport(state,section) {
+    const openings=teleportOpenings(state,section).filter(s=>s.insideFormation),before=new Set(openings.map(siteKey));
+    const area=state.sections[section],members=rows(state).filter(p=>p.zone!=='unassigned'&&(p.section===section||(area?.group&&state.sections[p.section]?.group===area.group)));
+    if(!area||!members.length)return {gapFree:true,openings:[],removals:[],vulnerable:0};
+    const xy=s=>({x:s.x+((s.y-500)%2?.5:0),y:s.y}),cross=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+    const points=members.map(xy).sort((a,b)=>a.x-b.x||a.y-b.y),half=items=>{const h=[];for(const p of items){while(h.length>1&&cross(h.at(-2),h.at(-1),p)<=0)h.pop();h.push(p);}return h;};
+    const hull=[...half(points).slice(0,-1),...half([...points].reverse()).slice(0,-1)],inside=s=>hull.length>=3&&inMudArea(s,area)&&hull.every((p,i)=>cross(p,hull[(i+1)%hull.length],xy(s))>=-1e-9);
+    const occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state)));
+    const removals=members.map(p=>{
+      const newLandings=[];
+      // Removing a seven-cell HQ can only free centers within two hex steps.
+      for(let dx=-3;dx<=3;dx++)for(let dy=-2;dy<=2;dy++)try {
+        const s=coordinateSite(state,p.x+dx,p.y+dy);
+        if(distance(s,p)<3&&inside(s)&&!before.has(siteKey(s))&&occupied.fits(s,0,true,siteKey(p)))newLandings.push(s);
+      }catch { /* Not a legal HQ center. */ }
+      let pair=null;
+      for(let i=0;i<newLandings.length&&!pair;i++)for(let j=i+1;j<newLandings.length;j++)if(distance(newLandings[i],newLandings[j])>=3){pair=[newLandings[i],newLandings[j]];break;}
+      return {id:p.id,name:p.name,newLandings,capacity:pair?2:newLandings.length?1:0,pair};
+    });
+    const pending=new Map(openings.map(s=>[siteKey(s),s])),holes=[];
+    while(pending.size){const first=pending.values().next().value,group=[first];pending.delete(siteKey(first));
+      for(let n=0;n<group.length;n++){const p=group[n];for(let dx=-2;dx<=2;dx++)for(let dy=-1;dy<=1;dy++){
+        const key=`${p.x+dx},${p.y+dy}`,next=pending.get(key);if(next&&distance(p,next)===1){pending.delete(key);group.push(next);}
+      }}holes.push(group);
+    }
+    return {gapFree:openings.length===0,openings,holes,removals,vulnerable:removals.filter(r=>r.capacity>=2).length};
+  }
   function coordinateSite(state, x, y) {
     if (!Number.isInteger(x) || !Number.isInteger(y)) throw Error('Use whole-number X and Y coordinates');
     const j=y-500, i=x-500-Math.floor(j/2), ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));
@@ -116,6 +144,7 @@
   function checkPlacement(state, id, targetKey) {
     id=Number(id);
     if (!state.players.has(id)) throw Error('Choose a player first');
+    if(state.players.get(id).placementEligible===false)throw Error('This identity is not confirmed in the current roster; choose the current player record');
     const target=state.sites.get(targetKey);
     if (!target) throw Error('Choose a legal tile');
     if(isFieldAnchor(state,id)&&state.assignments.get(id)!==targetKey)throw Error('Already placed in game. Unlock this HQ before planning a move.');
@@ -132,11 +161,15 @@
       const s=state.sites.get(next.get(who));if(!s)continue;
       for(const [other,key] of next) {
         if(other===who||key==null)continue;
-        const b=state.sites.get(key), minimum=s.zone==='grass'&&b.zone==='grass'?4:3;
+        const b=state.sites.get(key), minimum=s.zone==='grass'&&b.zone==='grass'&&!tightPlacement(state,who)&&!tightPlacement(state,other)?4:3;
         if(distance(s,b)<minimum) throw Error(`Too close to ${state.players.get(other).name || 'another HQ'}; choose another tile`);
       }
     }
     assertPairZones(state,next);
+    for(const who of moved)if(tightPlacement(state,who)){
+      const openings=teleportOpenings({...state,assignments:next},state.players.get(who).section).filter(s=>s.insideFormation);
+      if(openings.length){const error=Error('That move leaves an enemy teleport opening inside the formation');error.openings=openings;throw error;}
+    }
     return {next,occupant};
   }
   function rearReasons(player) {
@@ -270,6 +303,7 @@
       throw Error('Choose an alliance and two different boundary angles between 0° and 360°');
     if ((rules.grassOnly!==undefined && typeof rules.grassOnly!=='boolean') ||
         (rules.grassCompact!==undefined && typeof rules.grassCompact!=='boolean') ||
+        (rules.defencePacking!==undefined && typeof rules.defencePacking!=='boolean') ||
         (rules.frontLayers!==undefined && ![0,1,2,3].includes(rules.frontLayers)) ||
         (rules.bodyGap!==undefined && ![0,1,2,3].includes(rules.bodyGap))) throw Error('Choose a valid front depth and spacing');
     const group=state.sections[section].group;
@@ -328,7 +362,7 @@
     const area=state.sections[section];if(!area)throw Error('Choose an alliance first');
     const tags=new Set(Object.keys(state.sections).filter(tag=>tag===section||(area.group&&state.sections[tag].group===area.group)));
     const snapshot=exportDraft(state),before=new Map(state.assignments),next=new Map(before);
-    const members=[...state.players.values()].filter(p=>tags.has(p.section)&&!state.locks.has(p.id)&&
+    const members=[...state.players.values()].filter(p=>p.placementEligible!==false&&tags.has(p.section)&&!state.locks.has(p.id)&&
       (options.memberIds ? options.memberIds.includes(p.id) :
         state.sites.get(before.get(p.id))?.zone==='grass'||(before.get(p.id)==null&&p.zone==='grass')));
     for(const p of members)next.set(p.id,null);
@@ -374,7 +408,7 @@
   function arrangeArea(state, section, ordering=null) {
     const area=state.sections[section], tags=new Set(Object.keys(state.sections).filter(tag=>
       tag===section||(area.group&&state.sections[tag].group===area.group)));
-    const before=new Map(state.assignments), members=[...state.players.values()].filter(p=>tags.has(p.section)&&!state.locks.has(p.id));
+    const before=new Map(state.assignments), members=[...state.players.values()].filter(p=>p.placementEligible!==false&&tags.has(p.section)&&!state.locks.has(p.id));
     const next=new Map(state.assignments);
     for(const p of members)next.set(p.id,null);
     const occupied=[...next.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state));
@@ -442,7 +476,7 @@
       // Ungrouped players take the remaining shared grass after the named alliances.
       const occupied=[...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state));
       const index=occupancy(occupied);
-      const other=[...state.players.values()].filter(p=>!state.locks.has(p.id)&&(!state.sections[p.section]||p.section==='Other'||state.sections[p.section].sharedOpenSpots));
+      const other=[...state.players.values()].filter(p=>p.placementEligible!==false&&!state.locks.has(p.id)&&(!state.sections[p.section]||p.section==='Other'||state.sections[p.section].sharedOpenSpots));
       const grass=[...state.sites.values()].filter(s=>s.zone==='grass');
       other.sort((a,b)=>Number(needsRear(a))-Number(needsRear(b))||a.priority-b.priority||b.hq-a.hq||a.id-b.id);
       for(const p of other) {
@@ -458,7 +492,7 @@
   }
 
   function pushBack(state, section = '') {
-    const ids = [...state.players.keys()].filter(id => state.assignments.get(id) == null &&
+    const ids = [...state.players.keys()].filter(id => state.players.get(id).placementEligible!==false&&state.assignments.get(id) == null &&
       (!section || state.players.get(id).section === section));
     ids.sort((a,b) => state.players.get(b).priority - state.players.get(a).priority ||
       state.players.get(a).hq - state.players.get(b).hq || a-b);
@@ -494,7 +528,7 @@
     if (area.grassOnly!==undefined || area.frontLayers!==undefined) return arrangeArea(state,section);
     const used=new Set(), rear=rearSites(state); let moved=0, waiting=0;
     const inArea=s=>inMudArea(s,area);
-    const members=[...state.players].filter(([id,p])=>p.section===section&&!state.locks.has(id));
+    const members=[...state.players].filter(([id,p])=>p.placementEligible!==false&&p.section===section&&!state.locks.has(id));
     const mudCapacity=[...state.sites].filter(([key,s])=>s.zone==='mud'&&inArea(s)&&!state.locks.has(playerAt(state,key))).length;
     const strictMud=members.filter(([,p])=>!needsRear(p)).sort((a,b)=>
       (b[1].heroPower??-1)-(a[1].heroPower??-1)||(b[1].totalPower??-1)-(a[1].totalPower??-1)||b[1].hq-a[1].hq||a[0]-b[0])
@@ -541,7 +575,7 @@
         const player = state.players.get(id);
         const mudEligible = !player.highRisk && player.attendanceProxy !== 'outside_capital_area' &&
           (state.leadershipMudBoundaries ? player.section!=='Other' : player.hq>=24);
-        return !state.locks.has(id) && (site ? site.zone === terrain && inWedge(site, start, end)
+        return player.placementEligible!==false&&!state.locks.has(id) && (site ? site.zone === terrain && inWedge(site, start, end)
           : terrain === 'grass' || mudEligible)
           && (!section || state.players.get(id).section === section);
       });
@@ -630,13 +664,15 @@
         placed.some(key => !sites.has(key))) throw Error('Draft has duplicate or unknown players or sites');
     const custom=new Set((draft.sites||[]).map(siteKey));
     const anchoredSites=new Set([...anchorMap.values()].map(siteKey));
+    const owners=new Map([...assignments].map(([id,key])=>[key,id])),defence={...state,sections:draft.sections||state.sections};
     for(const key of custom) {
       if(!placed.includes(key))throw Error('Draft has unused custom tiles');
       const a=sites.get(key);
       for(const other of placed)if(other!==key) {
         const b=sites.get(other);
         const existing=anchoredSites.has(key)&&anchoredSites.has(other);
-        if(distance(a,b)<(!existing&&a.zone==='grass'&&b.zone==='grass'?4:3))throw Error('Draft has overlapping HQ footprints');
+        const ownerA=owners.get(key),ownerB=owners.get(other);
+        if(distance(a,b)<(!existing&&a.zone==='grass'&&b.zone==='grass'&&!tightPlacement(defence,ownerA)&&!tightPlacement(defence,ownerB)?4:3))throw Error('Draft has overlapping HQ footprints');
       }
     }
     const locks = new Set((draft.locks || []).map(Number));
@@ -655,6 +691,7 @@
           Object.values(draft.sections).some(s => !s || !Number.isFinite(s.start) || !Number.isFinite(s.end) ||
             (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
             (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
+            (s.defencePacking!==undefined&&typeof s.defencePacking!=='boolean') ||
             (s.grassOrder!==undefined&&(!Array.isArray(s.grassOrder)||s.grassOrder.length>state.players.size||
               new Set(s.grassOrder).size!==s.grassOrder.length||s.grassOrder.some(id=>!state.players.has(id)))) ||
             (s.mudOrder!==undefined&&(!Array.isArray(s.mudOrder)||s.mudOrder.length>state.players.size||
@@ -674,6 +711,6 @@
   }
 
   return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, clearOfTurrets,
-           distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps, teleportOpenings,
+           distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps, teleportOpenings, defenceReport,
            clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
 });

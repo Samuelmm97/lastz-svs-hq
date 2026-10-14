@@ -5,6 +5,32 @@ tap a dot, type your name, and it is reserved on the shared sheet in real time.
 
 Live page: https://samuelmm97.github.io/lastz-svs-hq/
 
+## Hard teleport validation and shared observations
+
+**Test every hex and HQ loss** checks the full seven-cell footprint at every legal
+integer center inside the selected formation's convex hull and alliance wedge.
+Flood fill groups valid landing centers into connected holes. Open edges outside
+the occupied formation are shown separately; the check does not claim to occupy the
+entire empty wedge. All assigned HQs, observed unknown HQs and turret restrictions
+participate in collision checks.
+
+**Block every enemy teleport footprint** makes zero internal landings a hard save
+requirement. Both manual moves and the Worker reject openings; unsafe layout previews
+cannot be applied. One empty tile remains a spacing preference: around irregular held
+HQs, touching placements can be needed to close an enemy footprint. Held positions
+are preserved. Select a member and **Simulate selected HQ destroyed** to see newly
+exposed footprints and a pair of disjoint enemy footprints when two can fit. A current
+zero-gap result does not mean every single-HQ loss is safe.
+
+Power reads the Atlas projection of **Last Z States 792–815 — Alliances and Player Power**
+through `shared-state.js`, joined by UID; personal and hero component dates remain
+separate. Observed coordinates read the same Atlas `data/hqs.json`. Proposed coordinates
+remain in the shared draft. Visible pages refresh observations every minute without
+moving assignments or changing Bear's saved ordering.
+
+Regression: `node placement-defence.test.cjs`; existing planner, controls, survey,
+Worker validation and isolated desktop/mobile browser tests remain applicable.
+
 ## Manual placement, front spacing, and grass groups
 
 In **Edit plan**, select an alliance. Choose **Touching front rows** and the

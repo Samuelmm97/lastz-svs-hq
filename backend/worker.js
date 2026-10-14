@@ -37,6 +37,7 @@ function validDraft(draft) {
         Math.abs(s.start) > 4*Math.PI || Math.abs(s.end) > 4*Math.PI ||
         (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
         (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
+        (s.defencePacking!==undefined&&typeof s.defencePacking!=='boolean') ||
         (s.grassOrder!==undefined&&(!Array.isArray(s.grassOrder)||s.grassOrder.length>2000||
           new Set(s.grassOrder).size!==s.grassOrder.length||s.grassOrder.some(id=>!Number.isSafeInteger(id)||!ids.has(id)))) ||
         (s.mudOrder!==undefined&&(!Array.isArray(s.mudOrder)||s.mudOrder.length>2000||
@@ -96,7 +97,10 @@ function validPlan(plan) {
 
 function draftFitsPlan(draft, plan) {
   if (!validDraft(draft) || !validPlan(plan) || draft.signature !== planSignature(plan)) return false;
-  try { P.importDraft(P.create(plan),draft); } catch { return false; }
+  try {
+    const state=P.create(plan);P.importDraft(state,draft);
+    for(const [section,area] of Object.entries(state.sections))if(area.defencePacking&&P.teleportOpenings(state,section).some(p=>p.insideFormation))return false;
+  } catch { return false; }
   return true;
 }
 

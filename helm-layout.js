@@ -60,7 +60,7 @@ function drawLayout(rows, terrain, turrets = []) {
 
 function table(rows, terrain) {
   const table = document.createElement('table'), head = table.createTHead().insertRow();
-  for (const name of ['Mark', 'HQ / player', 'Total hero power', 'Total power', 'X, Y']) {
+  for (const name of ['Mark', 'HQ / player', 'Hero component power', 'Personal power', 'X, Y']) {
     const th = document.createElement('th'); th.textContent = name; head.append(th);
   }
   const body = table.createTBody();
@@ -94,18 +94,23 @@ async function loadLayout() {
     }
     const state = PlacementPlanner.create(plan);
     if (shared.draft) PlacementPlanner.importDraft(state, shared.draft);
-    const helm = PlacementPlanner.rows(state).filter(p => p.tag === 'Helm');
+    const source=await LastZSharedState.load(PLACEMENT_SHARED_SOURCE_BASE);
+    LastZSharedState.enrichState(state,source);
+    const helm = PlacementPlanner.rows(state).filter(p => p.section === 'Helm'&&p.placementEligible!==false);
     if (plan.meta.leadershipMudBoundaries) H('layoutNote').textContent = 'Helm holds the west-to-northwest mud area assigned by leadership (270°–308°). Mud positions are compact and ranked by hero power, total power, then HQ; remaining members support from nearby grass. Confirmed prior absences and unshielded players stage in back grass. Unknown attendance has no back penalty. Match each marker to its row for coordinates.';
     else if (plan.meta.helmCenterDegrees === 315) H('layoutNote').textContent = 'Helm groups near 315° around Turret 2. Confirmed prior absences and unshielded players stage in back grass; their rows explain why. Unknown attendance is labeled and receives no back penalty. Match each marker to its row for coordinates. Mud uses total hero power, total power, then HQ. Grass uses HQ within the previous SvS priority groups. Manual strike and reserve assignments remain in place.';
-    const mud = helm.filter(p => p.zone === 'mud').sort(combatOrder);
-    const grass = helm.filter(p => p.zone === 'grass').sort((a, b) => a.priority - b.priority || b.hq - a.hq || a.id - b.id);
+    H('layoutNote').textContent='Helm’s wedge runs from the west corner to the northwest corner. Held in-game HQs stay fixed. Bear’s saved ordering is preserved. The planner tests every legal center inside the formation for an enemy HQ footprint; use its destruction simulation to inspect single-HQ losses. Power comes from the shared workbook; hero component dates can be older.';
+    const order=(ids,fallback)=>{const ranks=new Map((ids||[]).map((id,i)=>[id,i]));return(a,b)=>(ranks.get(a.id)??Infinity)-(ranks.get(b.id)??Infinity)||fallback(a,b);};
+    const mud = helm.filter(p => p.zone === 'mud').sort(order(state.sections.Helm.mudOrder,combatOrder));
+    const grass = helm.filter(p => p.zone === 'grass').sort(order(state.sections.Helm.grassOrder,(a,b)=>a.priority-b.priority||b.hq-a.hq||a.id-b.id));
     for (const [terrain, rows, prefix] of [['mud', mud, 'M'], ['grass', grass, 'G']]) {
       rows.forEach((p, index) => p.marker = prefix + String(index + 1).padStart(2, '0'));
       H(`${terrain}Title`).textContent = `${terrain === 'mud' ? 'Mud front' : 'Grass support'} · ${rows.length} HQs`;
       table(rows, terrain); drawLayout(rows, terrain, plan.meta.turrets);
     }
     const waiting=helm.filter(p=>p.zone==='unassigned').length;
-    H('snapshot').textContent = `Shared version ${shared.revision} · Roster/power ${plan.meta.powerCaptured || plan.meta.capturedDate || 'September 2026'} · Shield/attendance ${plan.meta.eventCaptured || '2026-09-26'}${waiting ? ` · ${waiting} Helm players waiting for a spot` : ''}`;
+    H('snapshot').textContent = `Shared version ${shared.revision} · Power workbook observed ${new Date(source.power.source.observedAt).toLocaleString()} · Shield/attendance ${plan.meta.eventCaptured || '2026-09-26'}${waiting ? ` · ${waiting} Helm players waiting for a spot` : ''}`;
   } catch (error) { H('snapshot').textContent = error.message; }
 }
 loadLayout();
+setInterval(()=>{if(!document.hidden)loadLayout();},60000);
