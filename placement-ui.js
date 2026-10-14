@@ -780,6 +780,9 @@ function spotLabel(p){
 }
 function showHqInfo(id, clientX, clientY){
   const p=state.players.get(id);if(!p)return;
+  // On a phone the canvas is only ~290px tall, so the card drops its long notes and the observation
+  // line: name, HQ level, alliance, powers and spot still say exactly who was tapped.
+  const compact=canvas.clientWidth<520;
   $('hqInfoName').textContent=`${p.name}${p.role?` · ${p.role}`:''}`;
   const facts=[
     ['HQ level', p.hq ?? 'unknown'],
@@ -788,22 +791,33 @@ function showHqInfo(id, clientX, clientY){
     ['Power', `${p.totalPowerApproximate?'≈ ':''}${p.totalPower?.toLocaleString()||'unknown'}`],
     ['Spot', spotLabel(p)],
   ];
-  if(Number.isFinite(p.actualX)&&Number.isFinite(p.actualY))facts.push(['Shared map observation',`X ${p.actualX}, Y ${p.actualY}`]);
+  if(!compact&&Number.isFinite(p.actualX)&&Number.isFinite(p.actualY))facts.push(['Shared map observation',`X ${p.actualX}, Y ${p.actualY}`]);
   const dl=$('hqInfoFacts');dl.replaceChildren();
   for(const [key,value] of facts){const dt=document.createElement('dt');dt.textContent=key;const dd=document.createElement('dd');dd.textContent=value;dl.append(dt,dd);}
   const notes=[];
-  if(P.rearReasons(p).length)notes.push(`Back priority: ${P.rearReasons(p).join(' · ')}.`);
-  if(p.attendanceProxy==='unknown')notes.push('No attendance record for the previous SvS, so no back penalty.');
-  if(p.placedInGame)notes.push('Already placed in game; fixed during replanning.');
-  if(p.relocatingInGame)notes.push(`Observed in game at X ${p.observedX}, Y ${p.observedY}; the coordinates above are the proposed relocation.`);
-  if(p.powerObservedAt)notes.push(`Personal power observed ${new Date(p.powerObservedAt).toLocaleDateString()}.`);
-  if(p.nameReadingStatus==='partial')notes.push('Name partly unreadable; check the saved roster card.');
+  if(!compact){
+    if(P.rearReasons(p).length)notes.push(`Back priority: ${P.rearReasons(p).join(' · ')}.`);
+    if(p.attendanceProxy==='unknown')notes.push('No attendance record for the previous SvS, so no back penalty.');
+    if(p.placedInGame)notes.push('Already placed in game; fixed during replanning.');
+    if(p.relocatingInGame)notes.push(`Observed in game at X ${p.observedX}, Y ${p.observedY}; the coordinates above are the proposed relocation.`);
+    if(p.powerObservedAt)notes.push(`Personal power observed ${new Date(p.powerObservedAt).toLocaleDateString()}.`);
+    if(p.nameReadingStatus==='partial')notes.push('Name partly unreadable; check the saved roster card.');
+  }
   $('hqInfoNotes').textContent=notes.join(' ');$('hqInfoNotes').hidden=!notes.length;
   const box=$('hqInfo');hqInfoId=id;box.hidden=false;
+  box.classList.toggle('compact',compact);
   const area=box.parentElement.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
-  const x=clientX-area.left,y=clientY-area.top;
-  box.style.left=`${Math.max(8,Math.min(area.width-w-8,x+14))}px`;
-  box.style.top=`${y+14+h>area.height-8?Math.max(8,y-h-18):y+14}px`;
+  if(canvas.clientWidth<520){
+    // Phone: dock the card at the foot of the canvas, centred. Anchoring it to the tap would cover
+    // the HQ the reader just tapped - on a 390px screen the card is nearly as wide as the map.
+    const top=canvas.offsetTop+canvas.clientHeight-h-10;
+    box.style.left=`${Math.max(8,Math.round((area.width-w)/2))}px`;
+    box.style.top=`${Math.max(8,Math.round(top))}px`;
+  } else {
+    const x=clientX-area.left,y=clientY-area.top;
+    box.style.left=`${Math.max(8,Math.min(area.width-w-8,x+14))}px`;
+    box.style.top=`${y+14+h>area.height-8?Math.max(8,y-h-18):y+14}px`;
+  }
 }
 $('hqInfoClose').onclick=hideHqInfo;
 // Pinch zoom. The midpoint of the two fingers is anchored to the map: whatever tile is under it
@@ -908,10 +922,21 @@ canvas.addEventListener('pointerup', e => {
   if (moved) return;
   if ($('swapPreview').checked) { message('Switch to staging view to choose a site.'); return; }
   const rect = canvas.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
-  let best = null, d = 12;
+  // A finger is far wider than a cursor: touch gets a generous target, and if the nearest tile is
+  // empty it prefers the nearest tile that actually holds an HQ - a near miss should still say who.
+  const radius = e.pointerType === 'touch' ? 36 : 12;
+  let best = null, d = radius;
   for (const s of state.sites.values()) {
     const [px, py] = project(s), pd = Math.hypot(px - x, py - y);
     if (pd < d) { d = pd; best = s; }
+  }
+  if (best && e.pointerType === 'touch' && P.playerAt(state, P.siteKey(best)) == null) {
+    let held = null, hd = radius;
+    for (const s of state.sites.values()) {
+      const [px, py] = project(s), pd = Math.hypot(px - x, py - y);
+      if (pd < hd && P.playerAt(state, P.siteKey(s)) != null) { hd = pd; held = s; }
+    }
+    if (held) best = held;
   }
   if (best) {
     if(editMode&&$('mapAction').value==='place') {try{setTarget(P.siteKey(best));}catch(e){message(e.message);}}

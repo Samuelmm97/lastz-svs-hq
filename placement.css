@@ -48,3 +48,8 @@ canvas{flex:1;min-height:0;height:0}
 .hq-info .hq-info-note[hidden]{display:none}
 .hq-info-close{position:absolute;top:3px;right:5px;padding:2px 5px;background:none;border:0;color:var(--muted);font-size:15px;line-height:1;cursor:pointer}
 .hq-info-close:hover{color:var(--text)}
+/* Phone: keep the card short enough to sit under the HQ on a ~290px canvas. */
+.hq-info.compact{padding:7px 11px 8px;font-size:11px;line-height:1.35}
+.hq-info.compact h3{margin-bottom:4px;font-size:12px}
+.hq-info.compact dl{gap:1px 8px}
+.hq-info.compact dt{font-size:10px}

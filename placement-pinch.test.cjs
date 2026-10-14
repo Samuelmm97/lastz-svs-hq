@@ -77,6 +77,37 @@ process.env.QA_SHARED=path.join(LIVE,'shared_live.json');
     assert((await page.locator('#hqInfo').innerText()).includes(tap.name),`Tap should open ${tap.name}'s card`);
     await page.screenshot({path:path.join(output,'pinch-tap-card.png')});
 
+    // 5. A fingertip near miss still lands on the HQ that was aimed at (36px target, and the card is
+    //    docked clear of it - anchoring the card to the tap covers the HQ on a phone-sized map).
+    const aimed=await page.evaluate(()=>{
+      const all=P.rows(state),candidates=all.filter(p=>p.zone==='grass'&&p.tag&&Number.isFinite(p.hq)&&!p.role);
+      const chosen=candidates.find(p=>all.every(q=>q.id===p.id||P.distance(p,q)>=4));   // an isolated HQ
+      const r=canvas.getBoundingClientRect(),k=Math.min(r.width/260,r.height/250)*8;
+      scale=8;
+      panX=-(chosen.x+((chosen.y-500)%2!==0?.5:0)-500)*k;
+      panY=-(chosen.y-500)*k*.8;
+      draw();
+      const [px,py]=project(chosen);
+      return {id:chosen.id,name:chosen.name,tilePixels:+(k*.8).toFixed(1),
+        tapX:r.left+px+20,tapY:r.top+py+10,dotX:r.left+px,dotY:r.top+py};
+    });
+    await page.locator('#hqInfoClose').click();
+    await send('touchStart',[{x:aimed.tapX,y:aimed.tapY,id:1}]);
+    await send('touchEnd',[]);
+    await page.locator('#hqInfo').waitFor({state:'visible'});
+    const nearMiss=await page.evaluate(([dotX,dotY])=>({
+      selected:selectedId,card:document.getElementById('hqInfoName').textContent,
+      coversDot:(()=>{const b=document.getElementById('hqInfo').getBoundingClientRect();
+        return dotX>=b.left&&dotX<=b.right&&dotY>=b.top&&dotY<=b.bottom;})(),
+      onScreen:(()=>{const b=document.getElementById('hqInfo').getBoundingClientRect(),m=document.querySelector('section.map').getBoundingClientRect();
+        return b.left>=m.left-1&&b.right<=m.right+1&&b.top>=m.top-1&&b.bottom<=m.bottom+1;})()
+    }),[aimed.dotX,aimed.dotY]);
+    assert.equal(nearMiss.selected,aimed.id,`A tap 20,10 px off the dot should still pick ${aimed.name} (got ${nearMiss.card})`);
+    assert.equal(nearMiss.card,aimed.name,nearMiss.card);
+    assert(!nearMiss.coversDot,`The docked card must not cover the HQ that was tapped (dot ${aimed.dotX.toFixed(0)},${aimed.dotY.toFixed(0)})`);
+    assert(nearMiss.onScreen,'The docked card stays inside the map panel');
+    await page.screenshot({path:path.join(output,'pinch-tap-near-miss.png')});
+
     assert.deepEqual(errors,[],errors.join('\n'));
     console.log(`Pinch QA passed: fingers 60->120px doubled the zoom (${ratio.toFixed(2)}x) with the pinch point anchored, no drag/tap side effects, one finger still pans, tap still opens the card.`);
   } finally { await browser?.close(); await new Promise(resolve=>app.server.close(resolve)); }
