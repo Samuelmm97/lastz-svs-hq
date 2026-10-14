@@ -23,7 +23,34 @@
         if(distance(s,b)<(teleport?3:s.zone==='grass'&&b.zone==='grass'?4:3+gap))return false;
       return true;
     };
-    return {add,fits};
+    const near=(s,radius=4)=>{
+      const x=Math.floor(s.x/12),y=Math.floor(s.y/12);
+      for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)for(const b of buckets.get(`${x+dx},${y+dy}`)||[])
+        if(distance(s,b)<=radius)return true;
+      return false;
+    };
+    return {add,fits,near,clone:()=>occupancy([...buckets.values()].flat())};
+  }
+  function teleportOpenings(state, section) {
+    const area=state.sections[section];if(!area||area.sharedOpenSpots||section==='Other')return [];
+    const members=rows(state).filter(p=>p.zone!=='unassigned'&&(p.section===section||(area.group&&state.sections[p.section]?.group===area.group)));
+    if(!members.length)return [];
+    const team=occupancy(members),occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)));
+    const xy=s=>({x:s.x+((s.y-500)%2?0.5:0),y:s.y});
+    const points=members.map(xy).sort((a,b)=>a.x-b.x||a.y-b.y);
+    const cross=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+    const half=items=>{const h=[];for(const p of items){while(h.length>=2&&cross(h[h.length-2],h[h.length-1],p)<=0)h.pop();h.push(p);}return h;};
+    const lower=half(points),upper=half([...points].reverse()),hull=[...lower.slice(0,-1),...upper.slice(0,-1)];
+    const inside=s=>hull.length>=3&&hull.every((a,i)=>cross(a,hull[(i+1)%hull.length],xy(s))>=-1e-9);
+    const maxRing=Math.min(119,Math.max(...members.map(p=>p.ring))+4),open=[];
+    for(let j=-maxRing;j<=maxRing;j++)for(let i=-maxRing;i<=maxRing;i++) {
+      const ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));
+      if(ring<19||ring>maxRing||(ring>34&&ring<37))continue;
+      const s={x:500+i+Math.floor(j/2),y:500+j,ring,zone:ring<=34?'mud':'grass',angle:Math.atan2(i+j/2,-j)};
+      if(!((inMudArea(s,area)&&inside(s))||team.near(s,4)))continue;
+      if(!state.blocked.has(siteKey(s))&&clearOfTurrets(s,state.turrets)&&occupied.fits(s,0,true))open.push(s);
+    }
+    return open.sort((a,b)=>a.ring-b.ring||a.angle-b.angle);
   }
   function teleportGaps(state, before, after=state.assignments) {
     before=new Map(before);after=new Map(after);
@@ -239,38 +266,82 @@
     // Preserve the coordinator's current position order, including lower-power members.
     members.sort((a,b)=>(prior(a).ring??Infinity)-(prior(b).ring??Infinity)||
       angularGap(prior(a).angle??center,center)-angularGap(prior(b).angle??center,center)||a.id-b.id);
+    const savedOrder=new Map((area.grassOrder||[]).map((id,i)=>[id,i]));
+    if(savedOrder.size)members.sort((a,b)=>(savedOrder.get(a.id)??Infinity)-(savedOrder.get(b.id)??Infinity));
+    const order=[...(area.grassOrder||[]),...members.filter(p=>!savedOrder.has(p.id)).map(p=>p.id)];
+    for(const s of Object.values(state.sections))if(s===area||(area.group&&s.group===area.group))s.grassOrder=order;
     const candidates=new Map([...state.sites].filter(([,s])=>s.zone==='grass'&&(!area.grassOnly||inMudArea(s,area))));
     for(let j=-119;j<=119;j++)for(let i=-119;i<=119;i++) {
       const ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));if(ring<37||ring>119)continue;
       const s={x:500+i+Math.floor(j/2),y:500+j,ring,zone:'grass',angle:Math.atan2(i+j/2,-j)};
       if((!area.grassOnly||inMudArea(s,area))&&!state.blocked.has(siteKey(s))&&clearOfTurrets(s,state.turrets))candidates.set(siteKey(s),s);
     }
-    const sites=[...candidates.values()];
-    sites.sort((a,b)=>(a.ring*100+angularGap(a.angle,center)*200)-(b.ring*100+angularGap(b.angle,center)*200)||a.angle-b.angle);
-    const anchor=sites.find(s=>index.fits(s));if(!anchor)return;
-    sites.sort((a,b)=>distance(a,anchor)-distance(b,anchor)||a.ring-b.ring||angularGap(a.angle,center)-angularGap(b.angle,center)||a.x-b.x);
-    const chosen=[];
-    while(chosen.length<members.length) {
-      const s=sites.find(s=>index.fits(s)&&(!chosen.length||chosen.some(b=>distance(s,b)<=8)));
-      if(!s)break;
-      chosen.push(s);index.add(s);
+    const sites=[...candidates.values()];let best=null;
+    // A single dense hex lattice prevents irregular chains and separate-looking lobes.
+    // Basis (4,-1), (1,3) has center distance four and thirteen possible offsets.
+    for(let phase=0;phase<13;phase++) {
+      const points=sites.filter(s=>{const j=s.y-500,i=s.x-500-Math.floor(j/2);return ((3*i-j)%13+13)%13===phase;});
+      points.sort((a,b)=>(a.ring*100+angularGap(a.angle,center)*200)-(b.ring*100+angularGap(b.angle,center)*200)||a.angle-b.angle);
+      const trial=index.clone(),anchor=points.find(s=>trial.fits(s));if(!anchor)continue;
+      points.sort((a,b)=>distance(a,anchor)-distance(b,anchor)||a.ring-b.ring||angularGap(a.angle,center)-angularGap(b.angle,center)||a.x-b.x);
+      const chosen=[];
+      while(chosen.length<members.length) {
+        const s=points.find(s=>trial.fits(s)&&(!chosen.length||chosen.some(b=>distance(s,b)===4)));
+        if(!s)break;
+        chosen.push(s);trial.add(s);
+      }
+      const radius=Math.max(0,...chosen.map(s=>distance(s,anchor))),sum=chosen.reduce((n,s)=>n+distance(s,anchor),0);
+      const score=(members.length-chosen.length)*1e8+radius*1e5+sum*10+anchor.ring;
+      if(!best||score<best.score)best={score,chosen,anchor};
     }
-    chosen.sort((a,b)=>distance(a,anchor)-distance(b,anchor)||a.ring-b.ring||angularGap(a.angle,center)-angularGap(b.angle,center)||a.x-b.x);
-    chosen.forEach((s,i)=>place(members[i],s));
+    if(!best)return;
+    best.chosen.sort((a,b)=>distance(a,best.anchor)-distance(b,best.anchor)||a.ring-b.ring||angularGap(a.angle,center)-angularGap(b.angle,center)||a.x-b.x);
+    best.chosen.forEach((s,i)=>place(members[i],s));
   }
-  function arrangeGrass(state, section) {
+  function arrangeGrass(state, section, options={}) {
     const area=state.sections[section];if(!area)throw Error('Choose an alliance first');
     const tags=new Set(Object.keys(state.sections).filter(tag=>tag===section||(area.group&&state.sections[tag].group===area.group)));
-    const before=new Map(state.assignments),next=new Map(before);
+    const snapshot=exportDraft(state),before=new Map(state.assignments),next=new Map(before);
     const members=[...state.players.values()].filter(p=>tags.has(p.section)&&!state.locks.has(p.id)&&
-      (state.sites.get(before.get(p.id))?.zone==='grass'||(before.get(p.id)==null&&p.zone==='grass')));
+      (options.memberIds ? options.memberIds.includes(p.id) :
+        state.sites.get(before.get(p.id))?.zone==='grass'||(before.get(p.id)==null&&p.zone==='grass')));
     for(const p of members)next.set(p.id,null);
-    const index=occupancy([...next.values()].filter(Boolean).map(key=>state.sites.get(key)));
+    const shared=rows(state).filter(p=>{
+      const own=state.sections[p.section];
+      return !tags.has(p.section)&&p.zone==='grass'&&!state.locks.has(p.id)&&inMudArea(p,area)&&
+        (p.section==='Other'||!own||own.sharedOpenSpots||!inMudArea(p,own));
+    });
+    const sharedIds=new Set(shared.map(p=>p.id));
+    const index=occupancy([...next].filter(([id,key])=>key&&!sharedIds.has(id)).map(([,key])=>state.sites.get(key)));
     const place=(p,s)=>{next.set(p.id,defineSite(state,s.x,s.y));index.add(s);};
-    grassCluster(state,area,members,before,index,place);
+    try {
+    grassCluster(state,area,members,options.ordering||before,index,place);
+    const chosen=members.map(p=>state.sites.get(next.get(p.id))).filter(Boolean);
+    const displaced=shared.filter(p=>chosen.some(s=>distance(p,s)<4));
+    for(const p of displaced)next.set(p.id,null);
+    const occupied=occupancy([...next.values()].filter(Boolean).map(key=>state.sites.get(key)));
+    if(displaced.length) {
+      const available=[];
+      for(let j=-119;j<=119;j++)for(let i=-119;i<=119;i++) {
+        const ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));if(ring<37||ring>119)continue;
+        const s={x:500+i+Math.floor(j/2),y:500+j,ring,zone:'grass',angle:Math.atan2(i+j/2,-j)};
+        if(!inMudArea(s,area)&&!state.blocked.has(siteKey(s))&&clearOfTurrets(s,state.turrets)&&occupied.fits(s))available.push(s);
+      }
+      for(const p of displaced) {
+        available.sort((a,b)=>distance(a,p)-distance(b,p)||Math.abs(a.ring-p.ring)-Math.abs(b.ring-p.ring)||a.x-b.x||a.y-b.y);
+        const own=state.sections[p.section];
+        const s=available.find(s=>(p.section==='Other'||!own||own.sharedOpenSpots||inMudArea(s,own))&&
+          (!needsRear(p)||s.ring>=p.ring)&&occupied.fits(s));
+        if(!s)throw Error('Blocking grass players cannot be relocated safely inside their own areas. No changes applied.');
+        next.set(p.id,defineSite(state,s.x,s.y));occupied.add(s);
+      }
+    }
     assertPairZones(state,next);state.assignments=next;
     return {moved:members.filter(p=>before.get(p.id)!==next.get(p.id)).length,
-      waiting:members.filter(p=>next.get(p.id)==null).length,lockedOutside:areaReport(state,section).lockedOutside};
+      waiting:members.filter(p=>next.get(p.id)==null).length,displacedShared:displaced.filter(p=>p.section==='Other').length,
+      displacedGrass:displaced.length,
+      lockedOutside:areaReport(state,section).lockedOutside};
+    }catch(e){importDraft(state,snapshot);throw e;}
   }
 
   // Free only this shared alliance group. Foreign HQs and all reservations are obstacles.
@@ -288,6 +359,9 @@
     const place=(p,s)=>{const key=defineSite(state,s.x,s.y);next.set(p.id,key);used.add(key);index.add(s);};
     const combat=(a,b)=>(b.heroPower??-1)-(a.heroPower??-1)||(b.totalPower??-1)-(a.totalPower??-1)||b.hq-a.hq||a.id-b.id;
     const regular=members.filter(p=>!needsRear(p)).sort(combat), rear=members.filter(needsRear).sort((a,b)=>a.priority-b.priority||b.hq-a.hq||a.id-b.id);
+    const mudOrder=area.mudOrder?new Map(area.mudOrder.map((id,i)=>[id,i])):null;
+    if(mudOrder)regular.sort((a,b)=>(mudOrder.get(a.id)??Infinity)-(mudOrder.get(b.id)??Infinity));
+    const mudMembers=mudOrder?regular.filter(p=>mudOrder.has(p.id)):regular;
     const frontLayers=area.frontLayers??1, bodyGap=area.bodyGap??1, frontEnd=19+3*(frontLayers-1);
     const mud=[];
     for(let j=-34;j<=34;j++)for(let i=-34;i<=34;i++) {
@@ -302,10 +376,19 @@
     const order=(a,b)=>a.ring-b.ring||angularGap(a.angle,center)-angularGap(b.angle,center)||a.x-b.x||a.y-b.y;
     front.sort(order);body.sort(order);
     for(const [candidates,gap] of [[front,0],[body,bodyGap]])for(const s of candidates) {
-      if(!regular.length)break;
-      if(fits(s,gap))place(regular.shift(),s);
+      if(!mudMembers.length)break;
+      if(fits(s,gap)) {
+        const player=mudMembers.shift();place(player,s);
+        if(mudOrder)regular.splice(regular.indexOf(player),1);
+      }
     }
-    if(area.grassCompact)grassCluster(state,area,[...regular,...rear],ordering||before,index,place);
+    if(area.grassCompact) {
+      const snapshot=exportDraft(state);state.assignments=next;
+      try {
+        const report=arrangeGrass(state,section,{memberIds:[...regular,...rear].map(p=>p.id),ordering:ordering||before});
+        return {...report,moved:members.filter(p=>before.get(p.id)!==state.assignments.get(p.id)).length};
+      }catch(e){importDraft(state,snapshot);throw e;}
+    }
     const grass=area.grassCompact?[]:[...state.sites.values()].filter(s=>s.zone==='grass'&&(!area.grassOnly||inMudArea(s,area)));
     grass.sort(order);
     for(const p of regular.sort((a,b)=>a.priority-b.priority||b.hq-a.hq||a.id-b.id)) {
@@ -538,6 +621,10 @@
           Object.values(draft.sections).some(s => !s || !Number.isFinite(s.start) || !Number.isFinite(s.end) ||
             (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
             (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
+            (s.grassOrder!==undefined&&(!Array.isArray(s.grassOrder)||s.grassOrder.length>state.players.size||
+              new Set(s.grassOrder).size!==s.grassOrder.length||s.grassOrder.some(id=>!state.players.has(id)))) ||
+            (s.mudOrder!==undefined&&(!Array.isArray(s.mudOrder)||s.mudOrder.length>state.players.size||
+              new Set(s.mudOrder).size!==s.mudOrder.length||s.mudOrder.some(id=>!state.players.has(id)))) ||
             (s.frontLayers!==undefined&&![0,1,2,3].includes(s.frontLayers)) ||
             (s.bodyGap!==undefined&&![0,1,2,3].includes(s.bodyGap))))
         throw Error('Draft has invalid alliance boundaries');
@@ -547,6 +634,6 @@
   }
 
   return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, clearOfTurrets,
-           distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps,
+           distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps, teleportOpenings,
            clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
 });

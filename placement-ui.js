@@ -10,6 +10,13 @@ let historyEntries = [], selectedHistory = null;
 let copyMessages = [], copyIndex = 0, copyFingerprint = '';
 let layoutPreview = null;
 let lastMoveGaps=[],shownGaps=[];
+let openingCache=null;
+function existingOpenings(){
+  if(!state)return [];
+  const fingerprint=state.signature+'|'+$('section').value+'|'+JSON.stringify(state.sections[$('section').value])+'|'+[...state.assignments].map(([id,key])=>`${id}@${key}`).join('|');
+  if(openingCache?.fingerprint!==fingerprint)openingCache={fingerprint,sites:P.teleportOpenings(state,$('section').value)};
+  return openingCache.sites;
+}
 let copiedParts = new Set();
 const editMode = new URLSearchParams(location.search).get('edit') === '1';
 document.body.classList.toggle('editing', editMode);
@@ -110,7 +117,8 @@ function usePlan(data) {
 function bounds() { return { start: Number($('wedgeStart').value), end: Number($('wedgeEnd').value) }; }
 function project(p) {
   const r = canvas.getBoundingClientRect(), base = Math.min(r.width / 260, r.height / 250) * scale;
-  return [r.width / 2 + panX + (p.x - 500) * base,
+  const centerX=p.x+(p.zone&&(p.y-500)%2!==0?.5:0);
+  return [r.width / 2 + panX + (centerX - 500) * base,
     r.height / 2 + panY + (p.y - 500) * base * .8];
 }
 function size() {
@@ -180,11 +188,31 @@ function draw() {
     const [x,y]=project(turret);ctx.fillStyle='#f3d2a9';ctx.font='bold 9px system-ui';ctx.fillText(turret.name.replace('Turret ','T'),x,y+3);
   }
   ctx.fillStyle='#c4d6dc';ctx.font='12px system-ui';ctx.fillText('N ↑',26,20);
+  const footprint=(p,color,fill,stroke,line)=>{
+    const [x,y]=project(p),base=Math.min(r.width/260,r.height/250)*scale;
+    for(const [dx,dy] of [[0,0],[1,0],[.5,1],[-.5,1],[-1,0],[-.5,-1],[.5,-1]]) {
+      ctx.beginPath();
+      for(const [i,[vx,vy]] of [[.5,1/3],[0,2/3],[-.5,1/3],[-.5,-1/3],[0,-2/3],[.5,-1/3]].entries()) {
+        const px=x+(dx+vx)*base,py=y+(dy+vy)*base*.8;
+        if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py);
+      }
+      ctx.closePath();ctx.fillStyle=color;ctx.globalAlpha=fill;ctx.fill();ctx.globalAlpha=stroke;ctx.strokeStyle=color;ctx.lineWidth=line;ctx.stroke();ctx.globalAlpha=1;
+    }
+  };
+  if($('section').value) {
+    const all=P.rows(state),members=all.filter(p=>p.zone!=='unassigned'&&p.section===$('section').value),shown=new Set(visible.map(p=>p.id));
+    for(const p of all)if(p.zone!=='unassigned'&&!shown.has(p.id)&&members.some(b=>P.distance(p,b)<=6)) {
+      const [x,y]=project(p);ctx.beginPath();ctx.arc(x,y,Math.max(2,2.5*scale**.3),0,Math.PI*2);
+      ctx.fillStyle='#d3e1e1';ctx.globalAlpha=.4;ctx.fill();ctx.globalAlpha=1;
+    }
+  }
   for (const p of visible) {
     if (p.zone === 'unassigned') continue;
     const [x, y] = project(p);
+    const color=p.role ? palette.team : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : p.attendanceProxy==='unknown' ? palette.unknown : sectionColor(p.section);
+    if(scale>=2)footprint(p,color,.3,.7,.6);
     ctx.beginPath(); ctx.arc(x, y, p.id === selectedId ? 5 : Math.max(2, 2.5 * scale ** .3), 0, Math.PI * 2);
-    ctx.fillStyle = p.role ? palette.team : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : p.attendanceProxy==='unknown' ? palette.unknown : sectionColor(p.section);
+    ctx.fillStyle = color;
     ctx.fill();
     if (p.locked) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); }
   }
@@ -196,22 +224,11 @@ function draw() {
     ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2);
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
   }
-  if(editMode&&$('showGaps').checked)for(const gap of shownGaps) {
-    // A real seven-tile HQ outline, projected with the same hex coordinate system.
-    ctx.beginPath();
-    for(let k=0;k<6;k++) {
-      const a=Math.PI/3*k, [x,y]=project({x:gap.x+1.7*Math.cos(a),y:gap.y+1.7*Math.sin(a)});
-      if(k)ctx.lineTo(x,y);else ctx.moveTo(x,y);
-    }
-    ctx.closePath();ctx.fillStyle='#ffb34744';ctx.fill();ctx.strokeStyle='#ffb347';ctx.lineWidth=2;ctx.stroke();
+  const gaps=[...shownGaps];
+  for(const s of existingOpenings())if(gaps.every(b=>P.distance(s,b)>=3))gaps.push(s);
+  if($('showGaps').checked)for(const gap of gaps) {
+    footprint(gap,'#ffb347',.15,1,1.2);
     if(scale>=2){const [x,y]=project(gap);ctx.fillStyle='#ffcf85';ctx.font='bold 10px system-ui';ctx.fillText('GAP',x,y-8);}
-  }
-  if(editMode&&$('mapAction').value==='place')for(const [key,s] of state.sites) {
-    if(P.playerAt(state,key)!=null)continue;
-    const area=state.sections[$('section').value];
-    if(area&&!P.inWedge(s,area.start*180/Math.PI,area.end*180/Math.PI))continue;
-    const [x,y]=project(s);ctx.beginPath();ctx.arc(x,y,Math.max(2,2.5*scale**.3),0,2*Math.PI);
-    ctx.strokeStyle='#c7d9d077';ctx.lineWidth=1;ctx.stroke();
   }
   const labelBoxes=[];
   for (const {tag,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
@@ -306,6 +323,8 @@ function render() {
   $('gapWarning').textContent=shownGaps.length ? `Teleport-sized gap${shownGaps.length>1?'s':''} ${chosen&&target&&state.assignments.get(selectedId)!==targetKey?'would open with this move':'opened by the last move'}. Amber outlines mark ${shownGaps.length} possible HQ landing tile${shownGaps.length>1?'s':''}: `+
     shownGaps.slice(0,6).map(s=>`${s.x}, ${s.y}`).join(' · ')+(shownGaps.length>6?' …':'')+'. Close the opening or reserve a replacement there.' : chosen&&target&&valid ? 'This move creates no new teleport-sized gap.' : '';
   $('gapWarning').classList.toggle('has-gap',shownGaps.length>0);
+  const currentOpen=existingOpenings();
+  $('existingGapInfo').textContent=$('section').value ? `${currentOpen.length} legal landing tile${currentOpen.length===1?'':'s'} in or along this formation. Amber outlines show example HQ footprints. All alliances and turret buffers are checked.` : 'Choose an alliance to inspect existing teleport openings.';
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
   $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag to pan; scroll to zoom.':'Tap a tile to preview placement. Drag to pan; scroll to zoom.') : 'Tap a player or search their name. Drag to pan; scroll to zoom.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
@@ -501,7 +520,8 @@ canvas.addEventListener('pointerup', e => {
     else { const holder=P.playerAt(state,P.siteKey(best));if(holder!=null){selectedId=holder;targetKey=null;if(editMode)$('mapAction').value='place';render();} }
   } else if(editMode&&$('mapAction').value==='place') {
     const r=canvas.getBoundingClientRect(),base=Math.min(r.width/260,r.height/250)*scale;
-    try{setTarget(`${Math.round(500+(x-r.width/2-panX)/base)},${Math.round(500+(y-r.height/2-panY)/(.8*base))}`);}catch(e){message(e.message);}
+    const tileY=Math.round(500+(y-r.height/2-panY)/(.8*base));
+    try{setTarget(`${Math.round(500+(x-r.width/2-panX)/base-((tileY-500)%2!==0?.5:0))},${tileY}`);}catch(e){message(e.message);}
   }
 });
 canvas.addEventListener('wheel', e => {
@@ -545,8 +565,9 @@ function previewLayout(mode='alliance'){
     else {const b=bounds();P.setSection(state,$('section').value,b.start,b.end,areaRules());report=mode==='grass'?P.arrangeGrass(state,$('section').value):P.arrangeAlliance(state,$('section').value);}
     layoutPreview={before,after:P.exportDraft(state),revision};
     $('layoutReport').textContent=`Preview: ${report.moved} players changed · ${report.waiting} waiting for room`+
+      (report.displacedGrass?` · ${report.displacedGrass} blocking grass HQs relocated into their own/shared areas`:'')+
       (report.lockedOutside?` · ${report.lockedOutside} reserved outside the wedge`:'')+
-      (all?'. All unlocked players rearranged using saved wedges and these spacing rules.':mode==='grass'?'. Grass grouped in current order. Mud and other alliance groups stay fixed.':'. Other alliance groups stay fixed.')+' Apply to save, or cancel.';
+      (all?'. All unlocked players rearranged using saved wedges and these spacing rules.':mode==='grass'?'. Grass grouped in saved order. All mud stays fixed; only blocking grass HQs from other groups may move.':'. Other alliances’ mud stays fixed; only blocking grass HQs may move.')+' Apply to save, or cancel.';
     $('layoutPreview').hidden=false;$('mapMode').textContent='UNSAVED LAYOUT PREVIEW';render();
     message('Preview only. Apply preview to save this layout.');
   }catch(e){P.importDraft(state,before);render();message(e.message);}

@@ -16,7 +16,7 @@ button:disabled{opacity:.45;cursor:default}h3{font-size:14px;margin:18px 0 4px}.
 
 /* Keep the legend clear of the southern alliance labels. */
 .map{display:flex;flex-direction:column}
-.map-gap-toggle{display:flex;align-items:center;gap:5px;margin:0;font-size:11px}.map-gap-toggle input{width:auto}body:not(.editing) .map-gap-toggle{display:none}.gap-dot{display:inline-block;width:10px;height:10px;border:2px solid #ffb347;margin:0 4px 0 10px}#gapWarning.has-gap{border:1px solid #ffb347;border-radius:7px;padding:9px;color:#ffcf85}
+.map-gap-toggle{display:flex;align-items:center;gap:5px;margin:0;font-size:11px}.map-gap-toggle input{width:auto}.gap-dot{display:inline-block;width:10px;height:10px;border:2px solid #ffb347;margin:0 4px 0 10px}#gapWarning.has-gap{border:1px solid #ffb347;border-radius:7px;padding:9px;color:#ffcf85}
 .map-toolbar{position:static;margin:14px 14px 8px;flex-shrink:0}
 canvas{flex:1;min-height:0;height:0}
 .legend{position:static;margin:8px 14px 14px;flex-shrink:0}

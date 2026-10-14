@@ -37,6 +37,10 @@ function validDraft(draft) {
         Math.abs(s.start) > 4*Math.PI || Math.abs(s.end) > 4*Math.PI ||
         (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
         (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
+        (s.grassOrder!==undefined&&(!Array.isArray(s.grassOrder)||s.grassOrder.length>2000||
+          new Set(s.grassOrder).size!==s.grassOrder.length||s.grassOrder.some(id=>!Number.isSafeInteger(id)||!ids.has(id)))) ||
+        (s.mudOrder!==undefined&&(!Array.isArray(s.mudOrder)||s.mudOrder.length>2000||
+          new Set(s.mudOrder).size!==s.mudOrder.length||s.mudOrder.some(id=>!Number.isSafeInteger(id)||!ids.has(id)))) ||
         (s.frontLayers!==undefined&&![0,1,2,3].includes(s.frontLayers)) ||
         (s.bodyGap!==undefined&&![0,1,2,3].includes(s.bodyGap))))) return false;
   return ids.size === 2000 && locks.size === draft.locks.length &&

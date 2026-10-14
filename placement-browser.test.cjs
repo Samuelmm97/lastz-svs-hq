@@ -34,7 +34,7 @@ const P=require('./placement-planner.js');
     assert.equal(app.shared.draft.sections.Helm.frontLayers,2,'Saved front depth');
     const after=P.create(app.plan);P.importDraft(after,app.shared.draft);
     assert.equal(P.areaReport(after,'Helm').grassOutside,0);
-    for(const [id,key] of initial.assignments)if(after.players.get(id).section!=='Helm')assert.equal(after.assignments.get(id),key);
+    for(const [id,key] of initial.assignments)if(after.players.get(id).section!=='Helm'&&after.sites.get(key)?.zone==='mud')assert.equal(after.assignments.get(id),key);
     await page.reload();await page.locator('#rows tr').first().waitFor();
     await page.waitForFunction(expected=>editorKey==='local-test-key'&&revision===expected,app.shared.revision);
     assert.equal(await page.locator('#frontLayers').inputValue(),'2');assert.equal(await page.locator('#bodyGap').inputValue(),'2');
@@ -64,7 +64,8 @@ const P=require('./placement-planner.js');
     // All-wedge preview handles competing alliances and keeps manual reservations.
     await page.locator('#zone').selectOption('');
     await page.locator('#arrangeGrass').click();await page.locator('#layoutPreview').waitFor({state:'visible'});
-    assert((await page.locator('#layoutReport').innerText()).includes('Mud and other alliance groups stay fixed'));
+    assert((await page.locator('#layoutReport').innerText()).includes('All mud stays fixed'));
+    assert((await page.locator('#existingGapInfo').innerText()).includes('All alliances and turret buffers are checked'));
     await page.locator('#cancelLayout').click();
     await page.locator('#arrangeAll').click();await page.locator('#layoutPreview').waitFor({state:'visible'});
     assert.equal(app.saves,2);await page.locator('#cancelLayout').click();

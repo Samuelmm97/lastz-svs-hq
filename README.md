@@ -14,10 +14,15 @@ spaces the body HQs. Preview shows waiting players and reserved positions outsid
 the wedge. **Apply preview** saves; **Cancel preview** restores the shared layout.
 
 **Keep grass inside this alliance’s wedge** prevents spillover, including prior
-SvS risks. **Keep grass together in current player order** makes a connected grass
+SvS risks. **Keep grass together (preserve player order)** makes a connected grass
 group, including lower HQs, using the current position order instead of reranking
 power. This is selected by default for Helm. **Preview grass grouping only** keeps
-mud and other alliance groups fixed. **Preview all alliance wedges** can reclaim
+all mud fixed. Each member connects to the block at normal
+one-empty-tile spacing; eight-tile chains do not count as a tight group. Blocking
+unreserved grass HQs can be relocated into their own alliance wedge; **Other**
+HQs use legal shared grass outside the selected wedge,
+with their count shown in preview. The original grass order is saved so repeating
+the grouping does not rerank players. **Preview all alliance wedges** can reclaim
 cross-alliance grass space together using saved boundaries. Shared alliance areas
 arrange as one group; reserved positions and swap pairs remain fixed. A shortage
 goes to waiting, never silently outside the wedge.
@@ -35,6 +40,13 @@ the move in that browser session. Detection checks actual hex footprint clearanc
 (center distance 3), including grass, rather than treating every visual gap as a
 landing spot. An occupied-for-occupied swap creates no gap. The **Teleport gaps**
 map checkbox toggles the outlines.
+
+The overlay also scans existing legal landing spaces inside and immediately along
+the selected formation, even before a manual move. It checks every alliance's
+occupied footprints. Nearby other-alliance HQs remain visible as faint dots while
+the roster is filtered, so a hidden neighbor is not mistaken for an empty spot.
+Zoom in to see each HQ's seven-tile footprint. Amber footprints are example
+landings; the tile count can include multiple alternatives within one opening.
 
 Regression checks: `node placement-controls.test.cjs`, `node planner.test.cjs`,
 `node backend/test-validation.mjs`, and `node backend/test-api.mjs` against a local
