@@ -7,7 +7,7 @@ let sharedSourceError=false;
 const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
   risk: '#ef6f77', absent: '#f3b65e', unknown: '#abb0f5', team: '#f9e37e' };
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
-let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null;
+let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null, lastPointer = null;
 let historyEntries = [], selectedHistory = null;
 let copyMessages = [], copyIndex = 0, copyFingerprint = '';
 let layoutPreview = null;
@@ -259,6 +259,30 @@ function draw() {
   if($('showGaps').checked)for(const gap of gaps) {
     footprint(gap,'#ffb347',.15,1,1.2);
     if(scale>=2){const [x,y]=project(gap);ctx.fillStyle='#ffcf85';ctx.font='bold 10px system-ui';ctx.fillText(gap.insideFormation===false?'EDGE':'GAP',x,y-8);}
+  }
+  if (drag && drag.hq != null && drag.moved && drag.tile) {
+    const status = drag.status || (drag.error ? 'bad' : 'ok');
+    const tone = status === 'ok' ? '#7ee787' : status === 'gap' ? '#ffb347' : status === 'choice' ? '#8ab4ff' : '#f3858f';
+    const t = drag.tile, target = { x: t.x, y: t.y, zone: t.zone || 'grass' };
+    const [tx, ty] = project(target), from = drag.origin && state.sites.get(drag.origin);
+    if (from) {
+      const [fx, fy] = project(from);
+      ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = tone; ctx.lineWidth = 2; ctx.globalAlpha = .9;
+      ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(tx, ty); ctx.stroke(); ctx.restore();
+    }
+    footprint(target, tone, t.zone ? .3 : .14, 1.1, 2.5);
+    ctx.beginPath(); ctx.arc(tx, ty, 10, 0, Math.PI * 2); ctx.strokeStyle = tone; ctx.lineWidth = 3; ctx.stroke();
+    ctx.beginPath(); ctx.arc(tx, ty, 3.5, 0, Math.PI * 2); ctx.fillStyle = tone; ctx.fill();
+    const mover = state.players.get(drag.hq);
+    if (mover) {
+      const label = t.zone ? `${mover.name} \u2192 ${t.x}, ${t.y}` : `${t.x}, ${t.y} is not a buildable tile`;
+      ctx.font = 'bold 11px system-ui'; ctx.textAlign = 'center';
+      const w = ctx.measureText(label).width + 14, lx = Math.max(4, Math.min(r.width - w - 4, tx - w / 2)), ly = ty + 14;
+      ctx.fillStyle = '#101a20ee'; ctx.fillRect(lx, ly, w, 19);
+      ctx.strokeStyle = tone; ctx.lineWidth = 1; ctx.strokeRect(lx, ly, w, 19);
+      ctx.fillStyle = tone; ctx.fillText(label, lx + w / 2, ly + 13.5);
+      ctx.textAlign = 'left';
+    }
   }
   if($('simulateDestroyed').checked&&selectedId!=null){
     const removal=currentDefence().removals.find(r=>r.id===selectedId);
@@ -563,7 +587,40 @@ function hqAt(x,y,radius=14) {
 function tileAt(x,y) {
   const r=canvas.getBoundingClientRect(),base=Math.min(r.width/260,r.height/250)*scale;
   const tileY=Math.round(500+(y-r.height/2-panY)/(.8*base));
-  return {x:Math.round(500+(x-r.width/2-panX)/base-((tileY-500)%2!==0?.5:0)),y:tileY};
+  const tileX=Math.round(500+(x-r.width/2-panX)/base-((tileY-500)%2!==0?.5:0));
+  const j=tileY-500,i=tileX-500-Math.floor(j/2),ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));
+  return {x:tileX,y:tileY,ring,zone:ring>=19&&ring<=34?'mud':ring>=37&&ring<=119?'grass':null};
+}
+// Drag feedback lives next to the pointer: a chip that follows the cursor during the drag and the
+// occupied-tile prompt anchored at the drop point. Both read the same preview the drop will use.
+function tempPreview(x,y,fn){
+  const key=`${x},${y}`,added=!state.sites.has(key);
+  try{P.defineSite(state,x,y);}catch(e){return {error:e.message};}
+  try{return {value:fn(key)};}finally{if(added)state.sites.delete(key);}
+}
+function hideDragChip(){const chip=$('dragChip');chip.hidden=true;chip.className='drag-chip';$('dragChipTitle').textContent='';$('dragChipText').textContent='';}
+function showDragChip(status,title,text){
+  const chip=$('dragChip');
+  $('dragChipTitle').textContent=title;$('dragChipText').textContent=text;
+  chip.className=`drag-chip ${status||''}`;chip.hidden=false;
+  if(!lastPointer)return;
+  const box=chip.parentElement.getBoundingClientRect(),w=chip.offsetWidth,h=chip.offsetHeight;
+  const x=lastPointer.clientX-box.left,y=lastPointer.clientY-box.top;
+  chip.style.left=`${Math.max(6,Math.min(box.width-w-6,x+16))}px`;
+  chip.style.top=`${y+18+h>box.height-6?Math.max(6,y-h-18):y+18}px`;
+}
+function dropFeedback(preview,error){
+  if(error||!preview)return {status:'bad',title:'Not allowed here',text:error||'That tile cannot hold this HQ.'};
+  const occupied=preview.occupant!=null&&preview.occupant!==preview.id;
+  if(occupied){
+    const holder=state.players.get(preview.occupant).name,ok=preview.swap?.ok||preview.unplace?.ok;
+    return {status:ok?'choice':'bad',title:ok?`Release to choose \u2014 ${holder} holds this tile`:`${holder} holds this tile and neither option is allowed`,
+      text:ok?`Swap positions, or send ${holder} to the unplaced list.`:(preview.swap?.error?.message||preview.unplace?.error?.message||'That drop is not allowed.')};
+  }
+  const best=bestDrop(preview);
+  if(!best)return {status:'bad',title:'Not allowed here',text:preview.move?.error?.message||'That drop is not allowed.'};
+  if(best.gaps.length)return {status:'gap',title:`Opens ${best.gaps.length} teleport-sized gap${best.gaps.length>1?'s':''}`,text:'Release to move anyway, or pick a tile that keeps the formation closed.'};
+  return {status:'ok',title:'Release to move here',text:'No new teleport-sized gap.'};
 }
 function dropAttempt(id,key,action) {
   try {
@@ -605,7 +662,11 @@ function showDropChoice(preview) {
   $('dropChoiceText').textContent=lines.join(' ');
   $('dropSwap').hidden=!preview.swap;$('dropSwap').disabled=!preview.swap?.ok;
   $('dropUnplace').disabled=!preview.unplace?.ok;
-  $('dropChoice').hidden=false;
+  const box=$('dropChoice');box.hidden=false;box.classList.add('floating');
+  if(lastPointer){const area=box.parentElement.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
+    const x=lastPointer.clientX-area.left,y=lastPointer.clientY-area.top;
+    box.style.left=`${Math.max(8,Math.min(area.width-w-8,x-w/2))}px`;
+    box.style.top=`${y+16+h>area.height-8?Math.max(8,y-h-16):y+16}px`;}
   pendingDrop=preview;
   render();
   shownGaps=bestDrop(preview)?.gaps||[];
@@ -618,8 +679,9 @@ async function commitDrop(action) {
   if(!preview)return;
   const attempt=action?preview[action]:preview.move;
   if(!attempt?.ok){message(attempt?.error?.message||'That drop is not allowed.');return;}
+  try{const [sx,sy]=preview.key.split(',').map(Number);P.defineSite(state,sx,sy);}catch(e){}
   const previousGaps=lastMoveGaps;
-  pendingDrop=null;$('dropChoice').hidden=true;shownGaps=[];
+  pendingDrop=null;$('dropChoice').hidden=true;hideDragChip();shownGaps=[];
   const result=await mutate(() => {
     const before=new Map(state.assignments);
     const occupant=P.moveAndLock(state,preview.id,preview.key,action?{occupied:action}:undefined);
@@ -633,43 +695,57 @@ async function commitDrop(action) {
   render();
 }
 function finishHqDrop(id,fromKey,tile) {
-  pendingDrop=null;$('dropChoice').hidden=true;shownGaps=[];
+  pendingDrop=null;$('dropChoice').hidden=true;hideDragChip();shownGaps=[];
   const key=tile?`${tile.x},${tile.y}`:null;
   if(!key||key===fromKey){render();message('Drag an HQ onto another tile to move it.');return;}
-  let preview=null,error=null;
-  try { P.defineSite(state,tile.x,tile.y); preview=dropPreview(id,key); } catch(e) { error=e.message; }
-  if(!preview){render();message(error||'That tile cannot hold this HQ.');return;}
+  let preview=null,error=null,added=false;
+  try { added=!state.sites.has(key); P.defineSite(state,tile.x,tile.y); preview=dropPreview(id,key); } catch(e) { error=e.message; }
+  if(!preview){ if(added)state.sites.delete(key); render();message(error||'That tile cannot hold this HQ.');return; }
   if(preview.occupant==null||preview.occupant===id) {
     if(preview.move.ok){pendingDrop=preview;commitDrop(null);return;}
+    if(added)state.sites.delete(key);
     render();message(preview.move.error.message);return;
   }
-  if(preview.swap?.ok||preview.unplace?.ok){showDropChoice(preview);return;}
+  if(preview.swap?.ok||preview.unplace?.ok){preview.addedSite=added;showDropChoice(preview);return;}
+  if(added)state.sites.delete(key);
   render();message(preview.swap?.error?.message||preview.unplace?.error?.message||'That drop is not allowed.');
 }
 $('dropSwap').onclick=()=>commitDrop('swap');
 $('dropUnplace').onclick=()=>commitDrop('unplace');
-$('dropCancel').onclick=()=>{pendingDrop=null;$('dropChoice').hidden=true;shownGaps=[];render();message('Drop canceled.');};
+$('dropCancel').onclick=()=>{if(pendingDrop?.addedSite)state.sites.delete(pendingDrop.key);pendingDrop=null;$('dropChoice').hidden=true;hideDragChip();shownGaps=[];render();message('Drop canceled.');};
 canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
+  lastPointer={clientX:e.clientX,clientY:e.clientY};
   const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
-  const handle=editMode && editorKey && !busy && !layoutPreview && boundaryHandles.find(h=>Math.hypot(h.x-x,h.y-y)<14);
-  const grab=!handle&&editMode&&editorKey&&!busy&&!layoutPreview?hqAt(x,y,14):null;
-  drag = { x:e.clientX,y:e.clientY,moved:false,handle:handle?.kind,original:bounds(),hq:grab?.id,hqKey:grab?.key };
+  const canEdit=editMode&&editorKey&&!busy&&!layoutPreview;
+  const reach=e.pointerType==='touch'?26:14;
+  const handle=canEdit&&boundaryHandles.find(h=>Math.hypot(h.x-x,h.y-y)<reach);
+  const grab=!handle&&canEdit?hqAt(x,y,reach):null;
+  const hover=!handle&&!grab?hqAt(x,y,reach):null;
+  hideDragChip();
+  drag = { x:e.clientX,y:e.clientY,moved:false,handle:handle?.kind,original:bounds(),hq:grab?.id,hqKey:grab?.key,origin:grab?.key,viewOnly:hover?.id!=null&&!canEdit };
 });
+canvas.addEventListener('pointercancel', () => { hideDragChip(); drag = null; });
 canvas.addEventListener('pointermove', e => {
   if (!drag) return;
+  lastPointer={clientX:e.clientX,clientY:e.clientY};
   if (drag.hq!=null) {
     const hx=e.clientX-drag.x,hy=e.clientY-drag.y;
     if(Math.abs(hx)+Math.abs(hy)>3)drag.moved=true;
     if(!drag.moved)return;
     const r=canvas.getBoundingClientRect(),tile=tileAt(e.clientX-r.left,e.clientY-r.top);
     drag.tile=tile;drag.preview=null;drag.error=null;
-    try { P.defineSite(state,tile.x,tile.y); drag.preview=dropPreview(drag.hq,`${tile.x},${tile.y}`); }
-    catch(err) { drag.error=err.message; }
+    const attempt=tempPreview(tile.x,tile.y,key=>dropPreview(drag.hq,key));
+    if(attempt.error)drag.error=attempt.error;else drag.preview=attempt.value;
     shownGaps=drag.preview?bestDrop(drag.preview)?.gaps||[]:[];
+    const feedback=dropFeedback(drag.preview,drag.error);
+    drag.status=feedback.status;
+    const mover=state.players.get(drag.hq);
     $('placementHint').textContent=drag.preview?dropHint(drag.preview):drag.error||'';
     $('gapWarning').textContent=dropGapText(drag.preview);
     $('gapWarning').classList.toggle('has-gap',shownGaps.length>0);
+    showDragChip(feedback.status,feedback.title,
+      `${mover?.name||'HQ'} \u2192 X ${tile.x}, Y ${tile.y}${tile.zone?'':' (outside the buildable rings)'} \u00b7 ${feedback.text}`);
     draw();
     return;
   }
@@ -685,10 +761,13 @@ canvas.addEventListener('pointermove', e => {
   }
   const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
   if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
+  if(drag.viewOnly&&drag.moved)showDragChip('bad','Moves need the editor','Open Edit plan in the header to drag HQs. This shared view is read only, so dragging pans the map.');
   panX += dx; panY += dy; drag.x = e.clientX; drag.y = e.clientY; draw();
 });
 canvas.addEventListener('pointerup', e => {
   if (!drag) return;
+  lastPointer={clientX:e.clientX,clientY:e.clientY};
+  hideDragChip();
   const moved=drag.moved,handle=drag.handle,hq=drag.hq,hqKey=drag.hqKey,tile=drag.tile;drag=null;
   if(hq!=null&&moved){finishHqDrop(hq,hqKey,tile);return;}
   if(handle && moved){const b=bounds();mutate(()=>P.setSection(state,$('section').value,b.start,b.end,areaRules()));return;}
