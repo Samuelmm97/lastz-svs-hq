@@ -123,6 +123,21 @@ Backend setup and local tests are in `backend/README.md`.
 
 ## Space between HQs
 
+The shared editor supports a companion map survey in `draft.survey`. Observed
+roster HQs held in place are locked at their exact coordinates; observed HQs
+outside held areas retain their source coordinates separately from proposed
+relocations. Current names and alliances follow the matched player identity.
+Additional observed HQs outside the roster remain occupied obstacles. Survey
+times are shown in the editor and the current map can be downloaded as CSV.
+White squares identify held in-game positions; chat exports mark them `stay` and
+mark observed relocations `move`. Existing touching grass HQs are accepted when
+both are surveyed anchors, while new placements retain the normal spacing.
+Run `node placement-survey.test.cjs` for survey validation and fixed-position QA.
+
+Teleport openings distinguish internal landing tiles from open edges. The
+default overlay shows internal openings; **Open edges** includes the perimeter.
+Fixed HQs can leave unavoidable holes, which remain visible during replanning.
+
 The shared planner now follows the October 1 leadership sketch. Mud placement
 stays inside each alliance's assigned area. Helm and SWT use the shipped
 spacing-0 coordinates where they fit alongside neighboring footprints; other

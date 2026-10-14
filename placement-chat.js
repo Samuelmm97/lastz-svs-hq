@@ -21,7 +21,7 @@
       };
       for (const p of rows.filter(p => p.zone === zone)) {
         const alliance = !section || section === 'Other' ? `[${clean(p.tag) || 'No alliance'}] ` : '';
-        const role = p.role ? ` (${p.role})` : '';
+        const role = (p.role ? ` (${p.role})` : '') + (p.placedInGame?' (stay)':p.relocatingInGame?' (move)':'');
         const line = `${alliance}${clean(p.name)}${role}: ${zone === 'unassigned' ? 'Waiting' : `X${p.x} Y${p.y}`}`;
         if (bytes(line) > capacity) throw Error('A player name is too long for this message size. Choose Standard size or narrow the list.');
         if (bytes([...lines, line].join('\n')) > capacity) flush();

@@ -8,6 +8,25 @@
   const siteFields = ['x', 'y', 'zone', 'ring', 'angle', 'spot'];
   const siteOf = row => Object.fromEntries(siteFields.filter(k => row[k] !== undefined).map(k => [k, row[k]]));
   const norm = a => ((a % 360) + 360) % 360;
+  const fieldObstacles = state => state.survey?.obstacles || [];
+  const isFieldAnchor = (state,id) => state.locks.has(Number(id)) && state.anchorMap?.has(Number(id));
+  function validateSurvey(state,survey) {
+    if(survey===undefined)return;
+    if(!survey||survey.state!==798||survey.world!==0||!Number.isFinite(Date.parse(survey.capturedAt))||
+       !Array.isArray(survey.anchors)||!Array.isArray(survey.obstacles)||(survey.relocations!==undefined&&!Array.isArray(survey.relocations))||survey.anchors.length+survey.obstacles.length+(survey.relocations?.length||0)>3000)
+      throw Error('Invalid in-game survey');
+    const uids=new Set(),ids=new Set();
+    for(const p of [...survey.anchors,...survey.obstacles,...survey.relocations||[]]) {
+      if(!p||typeof p.uid!=='string'||!/^\d{1,30}$/.test(p.uid)||uids.has(p.uid)||
+         !Number.isInteger(p.x)||!Number.isInteger(p.y)||p.x<0||p.x>999||p.y<0||p.y>999||
+         !Number.isSafeInteger(p.observed)||p.observed<=0||typeof p.name!=='string'||p.name.length>200||typeof p.tag!=='string'||p.tag.length>20)
+        throw Error('Invalid surveyed HQ');
+      uids.add(p.uid);
+    }
+    for(const p of [...survey.anchors,...survey.relocations||[]]) {
+      if(!state.players.has(p.id)||ids.has(p.id))throw Error('Invalid surveyed player');ids.add(p.id);
+    }
+  }
   function distance(a, b) {
     const aj=a.y-500, bj=b.y-500;
     const di=a.x-Math.floor(aj/2)-b.x+Math.floor(bj/2), dj=aj-bj;
@@ -35,7 +54,7 @@
     const area=state.sections[section];if(!area||area.sharedOpenSpots||section==='Other')return [];
     const members=rows(state).filter(p=>p.zone!=='unassigned'&&(p.section===section||(area.group&&state.sections[p.section]?.group===area.group)));
     if(!members.length)return [];
-    const team=occupancy(members),occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)));
+    const team=occupancy(members),occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state)));
     const xy=s=>({x:s.x+((s.y-500)%2?0.5:0),y:s.y});
     const points=members.map(xy).sort((a,b)=>a.x-b.x||a.y-b.y);
     const cross=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
@@ -48,14 +67,15 @@
       if(ring<19||ring>maxRing||(ring>34&&ring<37))continue;
       const s={x:500+i+Math.floor(j/2),y:500+j,ring,zone:ring<=34?'mud':'grass',angle:Math.atan2(i+j/2,-j)};
       if(!((inMudArea(s,area)&&inside(s))||team.near(s,4)))continue;
-      if(!state.blocked.has(siteKey(s))&&clearOfTurrets(s,state.turrets)&&occupied.fits(s,0,true))open.push(s);
+      if(!state.blocked.has(siteKey(s))&&clearOfTurrets(s,state.turrets)&&occupied.fits(s,0,true))
+        open.push({...s,insideFormation:inMudArea(s,area)&&inside(s)});
     }
     return open.sort((a,b)=>a.ring-b.ring||a.angle-b.angle);
   }
   function teleportGaps(state, before, after=state.assignments) {
     before=new Map(before);after=new Map(after);
-    const prior=occupancy([...before.values()].filter(Boolean).map(key=>state.sites.get(key)).filter(Boolean));
-    const next=occupancy([...after.values()].filter(Boolean).map(key=>state.sites.get(key)).filter(Boolean));
+    const prior=occupancy([...before.values()].filter(Boolean).map(key=>state.sites.get(key)).filter(Boolean).concat(fieldObstacles(state)));
+    const next=occupancy([...after.values()].filter(Boolean).map(key=>state.sites.get(key)).filter(Boolean).concat(fieldObstacles(state)));
     const candidates=new Map();
     for(const [id,key] of before) {
       if(key==null||key===after.get(id))continue;
@@ -98,6 +118,8 @@
     if (!state.players.has(id)) throw Error('Choose a player first');
     const target=state.sites.get(targetKey);
     if (!target) throw Error('Choose a legal tile');
+    if(isFieldAnchor(state,id)&&state.assignments.get(id)!==targetKey)throw Error('Already placed in game. Unlock this HQ before planning a move.');
+    if(fieldObstacles(state).some(p=>distance(p,target)<3))throw Error('An observed in-game HQ occupies this space');
     if (!allowsSite(state,state.players.get(id),target)) throw Error('This tile is outside the player’s alliance wedge');
     const occupant=playerAt(state,targetKey), prior=state.assignments.get(id);
     if (occupant!==id && state.locks.has(occupant)) throw Error('That site is held by another locked player');
@@ -153,7 +175,7 @@
     const sites = new Map([...allSites].filter(([key]) => !blocked.has(key)));
     if (players.size !== plan.placements.length || allSites.size !== plan.placements.length) throw Error('Base plan has duplicate IDs or sites');
     const signature = (plan.planId ? `${plan.planId}:` : '') + plan.placements.map(p => `${p.id}@${siteKey(p)}`).sort().join('|');
-    return { players, sites, signature, assignments: new Map(plan.placements.map(p => [p.id, blocked.has(siteKey(p)) ? null : siteKey(p)])),
+    return { players, basePlayers:new Map(players), sites, signature, assignments: new Map(plan.placements.map(p => [p.id, blocked.has(siteKey(p)) ? null : siteKey(p)])),
              sections: structuredClone(plan.sections || {}), locks: new Set(), pairs: [],
              baseSites: new Map(sites), blocked, turrets: structuredClone(plan.meta?.turrets || []),
              leadershipMudBoundaries: plan.meta?.leadershipMudBoundaries===true };
@@ -167,8 +189,12 @@
   function current(state, id) {
     const player = state.players.get(Number(id)), key = state.assignments.get(Number(id));
     if (!player) return null;
-    if (key == null) return { ...player, x: null, y: null, zone: 'unassigned', ring: null, angle: null, spot: null, locked: false };
-    return { ...player, ...state.sites.get(key), locked: state.locks.has(Number(id)) };
+    const observation=isFieldAnchor(state,id)&&state.anchorMap.get(Number(id));
+    const relocation=state.survey?.relocations?.find(p=>p.id===Number(id));
+    const position=key==null?{x:null,y:null,zone:'unassigned',ring:null,angle:null,spot:null,locked:false}:{...state.sites.get(key),locked:state.locks.has(Number(id))};
+    return { ...player, ...position,
+      ...(observation?{placedInGame:true,observedAt:observation.observed}:{}),
+      ...(relocation?{relocatingInGame:true,observedX:relocation.x,observedY:relocation.y,observedAt:relocation.observed}:{}) };
   }
 
   function rows(state, afterSwap = false) {
@@ -312,14 +338,14 @@
         (p.section==='Other'||!own||own.sharedOpenSpots||!inMudArea(p,own));
     });
     const sharedIds=new Set(shared.map(p=>p.id));
-    const index=occupancy([...next].filter(([id,key])=>key&&!sharedIds.has(id)).map(([,key])=>state.sites.get(key)));
+    const index=occupancy([...next].filter(([id,key])=>key&&!sharedIds.has(id)).map(([,key])=>state.sites.get(key)).concat(fieldObstacles(state)));
     const place=(p,s)=>{next.set(p.id,defineSite(state,s.x,s.y));index.add(s);};
     try {
     grassCluster(state,area,members,options.ordering||before,index,place);
     const chosen=members.map(p=>state.sites.get(next.get(p.id))).filter(Boolean);
     const displaced=shared.filter(p=>chosen.some(s=>distance(p,s)<4));
     for(const p of displaced)next.set(p.id,null);
-    const occupied=occupancy([...next.values()].filter(Boolean).map(key=>state.sites.get(key)));
+    const occupied=occupancy([...next.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state)));
     if(displaced.length) {
       const available=[];
       for(let j=-119;j<=119;j++)for(let i=-119;i<=119;i++) {
@@ -351,7 +377,7 @@
     const before=new Map(state.assignments), members=[...state.players.values()].filter(p=>tags.has(p.section)&&!state.locks.has(p.id));
     const next=new Map(state.assignments);
     for(const p of members)next.set(p.id,null);
-    const occupied=[...next.values()].filter(Boolean).map(key=>state.sites.get(key));
+    const occupied=[...next.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state));
     const index=occupancy(occupied);
     const used=new Set([...next.values()].filter(Boolean));
     const center=area.start+((area.end-area.start+2*Math.PI)%(2*Math.PI)||2*Math.PI)/2;
@@ -414,7 +440,7 @@
       for(const [id] of state.assignments)if(!state.locks.has(id))state.assignments.set(id,null);
       for(const tag of sections)arrangeArea(state,tag,beforeAssignments);
       // Ungrouped players take the remaining shared grass after the named alliances.
-      const occupied=[...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key));
+      const occupied=[...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state));
       const index=occupancy(occupied);
       const other=[...state.players.values()].filter(p=>!state.locks.has(p.id)&&(!state.sections[p.section]||p.section==='Other'||state.sections[p.section].sharedOpenSpots));
       const grass=[...state.sites.values()].filter(s=>s.zone==='grass');
@@ -440,7 +466,7 @@
     for (const id of ids) {
       const player = state.players.get(id), area = state.sections[player.section];
       const playerRear=rearForPlayer(state,player,rear);
-      const occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)));
+      const occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state)));
       const choices = [...state.sites].filter(([key,s]) => s.zone === 'grass' && !used.has(key) &&
         (!area?.grassOnly || (inMudArea(s,area)&&playerAt(state,key)==null&&occupied.fits(s))) &&
         (needsRear(player) ? playerRear.has(key) : !playerRear.has(key)) &&
@@ -544,6 +570,7 @@
           if (terrain==='mud' && state.leadershipMudBoundaries && (!sectionInfo || player.section==='Other' || !inMudArea(s,sectionInfo))) continue;
           if (terrain==='grass' && sectionInfo?.grassOnly && !inMudArea(s,sectionInfo)) continue;
           if (terrain==='grass' && needsRear(player)!==playerRear.has(siteKey(s))) continue;
+          if(fieldObstacles(state).some(p=>distance(p,s)<3))continue;
           if (state.sites.size>state.baseSites.size && [...next].some(([other,key])=>other!==id&&key!=null&&distance(s,state.sites.get(key))<(terrain==='grass'&&state.sites.get(key).zone==='grass'?4:3))) continue;
           const score = (insideSection || needsRear(player) ? 0 : 500) + s.ring * 100 + angularGap(s.angle, target)*200;
           if (score < bestScore) { bestScore = score; best = k; }
@@ -580,13 +607,16 @@
   function exportDraft(state) {
     const used=new Set(state.assignments.values());
     const sites=[...state.sites].filter(([key])=>used.has(key)&&!state.baseSites.has(key)).map(([,s])=>({x:s.x,y:s.y}));
-    return { version: 1, signature: state.signature, ...(sites.length?{sites}:{}),
+    const survey=state.survey&&{...state.survey,anchors:state.survey.anchors.filter(p=>isFieldAnchor(state,p.id)&&state.assignments.get(p.id)===siteKey(p))};
+    return { version: 1, signature: state.signature, ...(sites.length?{sites}:{}), ...(survey?{survey}:{}),
       assignments: [...state.assignments], sections: structuredClone(state.sections), locks: [...state.locks], pairs: state.pairs.map(p => ({ ...p })) };
   }
 
   function importDraft(state, draft) {
     if (draft?.version !== 1 || draft.signature !== state.signature) throw Error('Draft belongs to a different base plan');
     if (!Array.isArray(draft.assignments) || draft.assignments.length !== state.players.size) throw Error('Draft is missing players');
+    validateSurvey(state,draft.survey);
+    const anchorMap=new Map((draft.survey?.anchors||[]).map(p=>[p.id,p]));
     if (draft.sites!==undefined && (!Array.isArray(draft.sites)||draft.sites.length>state.players.size)) throw Error('Draft has invalid custom tiles');
     const sites=new Map(state.baseSites);
     for(const s of draft.sites||[]) {
@@ -599,15 +629,19 @@
         [...assignments.keys()].some(id => !state.players.has(id)) ||
         placed.some(key => !sites.has(key))) throw Error('Draft has duplicate or unknown players or sites');
     const custom=new Set((draft.sites||[]).map(siteKey));
+    const anchoredSites=new Set([...anchorMap.values()].map(siteKey));
     for(const key of custom) {
       if(!placed.includes(key))throw Error('Draft has unused custom tiles');
       const a=sites.get(key);
       for(const other of placed)if(other!==key) {
         const b=sites.get(other);
-        if(distance(a,b)<(a.zone==='grass'&&b.zone==='grass'?4:3))throw Error('Draft has overlapping HQ footprints');
+        const existing=anchoredSites.has(key)&&anchoredSites.has(other);
+        if(distance(a,b)<(!existing&&a.zone==='grass'&&b.zone==='grass'?4:3))throw Error('Draft has overlapping HQ footprints');
       }
     }
     const locks = new Set((draft.locks || []).map(Number));
+    for(const p of anchorMap.values())if(!locks.has(p.id)||assignments.get(p.id)!==siteKey(p))throw Error('Surveyed HQ must stay locked at its observed coordinates');
+    for(const p of draft.survey?.obstacles||[])for(const key of placed)if(distance(p,sites.get(key))<3)throw Error('Draft overlaps an observed in-game HQ');
     if ([...locks].some(id => !state.players.has(id) || assignments.get(id) == null)) throw Error('Draft has an unknown or unassigned locked player');
     const pairs = (draft.pairs || []).map(p => ({ strike: Number(p.strike), reserve: Number(p.reserve) }));
     const members = pairs.flatMap(p => [p.strike, p.reserve]);
@@ -630,6 +664,12 @@
         throw Error('Draft has invalid alliance boundaries');
       state.sections = structuredClone(draft.sections);
     }
+    state.players=new Map(state.basePlayers||state.players);
+    for(const p of [...anchorMap.values(),...draft.survey?.relocations||[]]) {
+      const original=state.players.get(p.id),section=Object.keys(state.sections).find(tag=>tag.toLowerCase()===p.tag.toLowerCase())||'Other';
+      state.players.set(p.id,{...original,name:p.name,tag:p.tag,section});
+    }
+    state.survey=draft.survey?structuredClone(draft.survey):undefined;state.anchorMap=anchorMap;
     state.sites=sites;state.assignments = assignments; state.locks = locks; state.pairs = pairs;
   }
 

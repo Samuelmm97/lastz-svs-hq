@@ -13,7 +13,7 @@ let lastMoveGaps=[],shownGaps=[];
 let openingCache=null;
 function existingOpenings(){
   if(!state)return [];
-  const fingerprint=state.signature+'|'+$('section').value+'|'+JSON.stringify(state.sections[$('section').value])+'|'+[...state.assignments].map(([id,key])=>`${id}@${key}`).join('|');
+  const fingerprint=state.signature+'|'+$('section').value+'|'+JSON.stringify(state.sections[$('section').value])+'|'+JSON.stringify(state.survey?.obstacles)+'|'+[...state.assignments].map(([id,key])=>`${id}@${key}`).join('|');
   if(openingCache?.fingerprint!==fingerprint)openingCache={fingerprint,sites:P.teleportOpenings(state,$('section').value)};
   return openingCache.sites;
 }
@@ -53,9 +53,17 @@ function renderCapacity() {
   $('areaCapacity').textContent = `${counts.mud} mud spots · ${counts.grass} grass spots in this area`;
   const report=P.areaReport(state,$('section').value);
   $('wedgeHealth').textContent=report ? `${report.members} members in this shared area · ${report.grassOutside} grass outside wedge · ${report.waiting} waiting`+
-    (report.lockedOutside?` · ${report.lockedOutside} reserved outside: release or move those reservations to bring them inside`:'') : 'Choose an alliance to adjust its layout.';
+    (report.lockedOutside?` · ${report.lockedOutside} fixed outside the wedge`:'') : 'Choose an alliance to adjust its layout.';
 }
 function areaRules(){return {grassOnly:$('grassOnly').checked,grassCompact:$('grassCompact').checked,frontLayers:Number($('frontLayers').value),bodyGap:Number($('bodyGap').value)};}
+$('helmCorners').onclick=()=>{
+  cancelPreview();$('section').value='Helm';syncBoundary();
+  const start=270,end=360-Math.atan(.5)*180/Math.PI;
+  $('wedgeStart').value=start;$('wedgeEnd').value=end;
+  $('boundaryCenter').value=(start+end)/2;$('boundaryWidth').value=end-start;
+  $('grassOnly').checked=true;$('grassCompact').checked=true;
+  message('Helm area: west hex corner to northwest hex corner. Preview the layout to review changes.');render();
+};
 function cancelPreview(){
   if(!layoutPreview)return;
   P.importDraft(state,layoutPreview.before);layoutPreview=null;
@@ -215,6 +223,12 @@ function draw() {
     ctx.fillStyle = color;
     ctx.fill();
     if (p.locked) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); }
+    if(p.placedInGame){ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.strokeRect(x-4,y-4,8,8);}
+  }
+  for(const p of state.survey?.obstacles||[]) {
+    const [x,y]=project({...p,zone:'grass'});if(scale>=2)footprint({...p,zone:'grass'},'#d3e1e1',.35,.8,.7);
+    ctx.fillStyle=p.tag?sectionColor(Object.keys(state.sections).find(tag=>tag.toLowerCase()===p.tag.toLowerCase())||p.tag):'#d3e1e1';ctx.fillRect(x-3,y-3,6,6);
+    ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(x-4,y-4,8,8);
   }
   const highlights = [[targetKey, '#fff'],
     [selectedId != null && P.current(state,selectedId)?.zone !== 'unassigned' ? P.siteKey(P.current(state, selectedId)) : null, '#ffdf73']];
@@ -225,10 +239,10 @@ function draw() {
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
   }
   const gaps=[...shownGaps];
-  for(const s of existingOpenings())if(gaps.every(b=>P.distance(s,b)>=3))gaps.push(s);
+  for(const s of existingOpenings())if(($('showEdges').checked||s.insideFormation)&&gaps.every(b=>P.distance(s,b)>=3))gaps.push(s);
   if($('showGaps').checked)for(const gap of gaps) {
     footprint(gap,'#ffb347',.15,1,1.2);
-    if(scale>=2){const [x,y]=project(gap);ctx.fillStyle='#ffcf85';ctx.font='bold 10px system-ui';ctx.fillText('GAP',x,y-8);}
+    if(scale>=2){const [x,y]=project(gap);ctx.fillStyle='#ffcf85';ctx.font='bold 10px system-ui';ctx.fillText(gap.insideFormation===false?'EDGE':'GAP',x,y-8);}
   }
   const labelBoxes=[];
   for (const {tag,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
@@ -246,6 +260,8 @@ function draw() {
   }
 }
 function render() {
+  const memberCounts=new Map();for(const p of state.players.values())memberCounts.set(p.section,(memberCounts.get(p.section)||0)+1);
+  for(const option of $('section').options)if(option.value)option.textContent=`${option.value} (${memberCounts.get(option.value)||0})`;
   if (!state) return;
   const after = $('swapPreview').checked, q = $('search').value.toLocaleLowerCase();
   const section = $('section').value, zone = $('zone').value;
@@ -287,6 +303,14 @@ function render() {
   }
   $('listNote').textContent = visible.length > 500 ? 'Showing the first 500 players. Choose an alliance or search a name to narrow the list.' : '';
   $('waitingCount').textContent = P.rows(state).filter(p => p.zone === 'unassigned').length;
+  $('surveyNote').textContent=state.survey?`In-game map observed ${new Date(state.survey.capturedAt).toLocaleString()}. White squares mark ${P.rows(state).filter(p=>p.placedInGame).length} fixed roster HQs and ${state.survey.obstacles.length} additional occupied HQs. ${state.survey.relocations?.length||0} observed HQs outside the held areas can relocate to their proposed positions. Positions can change after the scan.`:'';
+  $('surveyDetails').hidden=!state.survey;
+  $('surveyExtraList').replaceChildren();
+  if(state.survey){
+    const extras=state.survey.obstacles.filter(p=>!$('section').value||p.tag.toLowerCase()===$('section').value.toLowerCase());
+    $('surveyExtraNote').textContent=`${extras.length} observed HQs outside the proposal roster in this view. Their occupied positions stay fixed.`;
+    for(const p of extras){const line=document.createElement('p');line.textContent=`${p.tag||'No alliance'} · ${p.name} · X ${p.x}, Y ${p.y}`;$('surveyExtraList').append(line);}
+  }
   const chosen = selectedId != null && P.current(state, selectedId);
   $('selectedPlayer').replaceChildren();
   if (chosen) {
@@ -296,6 +320,8 @@ function render() {
       ['span','detail',`Hero power ${chosen.heroPower?.toLocaleString() || 'unknown'} · Total power ${chosen.totalPowerApproximate ? '≈ ' : ''}${chosen.totalPower?.toLocaleString() || 'unknown'}`]];
     if (chosen.totalPowerApproximate) lines.push(['span','detail','Total power is a rounded reading from the alliance roster.']);
     if (chosen.nameReadingStatus==='partial') lines.push(['span','detail','Name partly unreadable; check the saved roster card.']);
+    if(chosen.placedInGame)lines.push(['span','detail',`Already placed in game · ${new Date(chosen.observedAt*1000).toLocaleString()}. Fixed during replanning.`]);
+    if(chosen.relocatingInGame)lines.push(['span','detail',`Observed in game at X ${chosen.observedX}, Y ${chosen.observedY}. The coordinates above are the proposed relocation.`]);
     if (P.rearReasons(chosen).length) lines.push(['span','detail rear-note',
       `${chosen.locked?'Prior SvS (manual reservation overrides automatic placement)':'Why back grass'}: ${P.rearReasons(chosen).join('; ')} · ${plan.meta.eventCaptured || '2026-09-26'}.`]);
     if (chosen.attendanceProxy==='unknown') lines.push(['span','detail unknown-note',
@@ -324,7 +350,8 @@ function render() {
     shownGaps.slice(0,6).map(s=>`${s.x}, ${s.y}`).join(' · ')+(shownGaps.length>6?' …':'')+'. Close the opening or reserve a replacement there.' : chosen&&target&&valid ? 'This move creates no new teleport-sized gap.' : '';
   $('gapWarning').classList.toggle('has-gap',shownGaps.length>0);
   const currentOpen=existingOpenings();
-  $('existingGapInfo').textContent=$('section').value ? `${currentOpen.length} legal landing tile${currentOpen.length===1?'':'s'} in or along this formation. Amber outlines show example HQ footprints. All alliances and turret buffers are checked.` : 'Choose an alliance to inspect existing teleport openings.';
+  const internal=currentOpen.filter(s=>s.insideFormation).length,edges=currentOpen.length-internal;
+  $('existingGapInfo').textContent=$('section').value ? `${internal} internal landable tile${internal===1?'':'s'} · ${edges} open-edge landing tile${edges===1?'':'s'}. Open edges are outside the occupied block; use Open edges to inspect them. All alliances and turret buffers are checked.` : 'Choose an alliance to inspect existing teleport openings.';
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
   $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag to pan; scroll to zoom.':'Tap a tile to preview placement. Drag to pan; scroll to zoom.') : 'Tap a player or search their name. Drag to pan; scroll to zoom.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
@@ -473,6 +500,13 @@ function download(name, content) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+$('downloadSurvey').onclick=()=>{
+  if(!state.survey)return;
+  const cell=v=>`"${String(v??'').replaceAll('"','""')}"`;
+  const header=['Player UID','Name','Alliance','Observed X','Observed Y','Observed UTC','Roster ID','Status','Proposed X','Proposed Y'];
+  const rows=[...state.survey.anchors,...state.survey.obstacles,...state.survey.relocations||[]].map(p=>{const target=p.id!=null&&P.current(state,p.id);return [p.uid,p.name,p.tag,p.x,p.y,new Date(p.observed*1000).toISOString(),p.id,target?.relocatingInGame?'Relocate':'Keep fixed',target?target.x:p.x,target?target.y:p.y];});
+  download('capital-in-game-'+state.survey.capturedAt.slice(0,10)+'.csv','\ufeff'+[header,...rows].map(r=>r.map(cell).join(',')).join('\r\n'));
+};
 function csv(after) {
   const columns = ['id', 'name', 'tag', 'hq', 'zone', 'x', 'y', 'ring', 'spot', 'role',
     'locked', 'shield', 'attendanceProxy', 'oldX', 'oldY'];
@@ -533,6 +567,7 @@ for (const id of ['wedgeStart', 'wedgeEnd']) $(id).addEventListener('input',()=>
 $('section').addEventListener('change',()=>{cancelPreview();targetKey=null;syncBoundary();render();});
 $('mapAction').onchange=render;
 $('showGaps').onchange=draw;
+$('showEdges').onchange=draw;
 $('chooseOnMap').onclick=()=>{$('mapAction').value='place';render();canvas.scrollIntoView({behavior:'smooth',block:'center'});};
 for(const button of document.querySelectorAll('[data-nudge]'))button.onclick=()=>{
   const current=targetKey?state.sites.get(targetKey):P.current(state,selectedId);

@@ -1,0 +1,28 @@
+const assert=require('node:assert/strict'),P=require('./placement-planner.js'),plan=require('./placement-plan.json');
+const state=P.create(plan),own=[...state.players.values()].filter(p=>p.section==='Helm').slice(0,2);
+for(const id of state.assignments.keys())state.assignments.set(id,null);
+const anchors=own.map((p,i)=>({id:p.id,uid:String(100+i),name:i?'Renamed HQ':p.name,tag:'Helm',x:450+3*i,y:460,observed:1792005900}));
+for(const a of anchors){state.assignments.set(a.id,P.defineSite(state,a.x,a.y));state.locks.add(a.id);}
+state.survey={state:798,world:0,capturedAt:'2026-10-14T19:25:00Z',anchors,obstacles:[{uid:'200',name:'New HQ',tag:'Helm',x:460,y:460,observed:1792005900}]};
+state.anchorMap=new Map(anchors.map(a=>[a.id,a]));
+const draft=P.exportDraft(state);P.importDraft(state,draft);
+assert.deepEqual(P.exportDraft(state),draft,'Survey and exact coordinates survive save/reload');
+assert.equal(P.current(state,own[1].id).name,'Renamed HQ');assert(P.current(state,own[1].id).placedInGame);
+const p=P.defineSite(state,455,455);assert.throws(()=>P.checkPlacement(state,own[0].id,p),/Already placed in game/);
+const free=[...state.players.values()].find(p=>!state.locks.has(p.id));
+const occupied=P.defineSite(state,460,460);assert.throws(()=>P.checkPlacement(state,free.id,occupied),/observed in-game HQ/);
+const relocation=structuredClone(draft);relocation.survey.relocations=[{id:free.id,uid:'300',name:'Outside Helm HQ',tag:'Helm',x:550,y:550,observed:1792005900}];
+const movingState=P.create(plan);P.importDraft(movingState,relocation);
+assert.equal(movingState.players.get(free.id).section,'Helm');
+assert.equal(P.current(movingState,free.id).placedInGame,undefined);
+assert.equal(P.current(movingState,free.id).zone,'unassigned');
+const legal=P.defineSite(movingState,465,465);P.moveAndLock(movingState,free.id,legal);
+assert.equal(P.current(movingState,free.id).relocatingInGame,true);
+assert.equal(P.current(movingState,free.id).observedX,550,'Relocation retains the factual source coordinate');
+assert.equal(P.current(movingState,free.id).x,465,'Outside-wedge HQ receives a distinct proposed coordinate');
+const invalid=structuredClone(draft);invalid.locks.shift();assert.throws(()=>P.importDraft(P.create(plan),invalid),/stay locked/);
+const duplicate=structuredClone(draft);duplicate.survey.obstacles[0].uid='100';assert.throws(()=>P.importDraft(P.create(plan),duplicate),/surveyed HQ/);
+const overlap=structuredClone(draft);overlap.sites.push({x:460,y:460});overlap.assignments.find(([id])=>id===free.id)[1]='460,460';assert.throws(()=>P.importDraft(P.create(plan),overlap),/overlaps an observed/);
+P.arrangeAlliance(state,'Helm');for(const a of anchors)assert.equal(state.assignments.get(a.id),P.siteKey(a));
+for(const p of P.rows(state).filter(p=>p.zone!=='unassigned'))assert(P.distance(p,state.survey.obstacles[0])>=3);
+console.log('PASS: surveyed touching grass remains fixed, identity refresh, unknown occupancy, immutable anchor validation, and replan preservation');
