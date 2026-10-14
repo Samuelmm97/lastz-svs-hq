@@ -4,7 +4,7 @@ const canvas = $('map'), ctx = canvas.getContext('2d');
 const apiUrl = globalThis.PLACEMENT_API_URL || '';
 let sharedSource=null;
 let sharedSourceError=false;
-const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5',
+const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5', stray: '#c9d4da',
   risk: '#ef6f77', absent: '#f3b65e', unknown: '#abb0f5', team: '#f9e37e' };
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null, lastPointer = null;
@@ -119,11 +119,11 @@ function usePlan(data) {
   const previousSection = $('section').value;
   plan = sharedSource?LastZSharedState.enrichPlan(data,sharedSource):data;
   $('section').replaceChildren();
-  const all = document.createElement('option'); all.value = ''; all.textContent = 'All alliances';
+  const all = document.createElement('option'); all.value = ''; all.textContent = 'All HQs (everyone, incl. unaligned)';
   $('section').append(all);
   for (const tag of Object.keys(data.sections)) {
     const option = document.createElement('option'); option.value = tag;
-    option.textContent = `${tag} (${data.sections[tag].players})`; $('section').append(option);
+    option.textContent = tag==='Other' ? `Unaligned / other alliances (${data.sections[tag].players})` : `${tag} (${data.sections[tag].players})`; $('section').append(option);
   }
   if (data.sections[previousSection]) $('section').value = previousSection;
   $('snapshotNote').textContent = sharedSource?`Power: States 792–815 workbook · observed ${new Date(sharedSource.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`:`Power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}` + (data.meta.refreshProgress ? `. ${data.meta.refreshProgress}` : '');
@@ -233,7 +233,7 @@ function draw() {
       footprint(p,palette.risk,.08,.7,1);ctx.strokeStyle=palette.risk;ctx.lineWidth=2;
       ctx.beginPath();ctx.moveTo(x-6,y-6);ctx.lineTo(x+6,y+6);ctx.moveTo(x+6,y-6);ctx.lineTo(x-6,y+6);ctx.stroke();continue;
     }
-    const color=p.role ? palette.team : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : p.attendanceProxy==='unknown' ? palette.unknown : sectionColor(p.section);
+    const color=p.role ? palette.team : P.isUnaligned(p) ? palette.stray : p.highRisk ? palette.risk : p.attendanceProxy==='outside_capital_area' ? palette.absent : p.attendanceProxy==='unknown' ? palette.unknown : sectionColor(p.section);
     if(scale>=2)footprint(p,color,.3,.7,.6);
     ctx.beginPath(); ctx.arc(x, y, p.id === selectedId ? 5 : Math.max(2, 2.5 * scale ** .3), 0, Math.PI * 2);
     ctx.fillStyle = color;
@@ -306,7 +306,10 @@ function draw() {
 }
 function render() {
   const memberCounts=new Map();for(const p of state.players.values())memberCounts.set(p.section,(memberCounts.get(p.section)||0)+1);
-  for(const option of $('section').options)if(option.value)option.textContent=`${option.value} (${memberCounts.get(option.value)||0})`;
+  for(const option of $('section').options)if(option.value){
+    const count=memberCounts.get(option.value)||0;
+    option.textContent=option.value==='Other'?`Unaligned / other alliances (${count})`:`${option.value} (${count})`;
+  }
   if (!state) return;
   const after = $('swapPreview').checked, q = $('search').value.toLocaleLowerCase();
   const section = $('section').value, zone = $('zone').value;
@@ -315,7 +318,9 @@ function render() {
     (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
   renderCopyMessages();
   if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
-  $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} players shown · ` +
+  $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} HQs shown` +
+    (visible.length===state.players.size ? ' (every player, filtered by nothing)' : '') +
+    ` · ${[...state.players.values()].filter(P.isUnaligned).length.toLocaleString()} unaligned kept at the back · ` +
     `version ${revision}` +
     (after ? ' · POST-SWAP PREVIEW' : '');
   const allPlayers=[...state.players.values()];

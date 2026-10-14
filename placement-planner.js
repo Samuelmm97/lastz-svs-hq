@@ -189,13 +189,24 @@
     }
     return {next,occupant};
   }
-  function rearReasons(player) {
+  // Sign-ups from outside the event alliances are the least likely to turn up at all, so they are
+  // always back priority: grass only, behind every alliance member, whatever their power.
+  // They are NOT put in the separate outer-ring tier (that partition has to fit inside a single
+  // wedge when one alliance is filled on its own) - they stay in the main grass pool and simply
+  // sort to the end of it, so they take the back slots of whatever grass is being filled.
+  const UNALIGNED_REASON = 'No alliance \u00b7 least likely to join';
+  function isUnaligned(player) { return player.section === 'Other' || !(player.tag || '').trim(); }
+  function riskReasons(player) {
     const reasons=[];
     if (player.attendanceProxy==='outside_capital_area') reasons.push('Not in the capital area last SvS');
     if (player.highRisk) reasons.push('Unshielded last SvS');
     return reasons;
   }
-  const needsRear = player => rearReasons(player).length>0;
+  function rearReasons(player) {
+    return (isUnaligned(player) ? [UNALIGNED_REASON] : []).concat(riskReasons(player));
+  }
+  const needsRear = player => riskReasons(player).length>0;
+  const fallsBack = player => needsRear(player) || isUnaligned(player);
   function clearOfTurrets(site, turrets = []) {
     const j=site.y-500, i=site.x-500-Math.floor(j/2);
     return turrets.every(t => {
@@ -408,7 +419,7 @@
         available.sort((a,b)=>distance(a,p)-distance(b,p)||Math.abs(a.ring-p.ring)-Math.abs(b.ring-p.ring)||a.x-b.x||a.y-b.y);
         const own=state.sections[p.section];
         const s=available.find(s=>(p.section==='Other'||!own||own.sharedOpenSpots||inMudArea(s,own))&&
-          (!needsRear(p)||s.ring>=p.ring)&&occupied.fits(s));
+          (!fallsBack(p)||s.ring>=p.ring)&&occupied.fits(s));
         if(!s)throw Error('Blocking grass players cannot be relocated safely inside their own areas. No changes applied.');
         next.set(p.id,defineSite(state,s.x,s.y));occupied.add(s);
       }
@@ -500,7 +511,7 @@
       const grass=[...state.sites.values()].filter(s=>s.zone==='grass');
       other.sort((a,b)=>Number(needsRear(a))-Number(needsRear(b))||a.priority-b.priority||b.hq-a.hq||a.id-b.id);
       for(const p of other) {
-        grass.sort((a,b)=>(needsRear(p)?b.ring-a.ring:a.ring-b.ring)||a.angle-b.angle);
+        grass.sort((a,b)=>(fallsBack(p)?b.ring-a.ring:a.ring-b.ring)||a.angle-b.angle);
         const s=grass.find(s=>index.fits(s));
         if(s){state.assignments.set(p.id,siteKey(s));index.add(s);}
       }
@@ -550,18 +561,18 @@
     const inArea=s=>inMudArea(s,area);
     const members=[...state.players].filter(([id,p])=>p.placementEligible!==false&&p.section===section&&!state.locks.has(id));
     const mudCapacity=[...state.sites].filter(([key,s])=>s.zone==='mud'&&inArea(s)&&!state.locks.has(playerAt(state,key))).length;
-    const strictMud=members.filter(([,p])=>!needsRear(p)).sort((a,b)=>
+    const strictMud=members.filter(([,p])=>!needsRear(p)&&!isUnaligned(p)).sort((a,b)=>
       (b[1].heroPower??-1)-(a[1].heroPower??-1)||(b[1].totalPower??-1)-(a[1].totalPower??-1)||b[1].hq-a[1].hq||a[0]-b[0])
       .slice(0,mudCapacity).map(([id])=>id);
     for (const zone of ['mud','grass']) {
       const ids=members.filter(([id,p]) => state.leadershipMudBoundaries ?
         (zone==='mud')===strictMud.includes(id) :
-        (zone==='mud')===(p.hq>=24 && !p.highRisk && p.attendanceProxy!=='outside_capital_area'))
+        (zone==='mud')===(p.hq>=24 && !p.highRisk && !isUnaligned(p) && p.attendanceProxy!=='outside_capital_area'))
         .map(([id])=>id);
       ids.sort((a,b) => {
         const x=state.players.get(a),y=state.players.get(b);
         return zone==='mud' ? (y.heroPower??-1)-(x.heroPower??-1) || (y.totalPower??-1)-(x.totalPower??-1) || y.hq-x.hq || a-b
-          : x.priority-y.priority || y.hq-x.hq || a-b;
+          : Number(isUnaligned(x))-Number(isUnaligned(y)) || x.priority-y.priority || y.hq-x.hq || a-b;
       });
       const target=area.start+((area.end-area.start+2*Math.PI)%(2*Math.PI))/2;
       for (const id of ids) {
@@ -593,7 +604,7 @@
       const ids = [...state.players.keys()].filter(id => {
         const site = state.sites.get(next.get(id));
         const player = state.players.get(id);
-        const mudEligible = !player.highRisk && player.attendanceProxy !== 'outside_capital_area' &&
+        const mudEligible = !player.highRisk && !isUnaligned(player) && player.attendanceProxy !== 'outside_capital_area' &&
           (state.leadershipMudBoundaries ? player.section!=='Other' : player.hq>=24);
         return player.placementEligible!==false&&!state.locks.has(id) && (site ? site.zone === terrain && inWedge(site, start, end)
           : terrain === 'grass' || mudEligible)
@@ -608,7 +619,7 @@
         const x = state.players.get(a), y = state.players.get(b);
         if (terrain === 'mud') return (y.heroPower ?? -1) - (x.heroPower ?? -1) ||
           (y.totalPower ?? -1) - (x.totalPower ?? -1) || y.hq - x.hq || a - b;
-        return x.priority - y.priority || y.hq - x.hq || a - b;
+        return Number(isUnaligned(x))-Number(isUnaligned(y)) || x.priority - y.priority || y.hq - x.hq || a - b;
       });
       const full = Math.abs(end - start) >= 360;
       for (const id of ids) {
@@ -623,10 +634,10 @@
           const insideSection = !sectionInfo || inWedge(s, sectionInfo.start*180/Math.PI, sectionInfo.end*180/Math.PI);
           if (terrain==='mud' && state.leadershipMudBoundaries && (!sectionInfo || player.section==='Other' || !inMudArea(s,sectionInfo))) continue;
           if (terrain==='grass' && sectionInfo?.grassOnly && !inMudArea(s,sectionInfo)) continue;
-          if (terrain==='grass' && needsRear(player)!==playerRear.has(siteKey(s))) continue;
+          if (terrain==='grass' && !isUnaligned(player) && needsRear(player)!==playerRear.has(siteKey(s))) continue;
           if(fieldObstacles(state).some(p=>distance(p,s)<3))continue;
           if (state.sites.size>state.baseSites.size && [...next].some(([other,key])=>other!==id&&key!=null&&distance(s,state.sites.get(key))<(terrain==='grass'&&state.sites.get(key).zone==='grass'?4:3))) continue;
-          const score = (insideSection || needsRear(player) ? 0 : 500) + s.ring * 100 + angularGap(s.angle, target)*200;
+          const score = (insideSection || fallsBack(player) ? 0 : 500) + (fallsBack(player) ? -s.ring : s.ring) * 100 + angularGap(s.angle, target)*200;
           if (score < bestScore) { bestScore = score; best = k; }
         }
         if (best < 0) continue;
@@ -730,7 +741,7 @@
     state.sites=sites;state.assignments = assignments; state.locks = locks; state.pairs = pairs;
   }
 
-  return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, clearOfTurrets,
+  return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, isUnaligned, clearOfTurrets,
            distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps, teleportOpenings, defenceReport,
            clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
 });

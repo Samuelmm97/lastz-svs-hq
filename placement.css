@@ -35,4 +35,5 @@ canvas{flex:1;min-height:0;height:0}
 .drag-chip.gap{border-color:#ffb347}.drag-chip.gap span:first-child{color:#ffcf85}
 .drag-chip.choice{border-color:#8ab4ff}.drag-chip.choice span:first-child{color:#a9c8ff}
 .drag-chip.bad{border-color:#f3858f}.drag-chip.bad span:first-child{color:#f3858f}
+.stray-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;background:#c9d4da}
 .drop-choice.floating{position:absolute;z-index:7;margin:0;width:min(330px,88%);background:#101a20f7;box-shadow:0 10px 24px #000b}

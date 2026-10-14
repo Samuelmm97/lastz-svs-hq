@@ -48,12 +48,12 @@ assert.throws(() => P.importDraft(restored, wrongSite), /unknown players or site
 console.log('Manual locks, wedge fill, strike swap, and draft validation passed');
 
 const ranked = P.create({ sections: {}, placements: [
-  { id: 1, name: 'Highest HQ', hq: 27, heroPower: 100, totalPower: 200, priority: 2, zone: 'mud', x: 1, y: 1, ring: 20, angle: 0 },
-  { id: 2, name: 'Highest hero', hq: 24, heroPower: 200, totalPower: 100, priority: 1, zone: 'mud', x: 2, y: 2, ring: 21, angle: 0 },
-  { id: 3, name: 'Hero tie, more power', hq: 25, heroPower: 100, totalPower: 300, priority: 0, zone: 'mud', x: 3, y: 3, ring: 22, angle: 0 },
-  { id: 4, name: 'Prior unshielded', hq: 27, priority: 2, zone: 'grass', x: 4, y: 4, ring: 37, angle: 0 },
-  { id: 5, name: 'Prior attendee', hq: 24, priority: 0, zone: 'grass', x: 5, y: 5, ring: 45, angle: 0 },
-  { id: 6, name: 'Prior outside', hq: 25, priority: 1, zone: 'grass', x: 6, y: 6, ring: 70, angle: 0 },
+  { id: 1, name: 'Highest HQ', tag: 'A', section: 'A', hq: 27, heroPower: 100, totalPower: 200, priority: 2, zone: 'mud', x: 1, y: 1, ring: 20, angle: 0 },
+  { id: 2, name: 'Highest hero', tag: 'A', section: 'A', hq: 24, heroPower: 200, totalPower: 100, priority: 1, zone: 'mud', x: 2, y: 2, ring: 21, angle: 0 },
+  { id: 3, name: 'Hero tie, more power', tag: 'A', section: 'A', hq: 25, heroPower: 100, totalPower: 300, priority: 0, zone: 'mud', x: 3, y: 3, ring: 22, angle: 0 },
+  { id: 4, name: 'Prior unshielded', tag: 'A', section: 'A', hq: 27, priority: 2, zone: 'grass', x: 4, y: 4, ring: 37, angle: 0 },
+  { id: 5, name: 'Prior attendee', tag: 'A', section: 'A', hq: 24, priority: 0, zone: 'grass', x: 5, y: 5, ring: 45, angle: 0 },
+  { id: 6, name: 'Prior outside', tag: 'A', section: 'A', hq: 25, priority: 1, zone: 'grass', x: 6, y: 6, ring: 70, angle: 0 },
 ] });
 P.fill(ranked);
 assert.equal(P.current(ranked, 2).ring, 20);
@@ -97,7 +97,7 @@ const rearPeople=P.rows(rearPlan).filter(p=>P.rearReasons(p).length);
 assert(rearPeople.some(p=>p.attendanceProxy==='outside_capital_area'));
 assert(rearPeople.some(p=>p.highRisk));
 const assertRear=state=>{
-  const rows=P.rows(state),rear=rows.filter(p=>P.rearReasons(p).length&&!p.locked&&p.zone!=='unassigned');
+  const rows=P.rows(state),rear=rows.filter(p=>P.rearReasons(p).length&&!P.isUnaligned(p)&&!p.locked&&p.zone!=='unassigned');
   const regular=rows.filter(p=>!P.rearReasons(p).length&&!p.locked&&p.zone==='grass');
   assert(rear.every(p=>p.zone==='grass'));
   assert(Math.min(...rear.map(p=>p.ring))>=Math.max(...regular.map(p=>p.ring)));
@@ -116,5 +116,22 @@ const manualKey=rearPlan.assignments.get(risk.id);
 P.arrangeAlliance(rearPlan,'Helm');
 assert.equal(rearPlan.assignments.get(risk.id),manualKey);
 assert(P.rearReasons(P.current(rearPlan,risk.id)).length);
-assert.deepEqual(P.rearReasons({highRisk:false,attendanceProxy:'unknown'}),[]);
+assert.deepEqual(P.rearReasons({tag:'A',section:'A',highRisk:false,attendanceProxy:'unknown'}),[]);
+assert.deepEqual(P.rearReasons({highRisk:false,attendanceProxy:'unknown',tag:'',section:'Other'}),['No alliance \u00b7 least likely to join']);
 console.log('Global rear priority survives alliance arrange/fill; manual reservations preserved and missing attendance labeled');
+
+// Sign-ups from outside the event alliances always fall behind alliance members in the grass,
+// however powerful they are, and never take a mud slot.
+const strays = P.create({ sections: { A: { start: 0, end: Math.PI }, Other: { start: 0, end: 2*Math.PI, sharedOpenSpots: true } }, placements: [
+  { id: 11, name: 'Huge unaligned', tag: '', section: 'Other', hq: 30, heroPower: 9000000, totalPower: 12000000, priority: 0, zone: 'grass', x: 520, y: 540, ring: 40, angle: 0 },
+  { id: 12, name: 'Modest aligned', tag: 'A', section: 'A', hq: 30, priority: 3, zone: 'grass', x: 530, y: 560, ring: 60, angle: 0 },
+  { id: 13, name: 'Aligned in mud', tag: 'A', section: 'A', hq: 30, priority: 3, zone: 'mud', x: 510, y: 520, ring: 20, angle: 0 },
+] });
+P.fill(strays);
+const straySite=strays.sites.get(strays.assignments.get(11)), rivalSite=strays.sites.get(strays.assignments.get(12));
+assert.equal(straySite.zone,'grass','A player from outside the alliances must never take a mud slot');
+assert(straySite.ring>rivalSite.ring,`The unaligned player drops behind the alliance member: ${straySite.ring} vs ${rivalSite.ring}`);
+assert.equal(P.current(strays,13).zone,'mud','Alliance members keep the mud slots');
+assert(P.isUnaligned(strays.players.get(11))&&!P.isUnaligned(strays.players.get(12)));
+assert(P.rearReasons(strays.players.get(11)).some(r=>/No alliance/.test(r)),'Unaligned players are labeled back priority');
+console.log('Unaligned sign-ups land behind alliance members in the grass and never in mud');
