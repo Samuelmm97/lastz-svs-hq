@@ -135,3 +135,15 @@ assert.equal(P.current(strays,13).zone,'mud','Alliance members keep the mud slot
 assert(P.isUnaligned(strays.players.get(11))&&!P.isUnaligned(strays.players.get(12)));
 assert(P.rearReasons(strays.players.get(11)).some(r=>/No alliance/.test(r)),'Unaligned players are labeled back priority');
 console.log('Unaligned sign-ups land behind alliance members in the grass and never in mud');
+
+// A draft can name a tile this state does not know about (an older revision, or a hand-written plan
+// that skipped defineSite). Counting the openings inside a wedge has to skip it, not throw -
+// teleportGaps already filtered its misses and this is the same data.
+const oddSites=P.create({ sections:{A:{start:0,end:Math.PI/2}}, placements:[
+  {id:21,name:'A one',tag:'A',section:'A',hq:30,priority:1,zone:'grass',x:520,y:540,ring:40,angle:0},
+  {id:22,name:'A two',tag:'A',section:'A',hq:30,priority:2,zone:'grass',x:530,y:560,ring:60,angle:0},
+  {id:23,name:'A three',tag:'A',section:'A',hq:30,priority:3,zone:'grass',x:522,y:548,ring:44,angle:.2}]});
+oddSites.assignments.set(23,'9999,9999');
+assert.doesNotThrow(()=>P.teleportGaps(oddSites,new Map(oddSites.assignments)),'teleportGaps ignores an unknown tile');
+assert.doesNotThrow(()=>P.teleportOpenings(oddSites,'A'),'teleportOpenings ignores an unknown tile too');
+console.log('Openings measurement skips assignments that name an unknown tile instead of throwing');

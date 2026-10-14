@@ -55,7 +55,7 @@
     const area=state.sections[section];if(!area||area.sharedOpenSpots||section==='Other')return [];
     const members=rows(state).filter(p=>p.zone!=='unassigned'&&(p.section===section||(area.group&&state.sections[p.section]?.group===area.group)));
     if(!members.length)return [];
-    const team=occupancy(members),occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state)));
+    const team=occupancy(members),occupied=occupancy([...state.assignments.values()].filter(Boolean).map(key=>state.sites.get(key)).filter(Boolean).concat(fieldObstacles(state)));
     const xy=s=>({x:s.x+((s.y-500)%2?0.5:0),y:s.y});
     const points=members.map(xy).sort((a,b)=>a.x-b.x||a.y-b.y);
     const cross=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
