@@ -437,8 +437,11 @@
     const combat=(a,b)=>(b.heroPower??-1)-(a.heroPower??-1)||(b.totalPower??-1)-(a.totalPower??-1)||b.hq-a.hq||a.id-b.id;
     const regular=members.filter(p=>!needsRear(p)).sort(combat), rear=members.filter(needsRear).sort((a,b)=>a.priority-b.priority||b.hq-a.hq||a.id-b.id);
     const mudOrder=area.mudOrder?new Map(area.mudOrder.map((id,i)=>[id,i])):null;
-    if(mudOrder)regular.sort((a,b)=>(mudOrder.get(a.id)??Infinity)-(mudOrder.get(b.id)??Infinity));
-    const mudMembers=mudOrder?regular.filter(p=>mudOrder.has(p.id)):regular;
+    // A pinned mud list sets the ORDER members fill mud, never a cap: filtering mud down to the
+    // list alone left every spare mud slot in the wedge empty while members sat out in grass.
+    if(mudOrder)regular.sort((a,b)=>(mudOrder.get(a.id)??Infinity)-(mudOrder.get(b.id)??Infinity)||
+      (b.heroPower??-1)-(a.heroPower??-1)||(b.totalPower??-1)-(a.totalPower??-1)||b.hq-a.hq||a.id-b.id);
+    const mudMembers=[...regular];
     const frontLayers=area.frontLayers??1, bodyGap=area.bodyGap??1, frontEnd=19+3*(frontLayers-1);
     const mud=[];
     for(let j=-34;j<=34;j++)for(let i=-34;i<=34;i++) {
@@ -456,7 +459,7 @@
       if(!mudMembers.length)break;
       if(fits(s,gap)) {
         const player=mudMembers.shift();place(player,s);
-        if(mudOrder)regular.splice(regular.indexOf(player),1);
+        const used=regular.indexOf(player);if(used>=0)regular.splice(used,1);
       }
     }
     if(area.grassCompact) {
