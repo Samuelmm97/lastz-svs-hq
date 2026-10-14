@@ -315,24 +315,25 @@ function draw() {
       const nameWidth = ctx.measureText(name).width;
       ctx.font = 'bold 11px system-ui';
       const levelWidth = ctx.measureText(level).width;
-      const width = nameWidth + 7 + levelWidth + 7;
-      const box = { x: x + 7, y: y - 8, width, height: 16 };
-      if (box.x + box.width > r.width - 4) box.x = x - 7 - box.width;      // flip to the left of the dot
+      const width = nameWidth + 7 + levelWidth + 8;
+      const box = { x: x + 6, y: y - 8, width, height: 16 };
+      if (box.x + box.width > r.width - 4) box.x = x - 6 - box.width;      // flip to the left of the dot
       box.x = Math.max(2, Math.min(r.width - box.width - 2, box.x));
       box.y = Math.max(2, Math.min(r.height - box.height - 2, box.y));
-      if (labelBoxes.some(b => box.x < b.x + b.width + 2 && b.x < box.x + box.width + 2 &&
-        box.y < b.y + b.height + 2 && b.y < box.y + box.height + 2)) continue;
+      if (labelBoxes.some(b => box.x < b.x + b.width + 3 && b.x < box.x + box.width + 3 &&
+        box.y < b.y + b.height + 3 && b.y < box.y + box.height + 3)) continue;
       labelBoxes.push(box);
       hqLabels.push({ id: p.id, name: p.name, hq: p.hq, x, y, box });
-      if (p.id === selectedId) {
-        ctx.fillStyle = '#101a20e6'; ctx.fillRect(box.x - 1, box.y - 1, box.width + 1, box.height + 2);
-        ctx.strokeStyle = '#ffdf73'; ctx.lineWidth = 1; ctx.strokeRect(box.x - 1, box.y - 1, box.width + 1, box.height + 2);
-      }
-      ctx.textAlign = 'left'; ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1216';
+      // A chip behind every label: in the dense mud rows a neighbouring dot would otherwise show
+      // through the text and make it unclear which HQ a label belongs to.
+      const selected = p.id === selectedId;
+      ctx.fillStyle = selected ? '#101a20f2' : '#0e1a20d9';
+      ctx.fillRect(box.x, box.y, box.width, box.height);
+      if (selected) { ctx.strokeStyle = '#ffdf73'; ctx.lineWidth = 1; ctx.strokeRect(box.x + .5, box.y + .5, box.width - 1, box.height - 1); }
+      ctx.textAlign = 'left';
       ctx.font = '11px system-ui';
-      ctx.strokeText(name, box.x + 4, box.y + 12); ctx.fillStyle = '#f2f7f9'; ctx.fillText(name, box.x + 4, box.y + 12);
+      ctx.fillStyle = '#f2f7f9'; ctx.fillText(name, box.x + 4, box.y + 12);
       ctx.font = 'bold 11px system-ui';
-      ctx.strokeText(level, box.x + 4 + nameWidth + 7, box.y + 12);
       ctx.fillStyle = '#ffcf85'; ctx.fillText(level, box.x + 4 + nameWidth + 7, box.y + 12);
       ctx.font = '11px system-ui';
     }
