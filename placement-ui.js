@@ -10,6 +10,8 @@ const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5', stray: '
 // write a name and HQ level beside the dot without burying the map in text.
 const LABEL_PX_PER_TILE = 9;
 let hqLabels = [], hqInfoId = null;
+// Touch gestures: one finger pans (the drag below), two fingers pinch-zoom around their midpoint.
+let pointers = new Map(), pinch = null;
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null, lastPointer = null;
 let historyEntries = [], selectedHistory = null;
@@ -458,7 +460,7 @@ function render() {
   $('defenceInfo').textContent=$('section').value?`${defence.gapFree?'PASS: no enemy HQ fits inside the formation.':`FAIL: ${defence.openings.length} landing centers in ${defence.holes?.length||0} connected openings.`} ${defence.vulnerable} HQ losses expose two or more non-overlapping enemy spots.`+($('simulateDestroyed').checked?(removal?` Removing ${removal.name}: ${removal.capacity===2?'at least 2':removal.capacity} new enemy HQ spaces.`:' Select a member to simulate their removal.'):''):'Choose an alliance to run the footprint test.';
   $('defenceInfo').classList.toggle('has-gap',!defence.gapFree);
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
-  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll to zoom.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll to zoom.') : 'Tap a player or search their name. Drag to pan; scroll to zoom.';
+  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll or pinch to zoom.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
   for (const pair of state.pairs) {
@@ -804,10 +806,39 @@ function showHqInfo(id, clientX, clientY){
   box.style.top=`${y+14+h>area.height-8?Math.max(8,y-h-18):y+14}px`;
 }
 $('hqInfoClose').onclick=hideHqInfo;
+// Pinch zoom. The midpoint of the two fingers is anchored to the map: whatever tile is under it
+// stays under it while the fingers open or close, so a pinch zooms where the user is pinching.
+function canvasPoint(e){const r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+function pinchMetrics(){
+  const [a,b]=[...pointers.values()];
+  return {distance:Math.hypot(a.x-b.x,a.y-b.y),center:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}};
+}
+function beginPinch(){
+  const m=pinchMetrics();if(!m.distance)return;
+  const r=canvas.getBoundingClientRect(),k=Math.min(r.width/260,r.height/250)*scale;
+  // Tile-space coordinates under the midpoint, kept fixed for the whole gesture.
+  pinch={distance:m.distance,scale,r,k,
+    u:500+(m.center.x-r.width/2-panX)/k,
+    v:500+(m.center.y-r.height/2-panY)/(k*.8)};
+}
+function updatePinch(){
+  const m=pinchMetrics();if(!pinch||!m.distance)return;
+  scale=Math.max(.5,Math.min(10,pinch.scale*m.distance/pinch.distance));
+  const base=pinch.k*scale/pinch.scale;
+  panX=m.center.x-pinch.r.width/2-(pinch.u-500)*base;
+  panY=m.center.y-pinch.r.height/2-(pinch.v-500)*base*.8;
+  draw();
+}
 canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
   lastPointer={clientX:e.clientX,clientY:e.clientY};
   hideHqInfo();
+  pointers.set(e.pointerId,canvasPoint(e));
+  if(pointers.size>1){   // a second finger means pinch, never a drag or a drop
+    drag=null;pinch=null;hideDragChip();shownGaps=[];
+    if(pointers.size===2)beginPinch();
+    draw();return;
+  }
   const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
   const canEdit=editMode&&editorKey&&!busy&&!layoutPreview;
   const reach=e.pointerType==='touch'?26:14;
@@ -817,8 +848,10 @@ canvas.addEventListener('pointerdown', e => {
   hideDragChip();
   drag = { x:e.clientX,y:e.clientY,moved:false,handle:handle?.kind,original:bounds(),hq:grab?.id,hqKey:grab?.key,origin:grab?.key,viewOnly:hover?.id!=null&&!canEdit };
 });
-canvas.addEventListener('pointercancel', () => { hideDragChip(); drag = null; });
+canvas.addEventListener('pointercancel', e => { pointers.delete(e.pointerId); if(pointers.size<2)pinch=null; hideDragChip(); drag = null; });
 canvas.addEventListener('pointermove', e => {
+  if(pointers.has(e.pointerId))pointers.set(e.pointerId,canvasPoint(e));
+  if(pinch){lastPointer={clientX:e.clientX,clientY:e.clientY};updatePinch();return;}
   if (!drag) return;
   lastPointer={clientX:e.clientX,clientY:e.clientY};
   if (drag.hq!=null) {
@@ -857,6 +890,15 @@ canvas.addEventListener('pointermove', e => {
   panX += dx; panY += dy; drag.x = e.clientX; drag.y = e.clientY; draw();
 });
 canvas.addEventListener('pointerup', e => {
+  const pinching=!!pinch;
+  pointers.delete(e.pointerId);
+  if(pinching){
+    // A pinch is never a tap. The finger still down keeps panning, and nothing is selected.
+    pinch=null;hideDragChip();
+    const left=[...pointers.values()],r=canvas.getBoundingClientRect();
+    drag=left.length===1?{x:r.left+left[0].x,y:r.top+left[0].y,moved:true}:null;
+    return;
+  }
   if (!drag) return;
   lastPointer={clientX:e.clientX,clientY:e.clientY};
   hideDragChip();
