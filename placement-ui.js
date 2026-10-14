@@ -6,6 +6,10 @@ let sharedSource=null;
 let sharedSourceError=false;
 const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5', stray: '#c9d4da',
   risk: '#ef6f77', absent: '#f3b65e', unknown: '#abb0f5', team: '#f9e37e' };
+// Zoom threshold for HQ name labels: once a tile is this many screen pixels wide there is room to
+// write a name and HQ level beside the dot without burying the map in text.
+const LABEL_PX_PER_TILE = 9;
+let hqLabels = [], hqInfoId = null;
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
 let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, drag = null, lastPointer = null;
 let historyEntries = [], selectedHistory = null;
@@ -290,6 +294,49 @@ function draw() {
     for(const p of removal?.pair||[])footprint(p,palette.risk,.3,1,2);
   }
   const labelBoxes=[];
+  // Zoomed in far enough, write each HQ's player name and HQ level beside its dot: the HQ level to
+  // compare players at a glance, the name to find someone. Nearest the middle of the viewport wins
+  // a label first (that is the HQ being looked at), then the selected one; a label that would
+  // collide with one already placed is skipped, so the map stays readable instead of a wall of text.
+  // This runs before the wedge labels so a name is never pushed aside by an alliance tag.
+  hqLabels = [];
+  const tilePixels = Math.min(r.width / 260, r.height / 250) * scale;
+  if (tilePixels >= LABEL_PX_PER_TILE) {
+    const centerX = r.width / 2, centerY = r.height / 2;
+    const order = visible.filter(p => p.zone !== 'unassigned').map(p => {
+      const [x, y] = project(p);
+      return { p, x, y, distance: Math.hypot(x - centerX, y - centerY) };
+    }).filter(o => o.x > -220 && o.y > -24 && o.x < r.width + 220 && o.y < r.height + 24)
+      .sort((a,b) => Number(b.p.id === selectedId) - Number(a.p.id === selectedId) || a.distance - b.distance);
+    for (const { p, x, y } of order) {
+      const name = p.name.length > 20 ? p.name.slice(0, 19) + '…' : p.name;
+      const level = `HQ ${p.hq ?? '?'}`;
+      ctx.font = '11px system-ui';
+      const nameWidth = ctx.measureText(name).width;
+      ctx.font = 'bold 11px system-ui';
+      const levelWidth = ctx.measureText(level).width;
+      const width = nameWidth + 7 + levelWidth + 7;
+      const box = { x: x + 7, y: y - 8, width, height: 16 };
+      if (box.x + box.width > r.width - 4) box.x = x - 7 - box.width;      // flip to the left of the dot
+      box.x = Math.max(2, Math.min(r.width - box.width - 2, box.x));
+      box.y = Math.max(2, Math.min(r.height - box.height - 2, box.y));
+      if (labelBoxes.some(b => box.x < b.x + b.width + 2 && b.x < box.x + box.width + 2 &&
+        box.y < b.y + b.height + 2 && b.y < box.y + box.height + 2)) continue;
+      labelBoxes.push(box);
+      hqLabels.push({ id: p.id, name: p.name, hq: p.hq, x, y, box });
+      if (p.id === selectedId) {
+        ctx.fillStyle = '#101a20e6'; ctx.fillRect(box.x - 1, box.y - 1, box.width + 1, box.height + 2);
+        ctx.strokeStyle = '#ffdf73'; ctx.lineWidth = 1; ctx.strokeRect(box.x - 1, box.y - 1, box.width + 1, box.height + 2);
+      }
+      ctx.textAlign = 'left'; ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1216';
+      ctx.font = '11px system-ui';
+      ctx.strokeText(name, box.x + 4, box.y + 12); ctx.fillStyle = '#f2f7f9'; ctx.fillText(name, box.x + 4, box.y + 12);
+      ctx.font = 'bold 11px system-ui';
+      ctx.strokeText(level, box.x + 4 + nameWidth + 7, box.y + 12);
+      ctx.fillStyle = '#ffcf85'; ctx.fillText(level, box.x + 4 + nameWidth + 7, box.y + 12);
+      ctx.font = '11px system-ui';
+    }
+  }
   for (const {tag,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
     ctx.font=`${selected?'bold 13':'11'}px system-ui`;
     const width=ctx.measureText(tag).width+10,height=20;
@@ -318,6 +365,7 @@ function render() {
     (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
   renderCopyMessages();
   if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
+  if (hqInfoId != null && !visible.some(p => p.id === hqInfoId)) hideHqInfo();
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} HQs shown` +
     (visible.length===state.players.size ? ' (every player, filtered by nothing)' : '') +
     ` · ${[...state.players.values()].filter(P.isUnaligned).length.toLocaleString()} unaligned kept at the back · ` +
@@ -348,7 +396,7 @@ function render() {
       const note=document.createElement('span');note.className='unknown-note';note.textContent='Attendance unknown';
       tr.children[1].append(note);
     }
-    tr.onclick = () => { selectedId = p.id; targetKey=null; $('mapAction').value='place'; render(); };
+    tr.onclick = () => { selectedId = p.id; targetKey=null; $('mapAction').value='place'; hideHqInfo(); render(); };
     body.append(tr);
   }
   $('listNote').textContent = visible.length > 500 ? 'Showing the first 500 players. Choose an alliance or search a name to narrow the list.' : '';
@@ -718,9 +766,47 @@ function finishHqDrop(id,fromKey,tile) {
 $('dropSwap').onclick=()=>commitDrop('swap');
 $('dropUnplace').onclick=()=>commitDrop('unplace');
 $('dropCancel').onclick=()=>{if(pendingDrop?.addedSite)state.sites.delete(pendingDrop.key);pendingDrop=null;$('dropChoice').hidden=true;hideDragChip();shownGaps=[];render();message('Drop canceled.');};
+// Click an HQ for its card. Same facts as the sidebar, but anchored to the HQ that was clicked -
+// power first, because that is what people compare when they are looking at the formation.
+function hideHqInfo(){const box=$('hqInfo');box.hidden=true;hqInfoId=null;}
+function spotLabel(p){
+  const spot=P.current(state,p.id);
+  if(!spot||spot.zone==='unassigned')return 'Waiting for a spot';
+  const zone=spot.zone==='mud'?'Mud front':spot.zone==='grass'?'Grass support':'—';
+  return `X ${spot.x}, Y ${spot.y} · ${zone}${Number.isFinite(spot.ring)?` · ring ${spot.ring}`:''}${p.locked?' · reserved':''}`;
+}
+function showHqInfo(id, clientX, clientY){
+  const p=state.players.get(id);if(!p)return;
+  $('hqInfoName').textContent=`${p.name}${p.role?` · ${p.role}`:''}`;
+  const facts=[
+    ['HQ level', p.hq ?? 'unknown'],
+    ['Alliance', p.tag || 'No alliance'],
+    [p.heroPowerMetric==='hero_component_power'?'Hero component power':'Hero power', p.heroPower?.toLocaleString()||'unknown'],
+    ['Power', `${p.totalPowerApproximate?'≈ ':''}${p.totalPower?.toLocaleString()||'unknown'}`],
+    ['Spot', spotLabel(p)],
+  ];
+  if(Number.isFinite(p.actualX)&&Number.isFinite(p.actualY))facts.push(['Shared map observation',`X ${p.actualX}, Y ${p.actualY}`]);
+  const dl=$('hqInfoFacts');dl.replaceChildren();
+  for(const [key,value] of facts){const dt=document.createElement('dt');dt.textContent=key;const dd=document.createElement('dd');dd.textContent=value;dl.append(dt,dd);}
+  const notes=[];
+  if(P.rearReasons(p).length)notes.push(`Back priority: ${P.rearReasons(p).join(' · ')}.`);
+  if(p.attendanceProxy==='unknown')notes.push('No attendance record for the previous SvS, so no back penalty.');
+  if(p.placedInGame)notes.push('Already placed in game; fixed during replanning.');
+  if(p.relocatingInGame)notes.push(`Observed in game at X ${p.observedX}, Y ${p.observedY}; the coordinates above are the proposed relocation.`);
+  if(p.powerObservedAt)notes.push(`Personal power observed ${new Date(p.powerObservedAt).toLocaleDateString()}.`);
+  if(p.nameReadingStatus==='partial')notes.push('Name partly unreadable; check the saved roster card.');
+  $('hqInfoNotes').textContent=notes.join(' ');$('hqInfoNotes').hidden=!notes.length;
+  const box=$('hqInfo');hqInfoId=id;box.hidden=false;
+  const area=box.parentElement.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
+  const x=clientX-area.left,y=clientY-area.top;
+  box.style.left=`${Math.max(8,Math.min(area.width-w-8,x+14))}px`;
+  box.style.top=`${y+14+h>area.height-8?Math.max(8,y-h-18):y+14}px`;
+}
+$('hqInfoClose').onclick=hideHqInfo;
 canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
   lastPointer={clientX:e.clientX,clientY:e.clientY};
+  hideHqInfo();
   const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
   const canEdit=editMode&&editorKey&&!busy&&!layoutPreview;
   const reach=e.pointerType==='touch'?26:14;
@@ -786,15 +872,18 @@ canvas.addEventListener('pointerup', e => {
   }
   if (best) {
     if(editMode&&$('mapAction').value==='place') {try{setTarget(P.siteKey(best));}catch(e){message(e.message);}}
-    else { const holder=P.playerAt(state,P.siteKey(best));if(holder!=null){selectedId=holder;targetKey=null;if(editMode)$('mapAction').value='place';render();} }
-  } else if(editMode&&$('mapAction').value==='place') {
+    else { const holder=P.playerAt(state,P.siteKey(best));if(holder!=null){selectedId=holder;targetKey=null;if(editMode)$('mapAction').value='place';render();showHqInfo(holder,e.clientX,e.clientY);}else hideHqInfo(); }
+  } else {
+    hideHqInfo();
+    if(editMode&&$('mapAction').value==='place') {
     const r=canvas.getBoundingClientRect(),base=Math.min(r.width/260,r.height/250)*scale;
     const tileY=Math.round(500+(y-r.height/2-panY)/(.8*base));
     try{setTarget(`${Math.round(500+(x-r.width/2-panX)/base-((tileY-500)%2!==0?.5:0))},${tileY}`);}catch(e){message(e.message);}
+    }
   }
 });
 canvas.addEventListener('wheel', e => {
-  e.preventDefault(); scale = Math.max(.5, Math.min(10, scale * (e.deltaY < 0 ? 1.12 : .89))); draw();
+  e.preventDefault(); hideHqInfo(); scale = Math.max(.5, Math.min(10, scale * (e.deltaY < 0 ? 1.12 : .89))); draw();
 }, { passive: false });
 for (const id of ['search', 'section', 'zone', 'swapPreview'])
   $(id).addEventListener(id === 'search' ? 'input' : 'change', render);
@@ -810,7 +899,7 @@ for(const button of document.querySelectorAll('[data-nudge]'))button.onclick=()=
   const [dx,dy]=button.dataset.nudge.split(',').map(Number);
   try{setTarget(`${current.x+dx},${current.y+dy}`);}catch(e){message(e.message);}
 };
-$('resetView').onclick=()=>{scale=1;panX=panY=0;draw();};
+$('resetView').onclick=()=>{scale=1;panX=panY=0;hideHqInfo();draw();};
 $('showWaiting').onclick=()=>{$('zone').value='unassigned';$('search').value='';render();};
 function updateAreaInputs(){
   const center=Number($('boundaryCenter').value),width=Number($('boundaryWidth').value);
