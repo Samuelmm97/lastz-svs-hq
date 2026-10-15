@@ -9,7 +9,7 @@ const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5', stray: '
 // Zoom threshold for HQ name labels: once a tile is this many screen pixels wide there is room to
 // write a name and HQ level beside the dot without burying the map in text.
 const LABEL_PX_PER_TILE = 9;
-let hqLabels = [], hqInfoId = null;
+let hqLabels = [], hqInfoId = null, areaLabelBoxes = [];
 // Touch gestures: one finger pans (the drag below), two fingers pinch-zoom around their midpoint.
 let pointers = new Map(), pinch = null;
 let plan, state, visible = [], selectedId = null, targetKey = null, pendingStrike = null;
@@ -88,6 +88,27 @@ function cancelPreview(){
 }
 
 function message(value) { $('status').textContent = value; }
+// Alliance tags drawn across the wedges are clickable: they filter the map to that alliance's members.
+function allianceLabelAt(x, y, pointerType) {
+  const pad = pointerType === 'touch' ? 10 : 2;
+  for (let i = areaLabelBoxes.length - 1; i >= 0; i--) {
+    const box = areaLabelBoxes[i].box;
+    if (x >= box.x - pad && x <= box.x + box.width + pad && y >= box.y - pad && y <= box.y + box.height + pad) return areaLabelBoxes[i];
+  }
+  return null;
+}
+function toggleSectionFilter({section, label}) {
+  const select = $('section');
+  const clearing = select.value === section;
+  select.value = clearing ? '' : section;
+  cancelPreview(); targetKey = null; hqInfoId = null; hideHqInfo(); syncBoundary(); render();
+  if (clearing) { message(`Showing every HQ again (${state.players.size} players). Click any alliance tag to filter.`); return; }
+  // A tag can cover a group of alliances (twins share a wedge); they are filtered one at a time, so
+  // say which one this is and name the others.
+  const area = state.sections[section] || {}, group = area.group || section;
+  const others = Object.entries(state.sections).filter(([key, val]) => val && (val.group || key) === group && key !== section).map(([key]) => key);
+  message(`Showing ${select.options[select.selectedIndex].textContent} — the tag "${label}" covers ${others.length ? `${others.join(' and ')}, listed separately` : 'only this alliance'}. Click the tag again to clear.`);
+}
 function showCopyPart() {
   const multiple = copyMessages.length > 1;
   $('copyParts').hidden = !multiple;
@@ -196,7 +217,7 @@ function draw() {
     ctx.strokeStyle=color;ctx.lineWidth=selected?2:1;ctx.globalAlpha=selected?1:.45;
     for (const a of [start,start+width]) { const [x1,y1]=point(a,19),[x2,y2]=point(a,118);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke(); }
     ctx.globalAlpha=1;
-    areaLabels.push({tag:label,color,selected,point,center});
+    areaLabels.push({tag:label,section:tag,color,selected,point,center});
     if (selected && editMode) for (const [kind,a] of [['start',start],['end',start+width],['center',center]]) {
       const [x,y]=point(a,115);ctx.beginPath();ctx.arc(x,y,7,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#fff';ctx.stroke();
       boundaryHandles.push({kind,x,y});
@@ -340,7 +361,8 @@ function draw() {
       ctx.font = '11px system-ui';
     }
   }
-  for (const {tag,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
+  areaLabelBoxes = [];
+  for (const {tag,section,color,selected,point,center} of areaLabels.sort((a,b)=>Number(b.selected)-Number(a.selected))) {
     ctx.font=`${selected?'bold 13':'11'}px system-ui`;
     const width=ctx.measureText(tag).width+10,height=20;
     let box;
@@ -350,6 +372,7 @@ function draw() {
       if (!labelBoxes.some(b=>box.x<b.x+b.width+3&&box.x+width+3>b.x&&box.y<b.y+b.height+3&&box.y+height+3>b.y)) break;
     }
     labelBoxes.push(box);
+    areaLabelBoxes.push({section,label:tag,box});   // kept so a click can filter to this alliance
     ctx.fillStyle='#131e25';ctx.globalAlpha=.92;ctx.fillRect(box.x,box.y,width,height);ctx.globalAlpha=1;
     ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(tag,box.x+width/2,box.y+14);
   }
@@ -460,7 +483,7 @@ function render() {
   $('defenceInfo').textContent=$('section').value?`${defence.gapFree?'PASS: no enemy HQ fits inside the formation.':`FAIL: ${defence.openings.length} landing centers in ${defence.holes?.length||0} connected openings.`} ${defence.vulnerable} HQ losses expose two or more non-overlapping enemy spots.`+($('simulateDestroyed').checked?(removal?` Removing ${removal.name}: ${removal.capacity===2?'at least 2':removal.capacity} new enemy HQ spaces.`:' Select a member to simulate their removal.'):''):'Choose an alliance to run the footprint test.';
   $('defenceInfo').classList.toggle('has-gap',!defence.gapFree);
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
-  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll or pinch to zoom.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom.';
+  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
   for (const pair of state.pairs) {
@@ -866,7 +889,13 @@ canvas.addEventListener('pointercancel', e => { pointers.delete(e.pointerId); if
 canvas.addEventListener('pointermove', e => {
   if(pointers.has(e.pointerId))pointers.set(e.pointerId,canvasPoint(e));
   if(pinch){lastPointer={clientX:e.clientX,clientY:e.clientY};updatePinch();return;}
-  if (!drag) return;
+  if (!drag) {   // hovering: the alliance tags across the wedges are clickable
+    if (e.pointerType !== 'touch') {
+      const r = canvas.getBoundingClientRect();
+      canvas.style.cursor = allianceLabelAt(e.clientX - r.left, e.clientY - r.top, e.pointerType) ? 'pointer' : '';
+    }
+    return;
+  }
   lastPointer={clientX:e.clientX,clientY:e.clientY};
   if (drag.hq!=null) {
     const hx=e.clientX-drag.x,hy=e.clientY-drag.y;
@@ -938,15 +967,34 @@ canvas.addEventListener('pointerup', e => {
     }
     if (held) best = held;
   }
-  if (best) {
-    if(editMode&&$('mapAction').value==='place') {try{setTarget(P.siteKey(best));}catch(e){message(e.message);}}
-    else { const holder=P.playerAt(state,P.siteKey(best));if(holder!=null){selectedId=holder;targetKey=null;if(editMode)$('mapAction').value='place';render();showHqInfo(holder,e.clientX,e.clientY);}else hideHqInfo(); }
-  } else {
-    hideHqInfo();
-    if(editMode&&$('mapAction').value==='place') {
-    const r=canvas.getBoundingClientRect(),base=Math.min(r.width/260,r.height/250)*scale;
-    const tileY=Math.round(500+(y-r.height/2-panY)/(.8*base));
-    try{setTarget(`${Math.round(500+(x-r.width/2-panX)/base-((tileY-500)%2!==0?.5:0))},${tileY}`);}catch(e){message(e.message);}
+  const holder = best ? P.playerAt(state, P.siteKey(best)) : null;
+  if (e.pointerType === 'touch' && holder == null) {
+    let held = null, hd = radius;
+    for (const s of state.sites.values()) {
+      const [px, py] = project(s), pd = Math.hypot(px - x, py - y);
+      if (pd < hd && P.playerAt(state, P.siteKey(s)) != null) { hd = pd; held = s; }
+    }
+    if (held) { best = held; d = hd; }
+  }
+  const placing = editMode && $('mapAction').value === 'place';
+  // The alliance tags are chips drawn on top of the map, so a click inside one filters to that
+  // alliance - the same way any other control on top of the canvas would win. Skipped while choosing
+  // a target tile, where a click on the map means "place it here".
+  const label = allianceLabelAt(x, y, e.pointerType);
+  if (label && !placing) { toggleSectionFilter(label); return; }
+  const chosen = best ? P.playerAt(state, P.siteKey(best)) : null;
+  if (chosen != null && !placing) {
+    selectedId = chosen; targetKey = null; if (editMode) $('mapAction').value = 'place';
+    render(); showHqInfo(chosen, e.clientX, e.clientY);
+    return;
+  }
+  if (chosen == null) hideHqInfo();
+  if (placing) {
+    if (best) { try { setTarget(P.siteKey(best)); } catch (err) { message(err.message); } }
+    else {
+      const r = canvas.getBoundingClientRect(), base = Math.min(r.width / 260, r.height / 250) * scale;
+      const tileY = Math.round(500 + (y - r.height / 2 - panY) / (.8 * base));
+      try { setTarget(`${Math.round(500 + (x - r.width / 2 - panX) / base - ((tileY - 500) % 2 !== 0 ? .5 : 0))},${tileY}`); } catch (err) { message(err.message); }
     }
   }
 });
