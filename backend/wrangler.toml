@@ -7,3 +7,9 @@ workers_dev = true
 binding = "DB"
 database_name = "state-798-placement"
 database_id = "69c2f28e-a8a2-490e-972c-3a97bd147892"
+
+# The atlas is another Worker in this account; workers.dev fetches between two
+# Workers are refused (Cloudflare 1042), so its data is proxied over a binding.
+[[services]]
+binding = "ATLAS"
+service = "lastz-atlas"

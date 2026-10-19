@@ -553,8 +553,11 @@ export default {
       if (!readAllowed) return response({ error: 'Access key required' }, 401, origin);
       if (!env.ATLAS_ORIGIN || !env.ATLAS_KEY) return response({ error: 'Atlas source is not configured' }, 503, origin);
       const suffix = url.pathname.slice('/api/atlas'.length) || '/';
-      const upstream = await fetch(env.ATLAS_ORIGIN.replace(/\/$/, '') + suffix + (url.search || ''),
-        { headers: { 'X-Atlas-Key': env.ATLAS_KEY } });
+      // Workers on the same account cannot fetch each other over workers.dev
+      // (Cloudflare 1042), so the atlas is reached through a service binding.
+      const forwarded = new Request(env.ATLAS_ORIGIN.replace(/\/$/, '') + suffix + (url.search || ''),
+        { method: 'GET', headers: { 'X-Atlas-Key': env.ATLAS_KEY } });
+      const upstream = env.ATLAS ? await env.ATLAS.fetch(forwarded) : await fetch(forwarded);
       return new Response(upstream.body, { status: upstream.status, headers: {
         'Content-Type': upstream.headers.get('Content-Type') || 'application/octet-stream',
         'Cache-Control': upstream.headers.get('Cache-Control') || 'no-store',

@@ -456,7 +456,11 @@ function render() {
     for (const [tag,cl,text] of lines) { const el=document.createElement(tag);el.className=cl;el.textContent=text;$('selectedPlayer').append(el); }
     if (chosen.rosterPhoto) {
       const link=document.createElement('a');link.textContent='View roster card';
-      link.href='https://samuelmm97.github.io/last-z-state-798-map/'+chosen.rosterPhoto;
+      // The atlas is gated now, so the card is fetched through this site's own
+      // Worker proxy; the read code travels as a query parameter (it is already
+      // in this page's localStorage) rather than the atlas service key.
+      const code=globalThis.readKey ? readKey() : '';
+      link.href=`${apiUrl}/api/atlas/${chosen.rosterPhoto}${code?`?key=${encodeURIComponent(code)}`:''}`;
       link.target='_blank';link.rel='noopener';$('selectedPlayer').append(link);
     }
   } else $('selectedPlayer').textContent = 'Choose a player to see their coordinates.';
