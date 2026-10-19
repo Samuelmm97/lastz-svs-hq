@@ -526,8 +526,8 @@ function renderHistoryList() {
 async function loadHistory(reset = true) {
   try {
     const before = reset || !historyEntries.length ? '' : `?before=${historyEntries.at(-1).revision}`;
-    const r = await fetch(`${apiUrl}/api/placement/history${before}`, { cache: 'no-store' });
-    if (!r.ok) throw Error(`History unavailable (${r.status})`);
+    const r = await fetch(`${apiUrl}/api/placement/history${before}`, { cache: 'no-store', headers: globalThis.readHeaders ? readHeaders() : {} });
+    if (!r.ok) throw Error(globalThis.needAccessCode && needAccessCode(r.status) ? 'Access code needed — open the link leadership gave you.' : `History unavailable (${r.status})`);
     const data = await r.json();
     historyEntries = reset ? data.entries : historyEntries.concat(data.entries);
     $('moreHistory').dataset.hasMore = data.hasMore ? 'yes' : '';
@@ -536,8 +536,8 @@ async function loadHistory(reset = true) {
 }
 async function showHistory(number) {
   try {
-    const r = await fetch(`${apiUrl}/api/placement/history/${number}`, { cache: 'no-store' });
-    if (!r.ok) throw Error(`Revision unavailable (${r.status})`);
+    const r = await fetch(`${apiUrl}/api/placement/history/${number}`, { cache: 'no-store', headers: globalThis.readHeaders ? readHeaders() : {} });
+    if (!r.ok) throw Error(globalThis.needAccessCode && needAccessCode(r.status) ? 'Access code needed — open the link leadership gave you.' : `Revision unavailable (${r.status})`);
     const entry = await r.json();
     const check = P.create(entry.plan || plan); P.importDraft(check, entry.draft);
     selectedHistory = entry;
@@ -570,13 +570,13 @@ async function loadShared(force = false) {
   if (!apiUrl) { message('Shared backend URL is not configured yet.'); return; }
   if (busy) { if (force) message('Wait for the current save to finish.'); return; }
   try {
-    const r = await fetch(`${apiUrl}/api/placement`, { cache: 'no-store' });
-    if (!r.ok) throw Error(`Shared plan unavailable (${r.status})`);
+    const r = await fetch(`${apiUrl}/api/placement`, { cache: 'no-store', headers: globalThis.readHeaders ? readHeaders() : {} });
+    if (!r.ok) throw Error(globalThis.needAccessCode && needAccessCode(r.status) ? 'Access code needed — open the link leadership gave you.' : `Shared plan unavailable (${r.status})`);
     const data = await r.json();
     if (busy) return;
     if (data.revision !== revision || force) {
       if (data.draft && data.draft.signature !== P.create(plan).signature) {
-        const response = await fetch(`${apiUrl}/api/placement/plan?signature=${encodeURIComponent(data.draft.signature)}`, { cache: 'no-store' });
+        const response = await fetch(`${apiUrl}/api/placement/plan?signature=${encodeURIComponent(data.draft.signature)}`, { cache: 'no-store', headers: globalThis.readHeaders ? readHeaders() : {} });
         if (!response.ok) throw Error('This revision’s roster could not be loaded.');
         usePlan((await response.json()).plan);
       }

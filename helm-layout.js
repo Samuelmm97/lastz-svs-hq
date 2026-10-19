@@ -87,9 +87,9 @@ function table(rows, terrain) {
 async function loadLayout() {
   try {
     let plan = await fetch('placement-plan.json', { cache: 'no-store' }).then(r => { if (!r.ok) throw Error('Base plan unavailable'); return r.json(); });
-    const shared = await fetch(`${PLACEMENT_API_URL}/api/placement`, { cache: 'no-store' }).then(r => { if (!r.ok) throw Error('Shared plan unavailable'); return r.json(); });
+    const shared = await fetch(`${PLACEMENT_API_URL}/api/placement`, { cache: 'no-store', headers: readHeaders() }).then(r => { if (!r.ok) throw Error(r.status === 401 ? 'Access code needed — open the link leadership gave you.' : 'Shared plan unavailable'); return r.json(); });
     if (shared.draft && shared.draft.signature !== PlacementPlanner.create(plan).signature) {
-      const response = await fetch(`${PLACEMENT_API_URL}/api/placement/plan?signature=${encodeURIComponent(shared.draft.signature)}`, { cache: 'no-store' });
+      const response = await fetch(`${PLACEMENT_API_URL}/api/placement/plan?signature=${encodeURIComponent(shared.draft.signature)}`, { cache: 'no-store', headers: readHeaders() });
       if (!response.ok) throw Error('Roster snapshot unavailable'); plan = (await response.json()).plan;
     }
     const state = PlacementPlanner.create(plan);
