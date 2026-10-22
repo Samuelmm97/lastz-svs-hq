@@ -426,6 +426,8 @@ function render() {
     body.append(tr);
   }
   $('listNote').textContent = visible.length > 500 ? 'Showing the first 500 players. Choose an alliance or search a name to narrow the list.' : '';
+  $('planningMode').checked=state.planningMode===true;
+  $('planningStatus').textContent=state.planningMode?'Draft planning: temporary teleport gaps are allowed. Turn this off to validate the finished formation.':'Gap enforcement is active for alliances with footprint blocking enabled.';
   $('waitingCount').textContent = P.rows(state).filter(p => p.zone === 'unassigned').length;
   $('surveyNote').textContent=state.survey?`In-game map observed ${new Date(state.survey.capturedAt).toLocaleString()}. White squares mark ${P.rows(state).filter(p=>p.placedInGame).length} fixed roster HQs and ${state.survey.obstacles.length} additional occupied HQs. ${state.survey.relocations?.length||0} observed HQs outside the held areas can relocate to their proposed positions. Positions can change after the scan.`:'';
   $('surveyDetails').hidden=!state.survey;
@@ -1043,7 +1045,7 @@ function previewLayout(mode='alliance'){
     if(all)report=P.arrangeAll(state,areaRules());
     else {const b=bounds();P.setSection(state,$('section').value,b.start,b.end,areaRules());report=mode==='grass'?P.arrangeGrass(state,$('section').value):P.arrangeAlliance(state,$('section').value);}
     layoutPreview={before,after:P.exportDraft(state),revision};
-    const failed=Object.entries(state.sections).filter(([tag,a])=>a.defencePacking&&P.teleportOpenings(state,tag).some(p=>p.insideFormation));
+    const failed=Object.entries(state.sections).filter(([tag,a])=>!state.planningMode&&a.defencePacking&&P.teleportOpenings(state,tag).some(p=>p.insideFormation));
     layoutPreview.blocked=failed.length>0;$('applyLayout').disabled=layoutPreview.blocked;
     $('layoutReport').textContent=`Preview: ${report.moved} players changed · ${report.waiting} waiting for room`+
       (report.displacedGrass?` · ${report.displacedGrass} blocking grass HQs relocated into their own/shared areas`:'')+
@@ -1067,6 +1069,18 @@ for(const id of ['grassOnly','grassCompact','defencePacking','frontLayers','body
   $(id).addEventListener('input',()=>{if(layoutPreview){cancelPreview();message('Preview canceled because the layout settings changed. Preview again to inspect the new settings.');}});
 $('simulateDestroyed').onchange=render;
 $('checkDefence').onclick=()=>{defenceCache=null;render();message(currentDefence().gapFree?'Every legal hex center checked: no enemy HQ fits inside the formation.':'Footprint check failed. Every legal hex center was tested; amber marks show the openings.');};
+$('planningMode').onchange=()=>{const enabled=$('planningMode').checked;mutate(()=>{
+  if(!enabled){
+    const failed=Object.entries(state.sections).filter(([tag,a])=>a.defencePacking&&P.teleportOpenings(state,tag).some(p=>p.insideFormation));
+    if(failed.length)throw Error(`Draft planning stays on: close teleport openings in ${failed.map(([tag])=>tag).join(', ')} first.`);
+  }
+  state.planningMode=enabled;
+  return enabled?'Draft planning enabled; temporary gaps allowed':'Draft planning finished; gap enforcement restored';
+});render();};
+$('clearEveryone').onclick=()=>mutate(()=>{
+  state.planningMode=true;
+  return `${P.clear(state,{zone:'all',includeLocked:true})} players moved to waiting; reservations and swap pairs released; draft planning enabled`;
+});
 $('clearMud').onclick=()=>mutate(()=>P.clear(state,{zone:'mud',includeLocked:!$('keepLocks').checked}));
 $('clearArea').onclick=()=>mutate(()=>P.clear(state,{...bounds(),zone:'mud',includeLocked:!$('keepLocks').checked}));
 $('unassignPlayer').onclick=()=>mutate(()=>{if(selectedId==null)throw Error('Choose a player first');P.unassign(state,selectedId);});

@@ -183,7 +183,7 @@
       }
     }
     assertPairZones(state,next);
-    for(const who of moved)if(tightPlacement(state,who)){
+    for(const who of moved)if(!state.planningMode&&tightPlacement(state,who)){
       const openings=teleportOpenings({...state,assignments:next},state.players.get(who).section).filter(s=>s.insideFormation);
       if(openings.length){const error=Error('That move leaves an enemy teleport opening inside the formation');error.openings=openings;throw error;}
     }
@@ -312,7 +312,7 @@
     const cleared = [];
     for (const [id, key] of state.assignments) {
       const site = state.sites.get(key), player = state.players.get(id);
-      if (!site || site.zone !== zone || !inWedge(site, start, end) ||
+      if (!site || (zone !== 'all' && site.zone !== zone) || !inWedge(site, start, end) ||
           (section && player.section !== section) || (!includeLocked && state.locks.has(id))) continue;
       cleared.push(id);
     }
@@ -673,13 +673,14 @@
     const used=new Set(state.assignments.values());
     const sites=[...state.sites].filter(([key])=>used.has(key)&&!state.baseSites.has(key)).map(([,s])=>({x:s.x,y:s.y}));
     const survey=state.survey&&{...state.survey,anchors:state.survey.anchors.filter(p=>isFieldAnchor(state,p.id)&&state.assignments.get(p.id)===siteKey(p))};
-    return { version: 1, signature: state.signature, ...(sites.length?{sites}:{}), ...(survey?{survey}:{}),
+    return { version: 1, signature: state.signature, ...(state.planningMode?{planningMode:true}:{}), ...(sites.length?{sites}:{}), ...(survey?{survey}:{}),
       assignments: [...state.assignments], sections: structuredClone(state.sections), locks: [...state.locks], pairs: state.pairs.map(p => ({ ...p })) };
   }
 
   function importDraft(state, draft) {
     if (draft?.version !== 1 || draft.signature !== state.signature) throw Error('Draft belongs to a different base plan');
     if (!Array.isArray(draft.assignments) || draft.assignments.length !== state.players.size) throw Error('Draft is missing players');
+    if(draft.planningMode!==undefined&&typeof draft.planningMode!=='boolean')throw Error('Invalid draft planning mode');
     validateSurvey(state,draft.survey);
     const anchorMap=new Map((draft.survey?.anchors||[]).map(p=>[p.id,p]));
     if (draft.sites!==undefined && (!Array.isArray(draft.sites)||draft.sites.length>state.players.size)) throw Error('Draft has invalid custom tiles');
@@ -738,6 +739,7 @@
       state.players.set(p.id,{...original,name:p.name,tag:p.tag,section});
     }
     state.survey=draft.survey?structuredClone(draft.survey):undefined;state.anchorMap=anchorMap;
+    state.planningMode=draft.planningMode===true;
     state.sites=sites;state.assignments = assignments; state.locks = locks; state.pairs = pairs;
   }
 

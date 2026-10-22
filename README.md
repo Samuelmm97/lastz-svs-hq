@@ -5,6 +5,26 @@ tap a dot, type your name, and it is reserved on the shared sheet in real time.
 
 Live page: https://samuelmm97.github.io/lastz-svs-hq/
 
+## Planning in phases
+
+Editors can use **Move everyone to waiting** to clear both mud and grass,
+including reservations and swap pairs, while preserving saved alliance zones.
+This enables **Draft planning: allow temporary teleport gaps**, a shared setting
+saved with the draft. Adjust and save each alliance zone, then use **Preview all
+alliance wedges** and **Apply preview** to fill the saved zones.
+
+During draft planning, gaps remain visible and the footprint test remains
+available, but temporary openings do not block manual moves, previews or server
+saves. Collision, terrain, turret and placement rules still apply. Footprint
+blocking continues to guide the packing algorithm. Turn draft planning off when
+finished; this checks all alliances with **Block every enemy teleport footprint**
+enabled and refuses to finish until their internal openings are closed.
+Existing drafts retain their previous enforcement until draft planning is enabled.
+
+Deploy the Worker and frontend together (Worker first); both understand the
+optional boolean `planningMode` draft field. Regression checks:
+`node planning-workflow.test.mjs` and `node planning-browser.test.cjs` (Playwright).
+
 ## Hard teleport validation and shared observations
 
 **Test every hex and HQ loss** checks the full seven-cell footprint at every legal

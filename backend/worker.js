@@ -14,7 +14,7 @@ function response(body, status = 200, origin = '') {
 }
 
 function validDraft(draft) {
-  if (!draft || draft.version !== 1 || typeof draft.signature !== 'string' ||
+  if (!draft || (draft.planningMode!==undefined&&typeof draft.planningMode!=='boolean') || draft.version !== 1 || typeof draft.signature !== 'string' ||
       !Array.isArray(draft.assignments) || draft.assignments.length !== 2000 ||
       !Array.isArray(draft.locks) || !Array.isArray(draft.pairs)) return false;
   const ids = new Set(), sites = new Set();
@@ -99,7 +99,7 @@ function draftFitsPlan(draft, plan) {
   if (!validDraft(draft) || !validPlan(plan) || draft.signature !== planSignature(plan)) return false;
   try {
     const state=P.create(plan);P.importDraft(state,draft);
-    for(const [section,area] of Object.entries(state.sections))if(area.defencePacking&&P.teleportOpenings(state,section).some(p=>p.insideFormation))return false;
+    for(const [section,area] of Object.entries(state.sections))if(!state.planningMode&&area.defencePacking&&P.teleportOpenings(state,section).some(p=>p.insideFormation))return false;
   } catch { return false; }
   return true;
 }
