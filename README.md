@@ -10,7 +10,8 @@ Live page: https://samuelmm97.github.io/lastz-svs-hq/
 In **Edit plan → Manage alliances**, choose a State 798 alliance from the current
 Sheets snapshot or enter a custom tag, then **Add alliance zone**. Set its angles
 and save the area. Existing players with that tag join the zone; adding a zone
-never creates or deletes player records. **Remove selected alliance zone** moves
+never creates or deletes player records. Choose any saved zone in **Zone to remove**, including tags missing from the
+current Sheet. **Remove selected alliance zone** moves
 its players to waiting, releases their reservations and affected swap pairs, and
 preserves their tags and all other zones. Both operations enable draft planning.
 

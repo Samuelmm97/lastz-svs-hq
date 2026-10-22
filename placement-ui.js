@@ -397,7 +397,15 @@ function renderAllianceManager() {
   $('allianceSource').textContent=allianceRoster?`${allianceRoster.alliances.length} State 798 alliances · captured ${new Date(allianceRoster.source.observedAt).toLocaleString()}. Adding a zone includes matching players already in this planner; it does not import new people.`:'Sheet alliance list unavailable. You can still enter a custom tag.';
   const disabled=!editorKey||busy||!!layoutPreview;
   $('addAlliance').disabled=disabled;
-  $('removeAlliance').disabled=disabled||!$('section').value||$('section').value==='Other';
+  const removal=$('removeAllianceChoice'),prior=removal.value;
+  removal.replaceChildren(new Option('Choose a saved zone to remove',''));
+  for(const tag of Object.keys(state.sections).filter(t=>t!=='Other')){
+    const count=[...state.players.values()].filter(p=>p.section===tag).length;
+    const inSheet=allianceRoster?.alliances.some(a=>a.tag.toLowerCase()===tag.toLowerCase());
+    removal.add(new Option(`${tag} · ${count} players${allianceRoster&&!inSheet?' · not in current Sheet':''}`,tag));
+  }
+  removal.value=Object.hasOwn(state.sections,prior)&&prior!=='Other'?prior:($('section').value==='Other'?'':$('section').value);
+  $('removeAlliance').disabled=disabled||!removal.value;
   $('refreshMemberships').disabled=disabled||!allianceRoster;
   $('allianceActionStatus').textContent=!editorKey?'Enable editing in Editor access to manage alliances.':busy?'Saving alliance changes…':layoutPreview?'Apply or cancel the preview before managing alliances.':'';
 }
@@ -1038,7 +1046,7 @@ canvas.addEventListener('wheel', e => {
 for (const id of ['search', 'section', 'zone', 'swapPreview'])
   $(id).addEventListener(id === 'search' ? 'input' : 'change', render);
 for (const id of ['wedgeStart', 'wedgeEnd']) $(id).addEventListener('input',()=>{draw();renderCapacity();});
-$('section').addEventListener('change',()=>{cancelPreview();targetKey=null;syncBoundary();render();});
+$('section').addEventListener('change',()=>{cancelPreview();targetKey=null;$('removeAllianceChoice').value=$('section').value==='Other'?'':$('section').value;syncBoundary();render();});
 $('mapAction').onchange=render;
 $('showGaps').onchange=draw;
 $('showEdges').onchange=draw;
@@ -1101,10 +1109,11 @@ $('allianceChoice').onchange=()=>{$('customAllianceTag').value='';};
 $('addAlliance').onclick=async()=>{
   let added;
   const saved=await mutate(()=>{added=P.addAlliance(state,$('customAllianceTag').value||$('allianceChoice').value);return `${added} zone added; adjust its direction and width, then save area & rules`;});
-  if(saved){$('section').value=added;$('customAllianceTag').value='';syncBoundary();render();}
+  if(saved){$('section').value=added;$('removeAllianceChoice').value=added;$('customAllianceTag').value='';syncBoundary();render();}
 };
+$('removeAllianceChoice').onchange=()=>{$('removeAlliance').disabled=!editorKey||busy||!!layoutPreview||!$('removeAllianceChoice').value;};
 $('removeAlliance').onclick=async()=>{
-  const tag=$('section').value;
+  const tag=$('removeAllianceChoice').value;
   const saved=await mutate(()=>`${tag} zone removed; ${P.removeAlliance(state,tag)} players moved to waiting; reservations and affected swap pairs released`);
   if(saved){syncBoundary();render();}
 };
