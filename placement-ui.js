@@ -1149,8 +1149,8 @@ $('planningMode').onchange=()=>{const enabled=$('planningMode').checked;mutate((
   return enabled?'Draft planning enabled; temporary gaps allowed':'Draft planning finished; gap enforcement restored';
 });render();};
 $('clearEveryone').onclick=()=>mutate(()=>{
-  state.planningMode=true;
-  return `${P.clear(state,{zone:'all',includeLocked:true})} players moved to waiting; reservations and swap pairs released; draft planning enabled`;
+  const cleared=P.clearForPlanning(state);
+  return `${cleared.players} players moved to waiting; ${cleared.observations} old observed HQ obstacles cleared; reservations and swap pairs released; draft planning enabled`;
 });
 $('clearMud').onclick=()=>mutate(()=>P.clear(state,{zone:'mud',includeLocked:!$('keepLocks').checked}));
 $('clearArea').onclick=()=>mutate(()=>P.clear(state,{...bounds(),zone:'mud',includeLocked:!$('keepLocks').checked}));

@@ -325,6 +325,15 @@
     return cleared.length;
   }
 
+  function clearForPlanning(state) {
+    const players=clear(state,{zone:'all',includeLocked:true});
+    const observations=state.survey?.obstacles.length||0;
+    if(state.survey)state.survey={...state.survey,anchors:[],obstacles:[]};
+    state.anchorMap=new Map();
+    state.planningMode=true;
+    return {players,observations};
+  }
+
   const validAllianceTag = tag => typeof tag==='string' && tag===tag.trim() && /^[\p{L}\p{N}][\p{L}\p{N} ._-]{0,19}$/u.test(tag) && !['__proto__','constructor','prototype'].includes(tag.toLowerCase());
   function alliancePlayers(state, sections, survey, tags) {
     const players=new Map(state.basePlayers||state.players);
@@ -810,5 +819,5 @@
 
   return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, isUnaligned, clearOfTurrets,
            distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps, teleportOpenings, defenceReport,
-           validAllianceTag, addAlliance, removeAlliance, refreshAllianceMemberships, clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
+           clearForPlanning, validAllianceTag, addAlliance, removeAlliance, refreshAllianceMemberships, clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
 });

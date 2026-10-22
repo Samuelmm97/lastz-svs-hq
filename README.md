@@ -42,6 +42,8 @@ snapshots; it never writes to production.
 
 Editors can use **Move everyone to waiting** to clear both mud and grass,
 including reservations and swap pairs, while preserving saved alliance zones.
+The full reset also clears old survey HQ squares and their occupancy blockers from
+the draft; prior survey data remains in revision history and the Atlas source.
 This enables **Draft planning: allow temporary teleport gaps**, a shared setting
 saved with the draft. Adjust and save each alliance zone, then use **Preview all
 alliance wedges** and **Apply preview** to fill the saved zones.

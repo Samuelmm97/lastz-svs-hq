@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {createRequire} from 'node:module';import {draftFitsPlan} from './backend/worker.js';
+const P=createRequire(import.meta.url)('./placement-planner.js'),plan=JSON.parse(readFileSync('placement-plan.json','utf8')),s=P.create(plan);
+const player=[...s.players.values()].find(p=>p.section==='Other'),key=P.defineSite(s,450,500);
+s.survey={state:798,world:0,capturedAt:'2026-10-01T00:00:00Z',anchors:[],obstacles:[{uid:'100001',x:450,y:500,name:'Old observation',tag:'Other',observed:1790812800}]};
+assert.throws(()=>P.checkPlacement(s,player.id,key),/observed in-game HQ/);const zones=structuredClone(s.sections);const result=P.clearForPlanning(s);assert.equal(result.observations,1);assert.deepEqual(s.sections,zones);assert.equal(s.survey.obstacles.length,0);assert.equal(s.locks.size,0);assert.deepEqual(s.pairs,[]);
+P.moveAndLock(s,player.id,key);assert(draftFitsPlan(P.exportDraft(s),plan));const restored=P.create(plan);P.importDraft(restored,P.exportDraft(s));assert.equal(restored.assignments.get(player.id),key);assert.equal(restored.survey.obstacles.length,0);console.log('Full reset frees former survey sites, preserves zones and saves legal new placements');
