@@ -378,8 +378,19 @@ function draw() {
     ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(tag,box.x+width/2,box.y+14);
   }
 }
+// The captured Sheet alliance list is ordered by alliance power rank.
+function allianceRank(tag) {
+  const index=allianceRoster?.alliances.findIndex(a=>a.tag.toLowerCase()===tag.toLowerCase())??-1;
+  return index<0?Infinity:(allianceRoster.alliances[index].rank||index+1);
+}
+function rankedAllianceTags(tags) {
+  return [...tags].sort((a,b)=>Number(a==='Other')-Number(b==='Other')||allianceRank(a)-allianceRank(b)||a.localeCompare(b));
+}
+function rankedAllianceLabel(tag) {
+  const rank=allianceRank(tag);return Number.isFinite(rank)?`#${rank} ${tag}`:tag;
+}
 function syncAllianceOptions() {
-  const tags=Object.keys(state.sections),select=$('section');
+  const tags=rankedAllianceTags(Object.keys(state.sections)),select=$('section');
   if(JSON.stringify([...select.options].slice(1).map(o=>o.value))===JSON.stringify(tags))return;
   const previous=select.value;select.replaceChildren(new Option('All HQs (everyone, incl. unaligned)',''));
   for(const tag of tags)select.add(new Option(tag,tag));
@@ -387,11 +398,11 @@ function syncAllianceOptions() {
 }
 function renderAllianceManager() {
   const select=$('allianceChoice'),previous=select.value;
-  const entries=(allianceRoster?.alliances||[]).filter(a=>!Object.keys(state.sections).some(t=>t.toLowerCase()===a.tag.toLowerCase()));
+  const entries=[...(allianceRoster?.alliances||[])].sort((a,b)=>allianceRank(a.tag)-allianceRank(b.tag)).filter(a=>!Object.keys(state.sections).some(t=>t.toLowerCase()===a.tag.toLowerCase()));
   select.replaceChildren(new Option('Choose an alliance from the sheet',''));
   for(const a of entries){
     const count=[...state.players.values()].filter(p=>(p.tag||'').toLowerCase()===a.tag.toLowerCase()).length;
-    select.add(new Option(`${a.tag} · ${a.name} · ${count} in planner / ${a.members} captured`,a.tag));
+    select.add(new Option(`${rankedAllianceLabel(a.tag)} · ${a.name} · ${count} in planner / ${a.members} captured`,a.tag));
   }
   if(entries.some(a=>a.tag===previous))select.value=previous;
   $('allianceSource').textContent=allianceRoster?`${allianceRoster.alliances.length} State 798 alliances · captured ${new Date(allianceRoster.source.observedAt).toLocaleString()}. Adding a zone includes matching players already in this planner; it does not import new people.`:'Sheet alliance list unavailable. You can still enter a custom tag.';
@@ -399,10 +410,10 @@ function renderAllianceManager() {
   $('addAlliance').disabled=disabled;
   const removal=$('removeAllianceChoice'),prior=removal.value;
   removal.replaceChildren(new Option('Choose a saved zone to remove',''));
-  for(const tag of Object.keys(state.sections).filter(t=>t!=='Other')){
+  for(const tag of rankedAllianceTags(Object.keys(state.sections).filter(t=>t!=='Other'))){
     const count=[...state.players.values()].filter(p=>p.section===tag).length;
     const inSheet=allianceRoster?.alliances.some(a=>a.tag.toLowerCase()===tag.toLowerCase());
-    removal.add(new Option(`${tag} · ${count} players${allianceRoster&&!inSheet?' · not in current Sheet':''}`,tag));
+    removal.add(new Option(`${rankedAllianceLabel(tag)} · ${count} players${allianceRoster&&!inSheet?' · not in current Sheet':''}`,tag));
   }
   removal.value=Object.hasOwn(state.sections,prior)&&prior!=='Other'?prior:($('section').value==='Other'?'':$('section').value);
   $('removeAlliance').disabled=disabled||!removal.value;
@@ -415,7 +426,7 @@ function render() {
   const memberCounts=new Map();for(const p of state.players.values())memberCounts.set(p.section,(memberCounts.get(p.section)||0)+1);
   for(const option of $('section').options)if(option.value){
     const count=memberCounts.get(option.value)||0;
-    option.textContent=option.value==='Other'?`Unaligned / other alliances (${count})`:`${option.value} (${count})`;
+    option.textContent=option.value==='Other'?`Unaligned / other alliances (${count})`:`${rankedAllianceLabel(option.value)} (${count})`;
   }
   if (!state) return;
   const after = $('swapPreview').checked, q = $('search').value.toLocaleLowerCase();
