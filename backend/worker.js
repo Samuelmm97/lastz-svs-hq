@@ -28,12 +28,13 @@ function validDraft(draft) {
   const locks = new Set(draft.locks);
   const members = draft.pairs.flatMap(p => [p.strike, p.reserve]);
   const assignments = new Map(draft.assignments);
+  if(draft.allianceTags!==undefined&&(!Array.isArray(draft.allianceTags)||draft.allianceTags.length>2000||new Set(draft.allianceTags.map(p=>p?.[0])).size!==draft.allianceTags.length||draft.allianceTags.some(p=>!Array.isArray(p)||p.length!==2||!Number.isSafeInteger(p[0])||!ids.has(p[0])||!P.validAllianceTag(p[1]))))return false;
   const sections = draft.sections;
   if(draft.sites!==undefined && (!Array.isArray(draft.sites)||draft.sites.length>2000||draft.sites.some(s=>
     !s||!Number.isInteger(s.x)||!Number.isInteger(s.y)||s.x<0||s.x>999||s.y<0||s.y>999)))return false;
   if (sections !== undefined && (!sections || Array.isArray(sections) || typeof sections !== 'object' ||
       Object.keys(sections).length > 100 || Object.entries(sections).some(([tag, s]) =>
-        tag.length > 20 || !s || !Number.isFinite(s.start) || !Number.isFinite(s.end) ||
+        !P.validAllianceTag(tag) || !s || !Number.isFinite(s.start) || !Number.isFinite(s.end) ||
         Math.abs(s.start) > 4*Math.PI || Math.abs(s.end) > 4*Math.PI ||
         (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
         (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
@@ -127,6 +128,8 @@ function changesBetween(before, after) {
     locked: after.locks.filter(id => !oldLocks.has(id)),
     unlocked: [...oldLocks].filter(id => !nextLocks.has(id)),
     paired: after.pairs.filter(pair => !oldPairs.has(pairKey(pair))),
+    allianceMemberships: after.allianceTags?.filter(([id,tag])=>new Map(before?.allianceTags||[]).get(id)!==tag).map(([id,tag])=>({id,tag}))||[],
+    removedAlliances: Object.keys(before?.sections||{}).filter(tag=>!Object.hasOwn(after.sections||{},tag)),
     unpaired: (before?.pairs || []).filter(pair => !nextPairs.has(pairKey(pair)))
     , boundaries: Object.entries(after.sections || {}).filter(([tag,area]) =>
       JSON.stringify(before?.sections?.[tag]) !== JSON.stringify(area)).map(([tag,area]) => ({tag,...area}))
@@ -566,6 +569,10 @@ export default {
     }
     if (!env.DB) return response({ error: 'Database is not configured' }, 503, origin);
     if (request.method === 'GET' && !readAllowed) return response({ error: 'Access key required' }, 401, origin);
+    if (url.pathname === '/api/placement/alliance-roster' && request.method === 'GET') {
+      const row=await env.DB.prepare('SELECT payload FROM placement_alliance_rosters WHERE id = ?').bind('state-798').first();
+      return row?response(JSON.parse(row.payload),200,origin):response({error:'Alliance roster is not configured'},404,origin);
+    }
     if (url.pathname === '/api/placement/history' && request.method === 'GET') {
       const before = Number(url.searchParams.get('before') || Number.MAX_SAFE_INTEGER);
       if (!Number.isSafeInteger(before) || before < 1) return response({ error: 'Invalid cursor' }, 400, origin);

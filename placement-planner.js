@@ -325,6 +325,71 @@
     return cleared.length;
   }
 
+  const validAllianceTag = tag => typeof tag==='string' && tag===tag.trim() && /^[\p{L}\p{N}][\p{L}\p{N} ._-]{0,19}$/u.test(tag) && !['__proto__','constructor','prototype'].includes(tag.toLowerCase());
+  function alliancePlayers(state, sections, survey, tags) {
+    const players=new Map(state.basePlayers||state.players);
+    for(const p of [...survey?.anchors||[],...survey?.relocations||[]]) {
+      const original=players.get(p.id);players.set(p.id,{...original,name:p.name,tag:p.tag});
+    }
+    for(const [id,p] of players) {
+      const tag=tags.get(id)??p.tag??'';
+      const matched=Object.keys(sections).find(t=>t.toLowerCase()===tag.toLowerCase());
+      const section=matched || (!tags.has(id)&&p.section!=='Other'&&Object.hasOwn(sections,p.section)?p.section:'Other');
+      players.set(id,{...p,tag,section});
+    }
+    return players;
+  }
+  function waitForAllianceChange(state, ids) {
+    const affected=new Set(ids);
+    for(const pair of state.pairs)if(affected.has(pair.strike)||affected.has(pair.reserve)){
+      state.locks.delete(pair.strike);state.locks.delete(pair.reserve);
+    }
+    state.pairs=state.pairs.filter(p=>!affected.has(p.strike)&&!affected.has(p.reserve));
+    for(const id of affected){state.assignments.set(id,null);state.locks.delete(id);}
+    state.planningMode=true;
+    return affected.size;
+  }
+  function addAlliance(state, tag) {
+    tag=String(tag||'').trim();
+    if(!validAllianceTag(tag)||tag.toLowerCase()==='other')throw Error('Enter an alliance tag of 1–20 letters, numbers, spaces, dots, hyphens or underscores');
+    if(Object.keys(state.sections).some(t=>t.toLowerCase()===tag.toLowerCase()))throw Error('That alliance already has a zone');
+    if(Object.keys(state.sections).length>=100)throw Error('The plan supports up to 99 alliance zones');
+    state.sections[tag]={start:0,end:Math.PI/3,grassOnly:true,frontLayers:1,bodyGap:1};
+    for(const [id,p] of state.players)if((p.tag||'').toLowerCase()===tag.toLowerCase())state.players.set(id,{...p,section:tag});
+    state.planningMode=true;
+    return tag;
+  }
+  function removeAlliance(state, tag) {
+    if(tag==='Other'||!Object.hasOwn(state.sections,tag))throw Error('Choose an alliance zone to remove');
+    const ids=[...state.players.values()].filter(p=>p.section===tag).map(p=>p.id);
+    waitForAllianceChange(state,ids);delete state.sections[tag];
+    for(const id of ids)state.players.set(id,{...state.players.get(id),section:'Other'});
+    return ids.length;
+  }
+  function refreshAllianceMemberships(state, roster) {
+    if(roster?.state!==798||!Array.isArray(roster.players))throw Error('Choose a State 798 roster');
+    const byUid=new Map();
+    for(const p of roster.players){
+      if(!p||typeof p.uid!=='string'||!/^\d{1,30}$/.test(p.uid)||!validAllianceTag(p.tag)||byUid.has(p.uid))throw Error('Invalid alliance roster');
+      byUid.set(p.uid,p);
+    }
+    const tags=new Map(state.allianceTags||[]),changed=[];let matched=0;
+    for(const [id,p] of state.players){
+      const member=byUid.get(String(p.playerId||p.uid||state.anchorMap?.get(id)?.uid||''));
+      if(!member)continue;
+      matched++;tags.set(id,member.tag);
+      if(p.tag!==member.tag)changed.push(id);
+    }
+    state.allianceTags=tags;
+    waitForAllianceChange(state,changed);
+    for(const [id,p] of state.players){
+      if(!tags.has(id))continue;
+      const tag=tags.get(id),section=Object.keys(state.sections).find(t=>t.toLowerCase()===tag.toLowerCase())||'Other';
+      state.players.set(id,{...p,tag,section});
+    }
+    return {matched,changed:changed.length,unmatched:state.players.size-matched};
+  }
+
   function setSection(state, section, start, end, rules = {}) {
     if (!state.sections[section] || !Number.isFinite(start) || !Number.isFinite(end) ||
         start < 0 || start > 360 || end < 0 || end > 360 || start === end)
@@ -674,7 +739,7 @@
     const sites=[...state.sites].filter(([key])=>used.has(key)&&!state.baseSites.has(key)).map(([,s])=>({x:s.x,y:s.y}));
     const survey=state.survey&&{...state.survey,anchors:state.survey.anchors.filter(p=>isFieldAnchor(state,p.id)&&state.assignments.get(p.id)===siteKey(p))};
     return { version: 1, signature: state.signature, ...(state.planningMode?{planningMode:true}:{}), ...(sites.length?{sites}:{}), ...(survey?{survey}:{}),
-      assignments: [...state.assignments], sections: structuredClone(state.sections), locks: [...state.locks], pairs: state.pairs.map(p => ({ ...p })) };
+      ...(state.allianceTags?.size?{allianceTags:[...state.allianceTags]}:{}), assignments: [...state.assignments], sections: structuredClone(state.sections), locks: [...state.locks], pairs: state.pairs.map(p => ({ ...p })) };
   }
 
   function importDraft(state, draft) {
@@ -682,6 +747,9 @@
     if (!Array.isArray(draft.assignments) || draft.assignments.length !== state.players.size) throw Error('Draft is missing players');
     if(draft.planningMode!==undefined&&typeof draft.planningMode!=='boolean')throw Error('Invalid draft planning mode');
     validateSurvey(state,draft.survey);
+    const allianceTags=new Map(draft.allianceTags||[]);
+    if(draft.allianceTags!==undefined&&(!Array.isArray(draft.allianceTags)||draft.allianceTags.length>state.players.size||allianceTags.size!==draft.allianceTags.length||draft.allianceTags.some(p=>!Array.isArray(p)||p.length!==2||!Number.isSafeInteger(p[0])||!state.players.has(p[0])||!validAllianceTag(p[1]))))throw Error('Invalid alliance memberships');
+    const players=alliancePlayers(state,draft.sections||state.sections,draft.survey,allianceTags);
     const anchorMap=new Map((draft.survey?.anchors||[]).map(p=>[p.id,p]));
     if (draft.sites!==undefined && (!Array.isArray(draft.sites)||draft.sites.length>state.players.size)) throw Error('Draft has invalid custom tiles');
     const sites=new Map(state.baseSites);
@@ -696,7 +764,7 @@
         placed.some(key => !sites.has(key))) throw Error('Draft has duplicate or unknown players or sites');
     const custom=new Set((draft.sites||[]).map(siteKey));
     const anchoredSites=new Set([...anchorMap.values()].map(siteKey));
-    const owners=new Map([...assignments].map(([id,key])=>[key,id])),defence={...state,sections:draft.sections||state.sections};
+    const owners=new Map([...assignments].map(([id,key])=>[key,id])),defence={...state,players,sections:draft.sections||state.sections};
     for(const key of custom) {
       if(!placed.includes(key))throw Error('Draft has unused custom tiles');
       const a=sites.get(key);
@@ -715,11 +783,12 @@
     const members = pairs.flatMap(p => [p.strike, p.reserve]);
     if (new Set(members).size !== members.length || members.some(id => !state.players.has(id) || !locks.has(id)))
       throw Error('Draft has an invalid swap pair');
-    const candidate = { ...state, sites, assignments, pairs };
+    const candidate = { ...state, players, sites, assignments, pairs };
     assertPairZones(candidate);
     if (draft.sections !== undefined) {
       if (!draft.sections || typeof draft.sections !== 'object' || Array.isArray(draft.sections) ||
-          Object.keys(draft.sections).some(tag => !Object.hasOwn(state.sections,tag)) ||
+          Object.keys(draft.sections).length>100 || Object.keys(draft.sections).some(tag => !validAllianceTag(tag)) ||
+          new Set(Object.keys(draft.sections).map(t=>t.toLowerCase())).size!==Object.keys(draft.sections).length ||
           Object.values(draft.sections).some(s => !s || !Number.isFinite(s.start) || !Number.isFinite(s.end) ||
             (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
             (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
@@ -733,11 +802,7 @@
         throw Error('Draft has invalid alliance boundaries');
       state.sections = structuredClone(draft.sections);
     }
-    state.players=new Map(state.basePlayers||state.players);
-    for(const p of [...anchorMap.values(),...draft.survey?.relocations||[]]) {
-      const original=state.players.get(p.id),section=Object.keys(state.sections).find(tag=>tag.toLowerCase()===p.tag.toLowerCase())||'Other';
-      state.players.set(p.id,{...original,name:p.name,tag:p.tag,section});
-    }
+    state.players=players;state.allianceTags=allianceTags;
     state.survey=draft.survey?structuredClone(draft.survey):undefined;state.anchorMap=anchorMap;
     state.planningMode=draft.planningMode===true;
     state.sites=sites;state.assignments = assignments; state.locks = locks; state.pairs = pairs;
@@ -745,5 +810,5 @@
 
   return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, isUnaligned, clearOfTurrets,
            distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps, teleportOpenings, defenceReport,
-           clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
+           validAllianceTag, addAlliance, removeAlliance, refreshAllianceMemberships, clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
 });

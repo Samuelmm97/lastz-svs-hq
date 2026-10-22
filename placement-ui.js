@@ -3,6 +3,7 @@ const P = PlacementPlanner;
 const canvas = $('map'), ctx = canvas.getContext('2d');
 const apiUrl = globalThis.PLACEMENT_API_URL || '';
 let sharedSource=null;
+let allianceRoster=null;
 let sharedSourceError=false;
 const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5', stray: '#c9d4da',
   risk: '#ef6f77', absent: '#f3b65e', unknown: '#abb0f5', team: '#f9e37e' };
@@ -377,7 +378,32 @@ function draw() {
     ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(tag,box.x+width/2,box.y+14);
   }
 }
+function syncAllianceOptions() {
+  const tags=Object.keys(state.sections),select=$('section');
+  if(JSON.stringify([...select.options].slice(1).map(o=>o.value))===JSON.stringify(tags))return;
+  const previous=select.value;select.replaceChildren(new Option('All HQs (everyone, incl. unaligned)',''));
+  for(const tag of tags)select.add(new Option(tag,tag));
+  select.value=Object.hasOwn(state.sections,previous)?previous:'';
+}
+function renderAllianceManager() {
+  const select=$('allianceChoice'),previous=select.value;
+  const entries=(allianceRoster?.alliances||[]).filter(a=>!Object.keys(state.sections).some(t=>t.toLowerCase()===a.tag.toLowerCase()));
+  select.replaceChildren(new Option('Choose an alliance from the sheet',''));
+  for(const a of entries){
+    const count=[...state.players.values()].filter(p=>(p.tag||'').toLowerCase()===a.tag.toLowerCase()).length;
+    select.add(new Option(`${a.tag} · ${a.name} · ${count} in planner / ${a.members} captured`,a.tag));
+  }
+  if(entries.some(a=>a.tag===previous))select.value=previous;
+  $('allianceSource').textContent=allianceRoster?`${allianceRoster.alliances.length} State 798 alliances · captured ${new Date(allianceRoster.source.observedAt).toLocaleString()}. Adding a zone includes matching players already in this planner; it does not import new people.`:'Sheet alliance list unavailable. You can still enter a custom tag.';
+  const disabled=!editorKey||busy||!!layoutPreview;
+  $('addAlliance').disabled=disabled;
+  $('removeAlliance').disabled=disabled||!$('section').value||$('section').value==='Other';
+  $('refreshMemberships').disabled=disabled||!allianceRoster;
+  $('allianceActionStatus').textContent=!editorKey?'Enable editing in Editor access to manage alliances.':busy?'Saving alliance changes…':layoutPreview?'Apply or cancel the preview before managing alliances.':'';
+}
 function render() {
+  if(!state)return;
+  syncAllianceOptions();renderAllianceManager();
   const memberCounts=new Map();for(const p of state.players.values())memberCounts.set(p.section,(memberCounts.get(p.section)||0)+1);
   for(const option of $('section').options)if(option.value){
     const count=memberCounts.get(option.value)||0;
@@ -511,7 +537,7 @@ function render() {
 function changeSummary(changes) {
   const parts = [['added', 'added to roster'], ['removed', 'removed from roster'],
     ['moved', 'moved'], ['locked', 'locked'], ['unlocked', 'unlocked'],
-    ['paired', 'paired'], ['unpaired', 'unpaired'], ['boundaries', 'alliance areas changed']]
+    ['paired', 'paired'], ['unpaired', 'unpaired'], ['boundaries', 'alliance areas changed'], ['removedAlliances','alliance zones removed'], ['allianceMemberships','alliance memberships updated']]
     .filter(([key]) => changes[key]?.length)
     .map(([key, label]) => `${changes[key].length} ${label}`);
   return parts.join(' · ') || 'No placement changes';
@@ -563,6 +589,8 @@ async function showHistory(number) {
     for (const player of entry.changes.removed || []) add(`${player.name || name(player.id)}: removed from roster (previously ${player.from})`);
     for (const move of entry.changes.moved) add(`${name(move.id)}: ${move.from || 'Waiting'} → ${move.to || 'Waiting'}`);
     for (const area of entry.changes.boundaries || []) add(`${area.tag}: area ${Math.round(normalDegrees(area.start*180/Math.PI))}°–${Math.round(normalDegrees(area.end*180/Math.PI))}°`);
+    for (const tag of entry.changes.removedAlliances || []) add(`${tag}: alliance zone removed`);
+    for (const p of entry.changes.allianceMemberships || []) add(`${name(p.id)}: alliance ${p.tag}`);
     for (const id of entry.changes.locked) add(`${name(id)}: locked`);
     for (const id of entry.changes.unlocked) add(`${name(id)}: unlocked`);
     for (const pair of entry.changes.paired) add(`${name(pair.strike)} ⇄ ${name(pair.reserve)}: paired`);
@@ -628,7 +656,7 @@ async function mutate(action) {
     P.importDraft(state, before); syncBoundary();render(); message(e.message);
     if (e.message.startsWith('Another planner')) { busy = false; await loadShared(true); }
     return false;
-  } finally { busy = false; }
+  } finally { busy = false; render(); }
 }
 function setTarget(key) {
   const [x,y]=key.split(',').map(Number);
@@ -1062,13 +1090,36 @@ $('cancelLayout').onclick=()=>{cancelPreview();syncBoundary();message('Preview c
 $('applyLayout').onclick=()=>{
   if(!layoutPreview)return;
   if(layoutPreview.blocked){message('Close every teleport opening before applying this layout.');return;}
-  const after=layoutPreview.after;cancelPreview();
-  mutate(()=>{P.importDraft(state,after);return 'Alliance layout applied';});
+  const after=layoutPreview.after,detail=layoutPreview.detail||'Alliance layout applied';cancelPreview();
+  mutate(()=>{P.importDraft(state,after);return detail;});
 };
 for(const id of ['grassOnly','grassCompact','defencePacking','frontLayers','bodyGap','boundaryCenter','boundaryWidth','wedgeStart','wedgeEnd'])
   $(id).addEventListener('input',()=>{if(layoutPreview){cancelPreview();message('Preview canceled because the layout settings changed. Preview again to inspect the new settings.');}});
 $('simulateDestroyed').onchange=render;
 $('checkDefence').onclick=()=>{defenceCache=null;render();message(currentDefence().gapFree?'Every legal hex center checked: no enemy HQ fits inside the formation.':'Footprint check failed. Every legal hex center was tested; amber marks show the openings.');};
+$('allianceChoice').onchange=()=>{$('customAllianceTag').value='';};
+$('addAlliance').onclick=async()=>{
+  let added;
+  const saved=await mutate(()=>{added=P.addAlliance(state,$('customAllianceTag').value||$('allianceChoice').value);return `${added} zone added; adjust its direction and width, then save area & rules`;});
+  if(saved){$('section').value=added;$('customAllianceTag').value='';syncBoundary();render();}
+};
+$('removeAlliance').onclick=async()=>{
+  const tag=$('section').value;
+  const saved=await mutate(()=>`${tag} zone removed; ${P.removeAlliance(state,tag)} players moved to waiting; reservations and affected swap pairs released`);
+  if(saved){syncBoundary();render();}
+};
+$('refreshMemberships').onclick=()=>{
+  if(!editorKey||busy||layoutPreview||!allianceRoster)return;
+  const before=P.exportDraft(state);
+  try{
+    const report=P.refreshAllianceMemberships(state,allianceRoster);
+    layoutPreview={before,after:P.exportDraft(state),revision,blocked:false,detail:'Alliance memberships refreshed from Google Sheets'};
+    $('layoutReport').textContent=`Membership refresh preview: ${report.matched} players matched by player ID · ${report.changed} changed alliance and moved to waiting · ${report.unmatched} unmatched players kept unchanged. Changed players release reservations and affected swap pairs. Alliances without a zone use Other. Apply to save, or cancel.`;
+    $('applyLayout').disabled=false;$('layoutPreview').hidden=false;render();
+    $('layoutPreview').scrollIntoView({behavior:'smooth',block:'center'});
+    message('Review the membership refresh preview before applying.');
+  }catch(e){P.importDraft(state,before);render();message(e.message);}
+};
 $('planningMode').onchange=()=>{const enabled=$('planningMode').checked;mutate(()=>{
   if(!enabled){
     const failed=Object.entries(state.sections).filter(([tag,a])=>a.defencePacking&&P.teleportOpenings(state,tag).some(p=>p.insideFormation));
@@ -1185,7 +1236,7 @@ $('connectEditor').onclick = async () => {
     editorKey = key; localStorage.setItem('state798.editorKey', key);
     sessionStorage.removeItem('state798.editorKey');
     localStorage.setItem('state798.editorName', $('editorName').value.trim());
-    message('Editing enabled. Changes save to the shared database.');
+    render();message('Editing enabled. Changes save to the shared database.');
   } catch (e) { message(e.message); }
 };
 $('forgetEditor').onclick = () => {
@@ -1193,7 +1244,7 @@ $('forgetEditor').onclick = () => {
   $('editorKey').value = '';
   localStorage.removeItem('state798.editorKey');
   sessionStorage.removeItem('state798.editorKey');
-  message('Editor key removed from this device.');
+  render();message('Editor key removed from this device.');
 };
 
 Promise.all([fetch('placement-plan.json').then(r=>{if(!r.ok)throw Error('Plan could not be loaded');return r.json();}),
@@ -1222,3 +1273,5 @@ Promise.all([fetch('placement-plan.json').then(r=>{if(!r.ok)throw Error('Plan co
   },60000);
 }).catch(e => { $('summary').textContent = e.message; });
 new ResizeObserver(size).observe(canvas);
+
+fetch(`${apiUrl}/api/placement/alliance-roster`,{cache:'no-store',headers:globalThis.readHeaders?readHeaders():{}}).then(r=>{if(!r.ok)throw Error('Roster unavailable');return r.json();}).then(data=>{if(data.state!==798||!Array.isArray(data.alliances)||!Array.isArray(data.players))throw Error('Invalid roster');allianceRoster=data;if(state)render();}).catch(()=>{if(state)renderAllianceManager();});

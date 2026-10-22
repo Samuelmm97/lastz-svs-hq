@@ -5,6 +5,38 @@ tap a dot, type your name, and it is reserved on the shared sheet in real time.
 
 Live page: https://samuelmm97.github.io/lastz-svs-hq/
 
+## Managing alliance zones and memberships
+
+In **Edit plan → Manage alliances**, choose a State 798 alliance from the current
+Sheets snapshot or enter a custom tag, then **Add alliance zone**. Set its angles
+and save the area. Existing players with that tag join the zone; adding a zone
+never creates or deletes player records. **Remove selected alliance zone** moves
+its players to waiting, releases their reservations and affected swap pairs, and
+preserves their tags and all other zones. Both operations enable draft planning.
+
+**Preview membership refresh from Sheets** matches the existing roster by player
+ID. Changed memberships move to waiting and release reservations and affected
+pairs; unmatched players stay unchanged. Review the match/change counts, then
+**Apply preview** or **Cancel preview**. Refreshed members whose alliance has no
+zone appear under Other until a zone is added. New people outside the base roster
+require a separate roster migration. The snapshot date is shown beside the controls.
+
+The private Sheet roster is stored in D1 and read through the access-controlled
+`/api/placement/alliance-roster` route. Do not publish the raw Sheet rows as static
+site assets. Deploy `backend/migrations/006_alliance_roster.sql` before this Worker.
+The `placement_alliance_rosters` row with id `state-798` stores a JSON payload with
+`state`, `source` (`url`, `observedAt`), `alliances` (`tag`, `name`, `members`,
+`allianceId`) and `players` (`uid`, `tag`, `name`, `allianceId`); refresh that snapshot
+from verified Sheets reads when its capture changes. Importing the source snapshot
+does not itself alter shared placements; applying the preview saves a normal,
+revision-checked history entry. Drafts store optional `allianceTags` pairs of local
+player ID and current tag. Older history remains restorable.
+
+Regression checks: `node alliance-management.test.mjs` and
+`node alliance-management-browser.test.cjs`. The browser test supports `QA_ENGINE=webkit`,
+`QA_PLAN`, `QA_SHARED`, and `QA_ALLIANCE_ROSTER` for isolated tests against private
+snapshots; it never writes to production.
+
 ## Planning in phases
 
 Editors can use **Move everyone to waiting** to clear both mud and grass,

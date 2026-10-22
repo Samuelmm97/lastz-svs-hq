@@ -15,6 +15,9 @@ async function startServer(port=0) {
     if(url.pathname==='/placement-plan.json'){json(plan);return;}
     if(url.pathname.startsWith('/api/')) {
       if(url.pathname==='/api/editor-check'){json({},req.headers.authorization==='Bearer local-test-key'?200:401);return;}
+      if(url.pathname==='/api/placement/alliance-roster'){
+        json(process.env.QA_ALLIANCE_ROSTER?read(process.env.QA_ALLIANCE_ROSTER):{state:798,source:{observedAt:'2026-10-22T00:08:23Z'},alliances:[{tag:'FZTA',name:'Test alliance',members:1}],players:[{uid:'1000000001',tag:'FZTA'}]});return;
+      }
       if(url.pathname==='/api/placement/plan'){json({plan});return;}
       if(url.pathname==='/api/placement/history'){json({entries:[...history.values()].reverse().map(s=>({...s,draft:undefined,changes:{}}))});return;}
       if(url.pathname.startsWith('/api/placement/history/')){json({...history.get(Number(url.pathname.split('/').pop())),plan});return;}

@@ -1,0 +1,25 @@
+const assert=require('node:assert/strict');
+const {chromium,webkit,devices}=require('playwright');
+const {startServer}=require('./qa-server.cjs');
+(async()=>{const app=await startServer();let browser;try{
+ browser=await(process.env.QA_ENGINE==='webkit'?webkit:chromium).launch({headless:true});const page=await browser.newPage({...devices['iPhone 13']});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(app.url+'/placement.html?edit=1&alliance=Helm');await page.locator('#rows tr').first().waitFor();
+ assert(await page.locator('#addAlliance').isDisabled());
+ await page.locator('#editorKey').fill('local-test-key');await page.locator('#connectEditor').tap();await page.locator('#status').filter({hasText:'Editing enabled'}).waitFor();await page.waitForFunction(()=>allianceRoster!==null&&revision>0);
+ const initial=structuredClone(app.shared.draft);
+ await page.locator('#refreshMemberships').tap();await page.locator('#layoutPreview').waitFor({state:'visible'});assert.equal(app.saves,0);assert.match(await page.locator('#layoutReport').textContent(),/matched by player ID/);
+ await page.locator('#cancelLayout').tap();assert.deepEqual(app.shared.draft,initial);
+ await page.locator('#refreshMemberships').tap();await page.locator('#applyLayout').tap();await page.waitForFunction(()=>!busy);assert.equal(app.saves,1);assert.equal(app.shared.draft.planningMode,true);
+ const assignments=new Map(app.shared.draft.assignments);
+ await page.locator('#allianceChoice').selectOption('FZTA');await page.locator('#addAlliance').tap();await page.waitForFunction(()=>!busy);assert.equal(await page.locator('#section').inputValue(),'FZTA');assert(app.shared.draft.sections.FZTA);
+ await page.locator('#boundaryCenter').fill('240');await page.locator('#boundaryWidth').fill('30');await page.locator('#saveBoundary').tap();await page.waitForFunction(()=>!busy);
+ await page.reload();await page.waitForFunction(()=>state&&revision>0&&editorKey);await page.locator('#section').selectOption('FZTA');
+ assert.equal(await page.locator('#boundaryWidth').inputValue(),'30');
+ const ids=await page.evaluate(()=>[...state.players.values()].filter(p=>p.section==='FZTA').map(p=>p.id));
+ await page.locator('#removeAlliance').tap();await page.waitForFunction(()=>!busy);assert(!app.shared.draft.sections.FZTA);assert(ids.every(id=>new Map(app.shared.draft.assignments).get(id)===null));
+ await page.reload();await page.waitForFunction(()=>state&&revision>0&&editorKey);assert.equal(await page.locator('#section option[value="FZTA"]').count(),0);
+ await page.locator('#customAllianceTag').fill('TEST');await page.locator('#addAlliance').tap();await page.waitForFunction(()=>!busy);assert(app.shared.draft.sections.TEST);
+ await page.locator('#removeAlliance').tap();await page.waitForFunction(()=>!busy);assert(!app.shared.draft.sections.TEST);
+ await page.locator('#arrangeAll').tap();await page.locator('#layoutPreview').waitFor({state:'visible'});assert(await page.locator('#applyLayout').isEnabled());await page.locator('#applyLayout').tap();await page.waitForFunction(()=>!busy);assert.match(await page.locator('#status').textContent(),/Alliance layout applied/);
+ assert.deepEqual(errors,[]);console.log('Mobile E2E: sheet preview/cancel/apply, add, zone edit, reload, remove, custom tag and algorithm fill passed; saves:',app.saves);
+}finally{await browser?.close();await new Promise(r=>app.server.close(r));}})().catch(e=>{console.error(e);process.exitCode=1;});
