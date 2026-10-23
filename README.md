@@ -309,3 +309,9 @@ Players to place defaults to descending HQ level, then power; its Sort players
 control also supports power and name. Search and CSV exports include playerId.
 
 Checks: node backend/test-roster-sync.mjs; node placement-roster-browser.test.cjs.
+
+Roster refreshes started before a layout preview are discarded if a preview,
+save, newer revision or newer refresh supersedes them. The guard runs after
+both the draft response and archived-plan response. Applying or canceling a
+stale preview cannot import a draft into a different base plan.
+Regression: node placement-refresh-preview.test.cjs.

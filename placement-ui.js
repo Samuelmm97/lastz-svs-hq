@@ -3,6 +3,7 @@ const P = PlacementPlanner;
 const canvas = $('map'), ctx = canvas.getContext('2d');
 const apiUrl = globalThis.PLACEMENT_API_URL || '';
 let sharedSource=null;
+let sharedLoadEpoch=0;
 let allianceRoster=null;
 let sharedSourceError=false;
 const palette = { mud: '#efb86b', grass: '#7ad7c0', outside: '#abb0f5', stray: '#c9d4da',
@@ -85,9 +86,11 @@ $('helmCorners').onclick=()=>{
   message('Helm area: west hex corner to northwest hex corner. Preview the layout to review changes.');render();
 };
 function cancelPreview(){
-  if(!layoutPreview)return;
-  P.importDraft(state,layoutPreview.before);layoutPreview=null;
+  if(!layoutPreview)return true;
+  const preview=layoutPreview,compatible=preview.before.signature===state.signature;layoutPreview=null;
+  if(compatible)P.importDraft(state,preview.before);
   $('layoutPreview').hidden=true;$('mapMode').textContent='Editor workspace';render();
+  return compatible;
 }
 
 function message(value) { $('status').textContent = value; }
@@ -671,16 +674,20 @@ async function loadShared(force = false) {
   if(layoutPreview)return;
   if (!apiUrl) { message('Shared backend URL is not configured yet.'); return; }
   if (busy) { if (force) message('Wait for the current save to finish.'); return; }
+  const epoch=++sharedLoadEpoch,requestedRevision=revision;
+  const superseded=()=>busy||!!layoutPreview||epoch!==sharedLoadEpoch||revision!==requestedRevision;
   try {
     const r = await fetch(`${apiUrl}/api/placement`, { cache: 'no-store', headers: globalThis.readHeaders ? readHeaders() : {} });
     if (!r.ok) throw Error(globalThis.needAccessCode && needAccessCode(r.status) ? 'Access code needed — open the link leadership gave you.' : `Shared plan unavailable (${r.status})`);
     const data = await r.json();
-    if (busy) return;
+    if (superseded()) return;
     if (data.revision !== revision || force) {
       if (data.draft && data.draft.signature !== P.create(plan).signature) {
         const response = await fetch(`${apiUrl}/api/placement/plan?signature=${encodeURIComponent(data.draft.signature)}`, { cache: 'no-store', headers: globalThis.readHeaders ? readHeaders() : {} });
         if (!response.ok) throw Error('This revision’s roster could not be loaded.');
-        usePlan((await response.json()).plan);
+        const base=(await response.json()).plan;
+        if(superseded())return;
+        usePlan(base);
       }
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
@@ -1177,7 +1184,8 @@ $('cancelLayout').onclick=()=>{cancelPreview();syncBoundary();message('Preview c
 $('applyLayout').onclick=()=>{
   if(!layoutPreview)return;
   if(layoutPreview.blocked){message('Close every teleport opening before applying this layout.');return;}
-  const after=layoutPreview.after,detail=layoutPreview.detail||'Alliance layout applied';cancelPreview();
+  const after=layoutPreview.after,detail=layoutPreview.detail||'Alliance layout applied';
+  if(!cancelPreview()){message('The roster changed. Preview this layout again before applying it.');return;}
   mutate(()=>{P.importDraft(state,after);return detail;});
 };
 for(const id of ['grassOnly','grassCompact','defencePacking','frontLayers','bodyGap','boundaryCenter','boundaryWidth','wedgeStart','wedgeEnd'])
