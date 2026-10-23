@@ -53,3 +53,5 @@ canvas{flex:1;min-height:0;height:0}
 .hq-info.compact h3{margin-bottom:4px;font-size:12px}
 .hq-info.compact dl{gap:1px 8px}
 .hq-info.compact dt{font-size:10px}
+
+.map-roster{position:absolute;z-index:3;left:14px;top:78px;width:225px;max-height:65%;overflow:auto;background:#101a20f5;border:1px solid var(--line);border-radius:10px;padding:10px}.map-roster summary{font-size:13px}.roster-filters label{margin-top:5px}.roster-filters input,.roster-filters select{padding:6px}.roster-filters p{font-size:11px;color:var(--muted);margin:7px 0}.roster-player{display:block;width:100%;text-align:left;margin:5px 0;padding:7px;font-size:12px}.roster-player small{display:block}.roster-player[aria-pressed=true]{border-color:var(--accent);background:#2b474e}.roster-player[draggable=true]{cursor:grab}.map-roster:not([open]){width:auto}.editing .map-roster{display:block}.map-roster #rosterSelection{color:var(--accent)}@media(max-width:800px){.map-roster{top:85px;width:185px;max-height:55%}.roster-filters label{font-size:11px}}

@@ -270,3 +270,20 @@ not a secure system. `plan.png` is the spacing-1 layout as a static image, and
 Offline tools: `plan_hq.py [--pad N]` regenerates coordinates for any spacing (or
 `--from-csv` to draw/extract an existing list); `gen_spots.js` produces the shipped
 lists; `spacing_counts.py` prints the counts above.
+
+### Manual placement from the map
+
+In Edit plan, enable editing and open **Players to place** on the map. Search by
+name or filter by alliance; **Waiting players only** shows unplaced members.
+Drag a player name to a map tile, or select a name then tap a tile on a phone.
+Occupied tiles offer the existing swap or move-to-waiting choices. Placement
+checks and reservations apply to both paths. The panel starts collapsed on phones.
+
+If a save or history restore loses its response, the editor checks the shared
+revision before retrying. It recognizes an already committed change and reloads
+a concurrent edit rather than overwriting it. Persistent outages report that the
+save could not be confirmed and ask the planner to reconnect and refresh.
+
+Regression checks: placement-roster-browser.test.cjs (desktop drag and iPhone
+tap, filters, persistence) and placement-save-recovery.test.cjs (transient failure,
+lost response after commit, concurrent edit).

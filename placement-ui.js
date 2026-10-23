@@ -19,6 +19,8 @@ let historyEntries = [], selectedHistory = null;
 let copyMessages = [], copyIndex = 0, copyFingerprint = '';
 let layoutPreview = null;
 let pendingDrop = null;
+let rosterPlacing=false,rosterDragId=null;
+if(innerWidth<=800)$('mapRoster').open=false;
 let lastMoveGaps=[],shownGaps=[];
 let openingCache=null;
 let defenceCache=null;
@@ -435,7 +437,8 @@ function render() {
     (!q || `${p.name} ${p.tag} ${p.id} ${(p.nameAliases||[]).join(' ')}`.toLocaleLowerCase().includes(q)) &&
     (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
   renderCopyMessages();
-  if (selectedId != null && !visible.some(p => p.id === selectedId)) selectedId = null;
+  if (selectedId != null && !visible.some(p => p.id === selectedId)) {selectedId = null;rosterPlacing=false;}
+  renderMapRoster();
   if (hqInfoId != null && !visible.some(p => p.id === hqInfoId)) hideHqInfo();
   $('summary').textContent = `${visible.length.toLocaleString()} of ${state.players.size.toLocaleString()} HQs shown` +
     (visible.length===state.players.size ? ' (every player, filtered by nothing)' : '') +
@@ -534,7 +537,7 @@ function render() {
   $('defenceInfo').textContent=$('section').value?`${defence.gapFree?'PASS: no enemy HQ fits inside the formation.':`FAIL: ${defence.openings.length} landing centers in ${defence.holes?.length||0} connected openings.`} ${defence.vulnerable} HQ losses expose two or more non-overlapping enemy spots.`+($('simulateDestroyed').checked?(removal?` Removing ${removal.name}: ${removal.capacity===2?'at least 2':removal.capacity} new enemy HQ spaces.`:' Select a member to simulate their removal.'):''):'Choose an alliance to run the footprint test.';
   $('defenceInfo').classList.toggle('has-gap',!defence.gapFree);
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
-  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Tap an HQ to select its player. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.';
+  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Drag a name from Players to place onto a tile, or select a name then tap a tile. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
   for (const pair of state.pairs) {
@@ -574,6 +577,46 @@ function renderHistoryList() {
   }
   $('moreHistory').hidden = !historyEntries.length || !$('moreHistory').dataset.hasMore;
 }
+function renderMapRoster(){
+  if(!editMode)return;
+  $('rosterSearch').value=$('search').value;
+  $('rosterAlliance').replaceChildren(...[...$('section').options].map(o=>new Option(o.textContent,o.value)));
+  $('rosterAlliance').value=$('section').value;
+  $('rosterWaiting').checked=$('zone').value==='unassigned';
+  const players=[...visible].sort((a,b)=>(a.zone!=='unassigned')-(b.zone!=='unassigned')||a.name.localeCompare(b.name));
+  $('rosterCount').textContent='('+players.length+')';
+  $('rosterSelection').textContent=rosterPlacing&&state.players.has(selectedId)?'Placing '+state.players.get(selectedId).name+' — tap a tile.':'';
+  $('rosterCancel').hidden=!rosterPlacing;
+  const toolbar=document.querySelector('.map-toolbar');
+  $('mapRoster').style.top=(toolbar.offsetTop+toolbar.offsetHeight+8)+'px';
+  const list=$('rosterPlayers');list.replaceChildren();
+  if(!players.length){list.textContent='No players match these filters.';return;}
+  for(const p of players.slice(0,500)){
+    const button=document.createElement('button');button.className='roster-player';button.dataset.playerId=p.id;
+    button.textContent=p.name;button.setAttribute('aria-pressed',String(p.id===selectedId));
+    const info=document.createElement('small');info.textContent=(p.tag||'Unaligned')+' · HQ '+p.hq+' · '+(p.zone==='unassigned'?'Waiting':p.x+', '+p.y)+(p.locked?' · Reserved':'');button.append(info);
+    button.disabled=busy||!!layoutPreview||$('swapPreview').checked||!editorKey;button.draggable=!button.disabled;
+    button.onclick=()=>{selectedId=p.id;targetKey=null;rosterPlacing=true;$('mapAction').value='place';hideHqInfo();render();message('Choose a tile for '+p.name+'.');if(innerWidth<=800)$('mapRoster').open=false;};
+    button.ondragstart=e=>{rosterDragId=p.id;e.dataTransfer.setData('text/plain',String(p.id));e.dataTransfer.effectAllowed='move';};
+    button.ondragend=()=>{rosterDragId=null;hideDragChip();};list.append(button);
+  }
+  if(players.length>500){const note=document.createElement('p');note.textContent='First 500 players shown. Choose an alliance or search to narrow the list.';list.append(note);}
+}
+$('rosterSearch').oninput=()=>{$('search').value=$('rosterSearch').value;render();};
+$('rosterAlliance').onchange=()=>{$('section').value=$('rosterAlliance').value;$('section').dispatchEvent(new Event('change'));};
+$('rosterWaiting').onchange=()=>{$('zone').value=$('rosterWaiting').checked?'unassigned':'';render();};
+$('rosterCancel').onclick=()=>{rosterPlacing=false;render();};
+canvas.addEventListener('dragover',e=>{
+  if(rosterDragId==null||busy||layoutPreview)return;e.preventDefault();e.dataTransfer.dropEffect='move';
+  const r=canvas.getBoundingClientRect(),tile=tileAt(e.clientX-r.left,e.clientY-r.top);
+  const attempt=tempPreview(tile.x,tile.y,key=>dropPreview(rosterDragId,key));
+  const feedback=dropFeedback(attempt.value,attempt.error);lastPointer={clientX:e.clientX,clientY:e.clientY};showDragChip(feedback.status,feedback.title,feedback.text);
+});
+canvas.addEventListener('drop',e=>{
+  if(rosterDragId==null||busy||layoutPreview)return;e.preventDefault();const id=rosterDragId;rosterDragId=null;hideDragChip();
+  const r=canvas.getBoundingClientRect();lastPointer={clientX:e.clientX,clientY:e.clientY};
+  finishHqDrop(id,state.assignments.get(id),tileAt(e.clientX-r.left,e.clientY-r.top));
+});
 async function loadHistory(reset = true) {
   try {
     const before = reset || !historyEntries.length ? '' : `?before=${historyEntries.at(-1).revision}`;
@@ -650,6 +693,24 @@ async function loadShared(force = false) {
     }
   } catch (e) { if (!busy) message(e.message); }
 }
+// Check the committed revision before retrying an interrupted save.
+async function saveSharedChange(path,payload,matches) {
+  const send=()=>fetch(apiUrl+path,{method:path.endsWith('/restore')?'POST':'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+editorKey},body:JSON.stringify(payload)});
+  let response;
+  try {response=await send();} catch {
+    message('Connection interrupted. Checking whether your change was saved…');
+    let current;
+    try {const check=await fetch(apiUrl+'/api/placement',{cache:'no-store',headers:globalThis.readHeaders?readHeaders():{}});if(!check.ok)throw Error();current=await check.json();}
+    catch {throw Error('Connection lost. Could not confirm the save. Reconnect and refresh before retrying.');}
+    if(current.revision===payload.baseRevision+1&&matches(current))return current;
+    if(current.revision!==payload.baseRevision)throw Error('Another planner saved first; reloading their version. Retry your edit.');
+    message('Connection restored. Retrying your change…');
+    try {response=await send();} catch {throw Error('Connection lost again. Could not confirm the save. Reconnect and refresh before retrying.');}
+  }
+  const data=await response.json();
+  if(!response.ok)throw Error(response.status===409?'Another planner saved first; reloading their version. Retry your edit.':data.error||('Save failed ('+response.status+')'));
+  return data;
+}
 async function mutate(action) {
   if(layoutPreview){message('Apply or cancel the layout preview before making another change.');return;}
   if (!editMode) { message('Open Edit plan to make changes.'); return; }
@@ -659,13 +720,8 @@ async function mutate(action) {
   try {
     const detail = action();
     busy = true; render(); message('Saving to shared database…');
-    const r = await fetch(`${apiUrl}/api/placement`, { method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${editorKey}` },
-      body: JSON.stringify({ baseRevision, draft: P.exportDraft(state),
-        editor: $('editorName').value.trim() || 'Planner' }) });
-    const data = await r.json();
-    if (!r.ok) throw Error(r.status === 409 ? 'Another planner saved first; reloading their version. Retry your edit.'
-      : data.error || `Save failed (${r.status})`);
+    const draft=P.exportDraft(state);
+    const data=await saveSharedChange('/api/placement',{baseRevision,draft,editor:$('editorName').value.trim()||'Planner'},current=>JSON.stringify(current.draft)===JSON.stringify(draft));
     revision = data.revision; render();
     if (selectedHistory) $('restoreHistory').hidden = selectedHistory.revision === revision;
     loadHistory();
@@ -1006,6 +1062,10 @@ canvas.addEventListener('pointerup', e => {
   const rect = canvas.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
   // A finger is far wider than a cursor: touch gets a generous target, and if the nearest tile is
   // empty it prefers the nearest tile that actually holds an HQ - a near miss should still say who.
+  if(rosterPlacing&&selectedId!=null){
+    if(!busy&&!layoutPreview&&editorKey){rosterPlacing=false;finishHqDrop(selectedId,state.assignments.get(selectedId),tileAt(x,y));}
+    return;
+  }
   const radius = e.pointerType === 'touch' ? 36 : 12;
   let best = null, d = radius;
   for (const s of state.sites.values()) {
@@ -1204,13 +1264,8 @@ $('restoreHistory').onclick = async () => {
   const sourceRevision = selectedHistory.revision;
   busy = true;
   try {
-    const r = await fetch(`${apiUrl}/api/placement/restore`, { method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${editorKey}` },
-      body: JSON.stringify({ baseRevision: revision, sourceRevision,
-        editor: $('editorName').value.trim() || 'Planner' }) });
-    const data = await r.json();
-    if (!r.ok) throw Error(r.status === 409 ? 'Another planner saved first; reload and try restoring again.'
-      : data.error || `Restore failed (${r.status})`);
+    const expected=selectedHistory.draft;
+    const data=await saveSharedChange('/api/placement/restore',{baseRevision:revision,sourceRevision,editor:$('editorName').value.trim()||'Planner'},current=>expected&&JSON.stringify(current.draft)===JSON.stringify(expected));
     busy = false;
     await loadShared(true);
     message(`Restored revision ${sourceRevision} as new revision ${data.revision}.`);
