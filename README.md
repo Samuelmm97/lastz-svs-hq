@@ -287,3 +287,8 @@ save could not be confirmed and ask the planner to reconnect and refresh.
 Regression checks: placement-roster-browser.test.cjs (desktop drag and iPhone
 tap, filters, persistence) and placement-save-recovery.test.cjs (transient failure,
 lost response after commit, concurrent edit).
+
+Unconfirmed identities are excluded from the draggable player list and its waiting
+count. A separate Unconfirmed roster records section lists them for review; the
+full player table labels their status. The planner retains identity validation.
+Regression: node placement-roster-identity.test.cjs (with Playwright available).

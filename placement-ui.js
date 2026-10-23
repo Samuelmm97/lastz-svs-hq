@@ -470,13 +470,14 @@ function render() {
       const note=document.createElement('span');note.className='unknown-note';note.textContent='Attendance unknown';
       tr.children[1].append(note);
     }
+    if(p.placementEligible===false){const note=document.createElement('span');note.className='unknown-note';note.textContent='Identity unconfirmed · unavailable for placement';tr.children[1].append(note);}
     tr.onclick = () => { selectedId = p.id; targetKey=null; $('mapAction').value='place'; hideHqInfo(); render(); };
     body.append(tr);
   }
   $('listNote').textContent = visible.length > 500 ? 'Showing the first 500 players. Choose an alliance or search a name to narrow the list.' : '';
   $('planningMode').checked=state.planningMode===true;
   $('planningStatus').textContent=state.planningMode?'Draft planning: temporary teleport gaps are allowed. Turn this off to validate the finished formation.':'Gap enforcement is active for alliances with footprint blocking enabled.';
-  $('waitingCount').textContent = P.rows(state).filter(p => p.zone === 'unassigned').length;
+  $('waitingCount').textContent = P.rows(state).filter(p => p.zone === 'unassigned'&&p.placementEligible!==false).length;
   $('surveyNote').textContent=state.survey?`In-game map observed ${new Date(state.survey.capturedAt).toLocaleString()}. White squares mark ${P.rows(state).filter(p=>p.placedInGame).length} fixed roster HQs and ${state.survey.obstacles.length} additional occupied HQs. ${state.survey.relocations?.length||0} observed HQs outside the held areas can relocate to their proposed positions. Positions can change after the scan.`:'';
   $('surveyDetails').hidden=!state.survey;
   $('surveyExtraList').replaceChildren();
@@ -583,14 +584,18 @@ function renderMapRoster(){
   $('rosterAlliance').replaceChildren(...[...$('section').options].map(o=>new Option(o.textContent,o.value)));
   $('rosterAlliance').value=$('section').value;
   $('rosterWaiting').checked=$('zone').value==='unassigned';
-  const players=[...visible].sort((a,b)=>(a.zone!=='unassigned')-(b.zone!=='unassigned')||a.name.localeCompare(b.name));
+  const review=visible.filter(p=>p.placementEligible===false);
+  $('rosterReview').hidden=!review.length;
+  $('rosterReviewTitle').textContent='Unconfirmed roster records ('+review.length+')';
+  $('rosterReviewPlayers').replaceChildren(...review.map(p=>{const row=document.createElement('p');row.textContent=p.name+' · '+(p.tag||'Unaligned')+' · Identity unconfirmed';return row;}));
+  const players=visible.filter(p=>p.placementEligible!==false).sort((a,b)=>(a.zone!=='unassigned')-(b.zone!=='unassigned')||a.name.localeCompare(b.name));
   $('rosterCount').textContent='('+players.length+')';
   $('rosterSelection').textContent=rosterPlacing&&state.players.has(selectedId)?'Placing '+state.players.get(selectedId).name+' — tap a tile.':'';
   $('rosterCancel').hidden=!rosterPlacing;
   const toolbar=document.querySelector('.map-toolbar');
   $('mapRoster').style.top=(toolbar.offsetTop+toolbar.offsetHeight+8)+'px';
   const list=$('rosterPlayers');list.replaceChildren();
-  if(!players.length){list.textContent='No players match these filters.';return;}
+  if(!players.length){list.textContent=review.length?'No placeable players match. See unconfirmed records below.':'No players match these filters.';return;}
   for(const p of players.slice(0,500)){
     const button=document.createElement('button');button.className='roster-player';button.dataset.playerId=p.id;
     button.textContent=p.name;button.setAttribute('aria-pressed',String(p.id===selectedId));
