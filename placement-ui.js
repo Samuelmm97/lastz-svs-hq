@@ -156,7 +156,7 @@ function usePlan(data) {
     option.textContent = tag==='Other' ? `Unaligned / other alliances (${data.sections[tag].players})` : `${tag} (${data.sections[tag].players})`; $('section').append(option);
   }
   if (data.sections[previousSection]) $('section').value = previousSection;
-  $('snapshotNote').textContent = sharedSource?`Power: States 792–815 workbook · observed ${new Date(sharedSource.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`:`Power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}` + (data.meta.refreshProgress ? `. ${data.meta.refreshProgress}` : '');
+  $('snapshotNote').textContent = data.meta.rosterIdentity==='playerId'?`Latest collected roster shared with Google Sheets · ${data.placements.length} players · observed ${new Date(data.meta.rosterCaptured).toLocaleString()} · tracked by player ID.`:sharedSource?`Power: States 792–815 workbook · observed ${new Date(sharedSource.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`:`Power ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'} · Prior SvS ${data.meta.eventCaptured || '2026-09-26'}` + (data.meta.refreshProgress ? `. ${data.meta.refreshProgress}` : '');
   if(sharedSourceError)$('snapshotNote').textContent='Shared source unavailable; showing the dated saved snapshot. '+$('snapshotNote').textContent;
   $('explain').textContent = (sharedSource?'Current personal power comes from the States 792–815 workbook; hero component power keeps its own date. Bear’s saved ordering is preserved. ':`Roster/power: ${data.meta.powerCaptured || data.meta.capturedDate || 'September 2026'}. `) +
     `Shield/attendance: previous SvS (${data.meta.eventCaptured || '2026-09-26'}). ` +
@@ -434,7 +434,7 @@ function render() {
   const after = $('swapPreview').checked, q = $('search').value.toLocaleLowerCase();
   const section = $('section').value, zone = $('zone').value;
   visible = P.rows(state, after).filter(p =>
-    (!q || `${p.name} ${p.tag} ${p.id} ${(p.nameAliases||[]).join(' ')}`.toLocaleLowerCase().includes(q)) &&
+    (!q || `${p.name} ${p.tag} ${p.id} ${p.playerId||''} ${(p.nameAliases||[]).join(' ')}`.toLocaleLowerCase().includes(q)) &&
     (!section || p.section === section) && (!zone || (zone==='rear' ? P.rearReasons(p).length>0 : p.zone === zone)));
   renderCopyMessages();
   if (selectedId != null && !visible.some(p => p.id === selectedId)) {selectedId = null;rosterPlacing=false;}
@@ -588,7 +588,7 @@ function renderMapRoster(){
   $('rosterReview').hidden=!review.length;
   $('rosterReviewTitle').textContent='Unconfirmed roster records ('+review.length+')';
   $('rosterReviewPlayers').replaceChildren(...review.map(p=>{const row=document.createElement('p');row.textContent=p.name+' · '+(p.tag||'Unaligned')+' · Identity unconfirmed';return row;}));
-  const players=visible.filter(p=>p.placementEligible!==false).sort((a,b)=>(a.zone!=='unassigned')-(b.zone!=='unassigned')||a.name.localeCompare(b.name));
+  const players=visible.filter(p=>p.placementEligible!==false).sort((a,b)=>$('rosterSort').value==='name'?a.name.localeCompare(b.name):$('rosterSort').value==='power'?(b.totalPower||0)-(a.totalPower||0)||b.hq-a.hq||a.name.localeCompare(b.name):b.hq-a.hq||(b.totalPower||0)-(a.totalPower||0)||a.name.localeCompare(b.name));
   $('rosterCount').textContent='('+players.length+')';
   $('rosterSelection').textContent=rosterPlacing&&state.players.has(selectedId)?'Placing '+state.players.get(selectedId).name+' — tap a tile.':'';
   $('rosterCancel').hidden=!rosterPlacing;
@@ -607,6 +607,7 @@ function renderMapRoster(){
   }
   if(players.length>500){const note=document.createElement('p');note.textContent='First 500 players shown. Choose an alliance or search to narrow the list.';list.append(note);}
 }
+$('rosterSort').onchange=render;
 $('rosterSearch').oninput=()=>{$('search').value=$('rosterSearch').value;render();};
 $('rosterAlliance').onchange=()=>{$('section').value=$('rosterAlliance').value;$('section').dispatchEvent(new Event('change'));};
 $('rosterWaiting').onchange=()=>{$('zone').value=$('rosterWaiting').checked?'unassigned':'';render();};
@@ -683,8 +684,9 @@ async function loadShared(force = false) {
       }
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
-      if(sharedSource)LastZSharedState.enrichState(next,sharedSource);
+      if(sharedSource&&plan.meta.rosterIdentity!=='playerId')LastZSharedState.enrichState(next,sharedSource);
       state = next; revision = data.revision;
+      if(plan.meta.rosterIdentity==='playerId')refreshAllianceRoster();
       lastMoveGaps=[];
       syncBoundary();
       if (!state.players.has(selectedId)) selectedId = null;
@@ -696,6 +698,7 @@ async function loadShared(force = false) {
       message(data.revision ? `Shared revision ${revision} by ${data.updatedBy} loaded.`
         : 'Shared plan is ready. No edits yet.');
     }
+    if(data.rosterError)message(data.rosterError);
   } catch (e) { if (!busy) message(e.message); }
 }
 // Check the committed revision before retrying an interrupted save.
@@ -758,7 +761,7 @@ $('downloadSurvey').onclick=()=>{
   download('capital-in-game-'+state.survey.capturedAt.slice(0,10)+'.csv','\ufeff'+[header,...rows].map(r=>r.map(cell).join(',')).join('\r\n'));
 };
 function csv(after) {
-  const columns = ['id', 'name', 'tag', 'hq', 'zone', 'x', 'y', 'ring', 'spot', 'role',
+  const columns = ['id', 'playerId', 'name', 'tag', 'hq', 'zone', 'x', 'y', 'ring', 'spot', 'role',
     'locked', 'shield', 'attendanceProxy', 'oldX', 'oldY'];
   const cell = v => `"${String(v ?? '').replaceAll('"', '""')}"`;
   return '\ufeff' + columns.join(',') + '\r\n' +
@@ -1348,10 +1351,11 @@ Promise.all([fetch('placement-plan.json').then(r=>{if(!r.ok)throw Error('Plan co
   setInterval(() => { if (!document.hidden && !busy) loadShared(); }, 10000);
   if(globalThis.PLACEMENT_SHARED_SOURCE_BASE)setInterval(async()=>{
     if(document.hidden||busy||layoutPreview)return;
-    try{const source=await LastZSharedState.load(globalThis.PLACEMENT_SHARED_SOURCE_BASE);if(source.fingerprint&&source.fingerprint===sharedSource?.fingerprint)return;sharedSource=source;sharedSourceError=false;LastZSharedState.enrichState(state,source);$('snapshotNote').textContent=`Power: States 792–815 workbook · observed ${new Date(source.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`;render();}
+    try{const source=await LastZSharedState.load(globalThis.PLACEMENT_SHARED_SOURCE_BASE);if(source.fingerprint&&source.fingerprint===sharedSource?.fingerprint)return;sharedSource=source;sharedSourceError=false;if(plan.meta.rosterIdentity!=='playerId')LastZSharedState.enrichState(state,source);$('snapshotNote').textContent=`Power: States 792–815 workbook · observed ${new Date(source.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`;render();}
     catch{$('snapshotNote').textContent='Shared refresh unavailable; retaining the last dated observation. '+$('snapshotNote').textContent.replace(/^Shared refresh unavailable; retaining the last dated observation\. /,'');}
   },60000);
 }).catch(e => { $('summary').textContent = e.message; });
 new ResizeObserver(size).observe(canvas);
 
-fetch(`${apiUrl}/api/placement/alliance-roster`,{cache:'no-store',headers:globalThis.readHeaders?readHeaders():{}}).then(r=>{if(!r.ok)throw Error('Roster unavailable');return r.json();}).then(data=>{if(data.state!==798||!Array.isArray(data.alliances)||!Array.isArray(data.players))throw Error('Invalid roster');allianceRoster=data;if(state)render();}).catch(()=>{if(state)renderAllianceManager();});
+function refreshAllianceRoster(){return fetch(`${apiUrl}/api/placement/alliance-roster`,{cache:'no-store',headers:globalThis.readHeaders?readHeaders():{}}).then(r=>{if(!r.ok)throw Error('Roster unavailable');return r.json();}).then(data=>{if(data.state!==798||!Array.isArray(data.alliances)||!Array.isArray(data.players))throw Error('Invalid roster');allianceRoster=data;if(state)render();}).catch(()=>{if(state)renderAllianceManager();});}
+refreshAllianceRoster();

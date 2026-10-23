@@ -292,3 +292,20 @@ Unconfirmed identities are excluded from the draggable player list and its waiti
 count. A separate Unconfirmed roster records section lists them for review; the
 full player table labels their status. The planner retains identity validation.
 Regression: node placement-roster-identity.test.cjs (with Playwright available).
+
+### Live collected roster and player identity
+
+The shared planner refreshes from the collection service's power-current feed,
+the same UID-keyed data read back from the Google Sheet after collection
+publication. Every shared-plan refresh checks that source. A changed complete
+roster creates an atomic roster_sync history revision: matched player IDs keep
+their positions and reservations, new IDs wait, and records absent from the
+source are removed. Names never join player records. All current collected
+players are available (up to 5,000), replacing the fixed 2,000-record limit.
+If the live source fails, the API retains the saved plan and reports rosterError.
+Historical revisions retain their original roster snapshots.
+
+Players to place defaults to descending HQ level, then power; its Sort players
+control also supports power and name. Search and CSV exports include playerId.
+
+Checks: node backend/test-roster-sync.mjs; node placement-roster-browser.test.cjs.

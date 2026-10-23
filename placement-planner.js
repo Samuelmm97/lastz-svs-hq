@@ -235,7 +235,7 @@
     for(const [key,site] of allSites)if(!clearOfTurrets(site,plan.meta?.turrets))blocked.add(key);
     const sites = new Map([...allSites].filter(([key]) => !blocked.has(key)));
     if (players.size !== plan.placements.length || allSites.size !== plan.placements.length) throw Error('Base plan has duplicate IDs or sites');
-    const signature = (plan.planId ? `${plan.planId}:` : '') + plan.placements.map(p => `${p.id}@${siteKey(p)}`).sort().join('|');
+    const signature = plan.meta?.rosterSignatureVersion===2?plan.planId:(plan.planId ? `${plan.planId}:` : '') + plan.placements.map(p => `${p.id}@${siteKey(p)}`).sort().join('|');
     return { players, basePlayers:new Map(players), sites, signature, assignments: new Map(plan.placements.map(p => [p.id, blocked.has(siteKey(p)) ? null : siteKey(p)])),
              sections: structuredClone(plan.sections || {}), locks: new Set(), pairs: [],
              baseSites: new Map(sites), blocked, turrets: structuredClone(plan.meta?.turrets || []),

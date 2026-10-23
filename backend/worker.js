@@ -1,3 +1,4 @@
+import {syncRoster,rosterPayload} from './roster-sync.mjs';
 import '../placement-planner.js';
 const P = globalThis.PlacementPlanner;
 const ORIGIN = 'https://samuelmm97.github.io';
@@ -15,7 +16,7 @@ function response(body, status = 200, origin = '') {
 
 function validDraft(draft) {
   if (!draft || (draft.planningMode!==undefined&&typeof draft.planningMode!=='boolean') || draft.version !== 1 || typeof draft.signature !== 'string' ||
-      !Array.isArray(draft.assignments) || draft.assignments.length !== 2000 ||
+      !Array.isArray(draft.assignments) || (draft.assignments.length<1||draft.assignments.length>5000) ||
       !Array.isArray(draft.locks) || !Array.isArray(draft.pairs)) return false;
   const ids = new Set(), sites = new Set();
   for (const pair of draft.assignments) {
@@ -28,9 +29,9 @@ function validDraft(draft) {
   const locks = new Set(draft.locks);
   const members = draft.pairs.flatMap(p => [p.strike, p.reserve]);
   const assignments = new Map(draft.assignments);
-  if(draft.allianceTags!==undefined&&(!Array.isArray(draft.allianceTags)||draft.allianceTags.length>2000||new Set(draft.allianceTags.map(p=>p?.[0])).size!==draft.allianceTags.length||draft.allianceTags.some(p=>!Array.isArray(p)||p.length!==2||!Number.isSafeInteger(p[0])||!ids.has(p[0])||!P.validAllianceTag(p[1]))))return false;
+  if(draft.allianceTags!==undefined&&(!Array.isArray(draft.allianceTags)||draft.allianceTags.length>5000||new Set(draft.allianceTags.map(p=>p?.[0])).size!==draft.allianceTags.length||draft.allianceTags.some(p=>!Array.isArray(p)||p.length!==2||!Number.isSafeInteger(p[0])||!ids.has(p[0])||!P.validAllianceTag(p[1]))))return false;
   const sections = draft.sections;
-  if(draft.sites!==undefined && (!Array.isArray(draft.sites)||draft.sites.length>2000||draft.sites.some(s=>
+  if(draft.sites!==undefined && (!Array.isArray(draft.sites)||draft.sites.length>5000||draft.sites.some(s=>
     !s||!Number.isInteger(s.x)||!Number.isInteger(s.y)||s.x<0||s.x>999||s.y<0||s.y>999)))return false;
   if (sections !== undefined && (!sections || Array.isArray(sections) || typeof sections !== 'object' ||
       Object.keys(sections).length > 100 || Object.entries(sections).some(([tag, s]) =>
@@ -39,13 +40,13 @@ function validDraft(draft) {
         (s.grassOnly!==undefined&&typeof s.grassOnly!=='boolean') ||
         (s.grassCompact!==undefined&&typeof s.grassCompact!=='boolean') ||
         (s.defencePacking!==undefined&&typeof s.defencePacking!=='boolean') ||
-        (s.grassOrder!==undefined&&(!Array.isArray(s.grassOrder)||s.grassOrder.length>2000||
+        (s.grassOrder!==undefined&&(!Array.isArray(s.grassOrder)||s.grassOrder.length>5000||
           new Set(s.grassOrder).size!==s.grassOrder.length||s.grassOrder.some(id=>!Number.isSafeInteger(id)||!ids.has(id)))) ||
-        (s.mudOrder!==undefined&&(!Array.isArray(s.mudOrder)||s.mudOrder.length>2000||
+        (s.mudOrder!==undefined&&(!Array.isArray(s.mudOrder)||s.mudOrder.length>5000||
           new Set(s.mudOrder).size!==s.mudOrder.length||s.mudOrder.some(id=>!Number.isSafeInteger(id)||!ids.has(id)))) ||
         (s.frontLayers!==undefined&&![0,1,2,3].includes(s.frontLayers)) ||
         (s.bodyGap!==undefined&&![0,1,2,3].includes(s.bodyGap))))) return false;
-  return ids.size === 2000 && locks.size === draft.locks.length &&
+  return ids.size === draft.assignments.length && locks.size === draft.locks.length &&
     draft.locks.every(id => Number.isSafeInteger(id) && ids.has(id) && assignments.get(id) !== null) &&
     members.length === new Set(members).size &&
     draft.pairs.every(p => Number.isSafeInteger(p.strike) && Number.isSafeInteger(p.reserve) &&
@@ -62,14 +63,15 @@ function samePlan(before, after) {
 export { validDraft, samePlan };
 
 function planSignature(plan) {
-  return (plan.planId ? `${plan.planId}:` : '') +
+  return plan.meta?.rosterSignatureVersion===2?plan.planId:(plan.planId ? `${plan.planId}:` : '') +
     plan.placements.map(p => `${p.id}@${p.x},${p.y}`).sort().join('|');
 }
 
 function validPlan(plan) {
-  if (!plan || !Array.isArray(plan.placements) || plan.placements.length !== 2000 ||
+  if (!plan || !Array.isArray(plan.placements) || (plan.placements.length<1||plan.placements.length>5000) ||
       !plan.sections || typeof plan.sections !== 'object' || !plan.meta ||
       (plan.planId !== undefined && (typeof plan.planId !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(plan.planId)))) return false;
+  if(plan.meta.rosterIdentity==='playerId'&&(plan.placements.some(p=>typeof p.playerId!=='string'||!/^\d{1,30}$/.test(p.playerId)||p.placementEligible===false)||new Set(plan.placements.map(p=>p.playerId)).size!==plan.placements.length))return false;
   if (plan.blockedSites !== undefined && (!Array.isArray(plan.blockedSites) ||
       new Set(plan.blockedSites).size !== plan.blockedSites.length ||
       plan.blockedSites.some(key => typeof key !== 'string' || !plan.placements.some(p => `${p.x},${p.y}` === key)))) return false;
@@ -92,8 +94,8 @@ function validPlan(plan) {
       }
       return true;
     })()) &&
-    new Set(plan.placements.map(p => p.id)).size === 2000 &&
-    new Set(plan.placements.map(p => `${p.x},${p.y}`)).size === 2000;
+    new Set(plan.placements.map(p => p.id)).size === plan.placements.length &&
+    new Set(plan.placements.map(p => `${p.x},${p.y}`)).size === plan.placements.length;
 }
 
 function draftFitsPlan(draft, plan) {
@@ -254,6 +256,23 @@ async function sendHelicopterAlert(env, alert, config) {
   if (!posted.ok) return false;
   const answer = await posted.json().catch(() => null);
   return Boolean(answer && answer.id);
+}
+
+async function collectedPower(env){
+  if(!env.ATLAS||!env.ATLAS_KEY||!env.ATLAS_ORIGIN)throw Error('Collected roster source is not configured');
+  const result=await env.ATLAS.fetch(new Request(env.ATLAS_ORIGIN.replace(/\/$/,'')+'/data/power-current.json',{headers:{'X-Atlas-Key':env.ATLAS_KEY}}));
+  if(!result.ok||result.headers.get('X-Atlas-Source')!=='shared-collection')throw Error('Collected roster source is unavailable');
+  const power=await result.json();rosterPayload(power);return power;
+}
+export async function refreshCollectedRoster(env,row,power){
+  if(!row)return row;
+  const before=JSON.parse(row.draft),previous=await archivedPlan(env.DB,before.signature);
+  if(!previous)throw Error('Current plan metadata is unavailable');
+  const next=await syncRoster(previous,before,power);if(!next)return row;
+  if(!draftFitsPlan(next.draft,next.plan))throw Error('Collected roster could not preserve a valid placement draft');
+  const saved=await saveDraft(env.DB,row.revision,next.draft,'Collected roster sync','roster_sync',null,[previous,next.plan]);
+  if(saved.invalid)throw Error('Collected roster refresh was rejected');
+  return await currentDraft(env.DB);
 }
 
 export default {
@@ -570,6 +589,7 @@ export default {
     if (!env.DB) return response({ error: 'Database is not configured' }, 503, origin);
     if (request.method === 'GET' && !readAllowed) return response({ error: 'Access key required' }, 401, origin);
     if (url.pathname === '/api/placement/alliance-roster' && request.method === 'GET') {
+      if(env.ATLAS){try{return response(rosterPayload(await collectedPower(env)),200,origin);}catch{return response({error:'Latest collected roster unavailable; retry refresh'},503,origin);}}
       const row=await env.DB.prepare('SELECT payload FROM placement_alliance_rosters WHERE id = ?').bind('state-798').first();
       return row?response(JSON.parse(row.payload),200,origin):response({error:'Alliance roster is not configured'},404,origin);
     }
@@ -600,8 +620,10 @@ export default {
         : response({ error: 'Revision not found' }, 404, origin);
     }
     if (url.pathname === '/api/placement' && request.method === 'GET') {
-      const row = await currentDraft(env.DB);
-      return response(row ? { revision: row.revision, draft: JSON.parse(row.draft),
+      let row = await currentDraft(env.DB);
+      let rosterError;
+      if(env.ATLAS)try{row=await refreshCollectedRoster(env,row,await collectedPower(env));}catch{rosterError='Latest collected roster refresh unavailable; showing the last saved roster.';}
+      return response(row ? { revision: row.revision, draft: JSON.parse(row.draft),rosterError,
         updatedAt: row.updated_at, updatedBy: row.updated_by }
         : { revision: 0, draft: null, updatedAt: null, updatedBy: null }, 200, origin);
     }

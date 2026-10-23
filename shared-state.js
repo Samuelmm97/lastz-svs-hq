@@ -9,7 +9,7 @@
     return {power,positions,byUid,byId,byName,points};
   }
   async function load(base){const url=base.replace(/\/$/,'');const h=typeof globalThis.readHeaders==='function'?globalThis.readHeaders():{};const responses=await Promise.all([fetch(url+'/data/power-current.json',{cache:'no-store',headers:h}),fetch(url+'/data/hqs.json',{cache:'no-store',headers:h})]);if(responses.some(r=>!r.ok))throw Error('Shared state data is unavailable');const data=index(await responses[0].json(),await responses[1].json());data.fingerprint=responses.map(r=>r.headers.get('etag')||r.headers.get('last-modified')||'').join('|');return data;}
-  function identity(p,data){const id=p.playerId||p.uid||data.byId.get(p.id)?.playerId;if(id)return String(id);const match=data.byName.get(p.tag+'|'+normal(p.name))||[];return match.length===1?match[0].uid:null;}
+  function identity(p,data){const id=p.playerId||p.uid||data.byId.get(p.id)?.playerId;if(id)return String(id);return null;}
   function enrich(p,data){
     const uid=identity(p,data),power=data.byUid.get(uid),position=data.points.get(uid);
     const names=[p.name,power?.name,position?.name].filter(Boolean);
@@ -22,7 +22,7 @@
     if(position){fields.actualX=position.x;fields.actualY=position.y;fields.actualObservedAt=position.observed_at_utc||position.observed_date;fields.actualSource='Field Atlas game-map observations';}
     return {...p,...fields};
   }
-  function enrichPlan(plan,data){return {...plan,placements:plan.placements.map(p=>enrich(p,data)),meta:{...plan.meta,currentPowerSource:data.power.source}};}
+  function enrichPlan(plan,data){if(plan.meta?.rosterIdentity==='playerId')return plan;return {...plan,placements:plan.placements.map(p=>enrich(p,data)),meta:{...plan.meta,currentPowerSource:data.power.source}};}
   function enrichState(state,data){for(const [id,p]of state.players)state.players.set(id,enrich(p,data));state.sharedPowerSource=data.power.source;}
   function applyAtlas(records,data){
     const players={};
