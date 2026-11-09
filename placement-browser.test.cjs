@@ -162,13 +162,25 @@ const P=require('./placement-planner.js');
     saves = app.saves;
     await dragHq(unplaceOnly.key, unplaceOnly.tkey);
     await page.locator('#dropChoice').waitFor({state: 'visible'});
-    assert.equal(await page.locator('#dropSwap').isEnabled(), false, 'An unsafe swap must be disabled in the drop choice');
-    assert((await page.locator('#dropChoiceText').innerText()).includes('refused'), 'The refused swap should explain itself');
-    await page.locator('#dropUnplace').click(); await settle();
-    assert.equal(app.saves, saves+1, 'The unplaced list choice should save once');
+    // Free manual drops make the swap legal wherever the planner accepts it; the prompt must never
+    // offer an option the planner refuses.
+    const offer = await page.evaluate(() => ({
+      swapOk: !!pendingDrop?.swap?.ok, unplaceOk: !!pendingDrop?.unplace?.ok,
+      swapEnabled: !document.getElementById('dropSwap').hidden && !document.getElementById('dropSwap').disabled,
+      unplaceEnabled: !document.getElementById('dropUnplace').disabled,
+      text: document.getElementById('dropChoiceText').textContent
+    }));
+    assert.equal(offer.swapEnabled, offer.swapOk, 'The drop choice must only enable a swap the planner accepts');
+    assert.equal(offer.unplaceEnabled, offer.unplaceOk, 'The unplaced list must only be offered when accepted');
+    assert(offer.unplaceOk, 'Moving the holder to the unplaced list stays available');
+    assert.equal(app.saves, saves, 'Opening the drop choice must save nothing');
+    if (offer.swapOk) await page.locator('#dropSwap').click(); else await page.locator('#dropUnplace').click();
+    await settle();
+    assert.equal(app.saves, saves+1, 'Choosing an option should save once');
     assert.equal(assignments().get(unplaceOnly.id), unplaceOnly.tkey, 'The dragged HQ should take the held tile');
-    assert.equal(assignments().get(unplaceOnly.holder), null, 'The occupant should move to the unplaced list');
-    assert(/unplaced list/.test(await page.locator('#status').innerText()), await page.locator('#status').innerText());
+    assert.equal(assignments().get(unplaceOnly.holder), offer.swapOk ? unplaceOnly.key : null,
+      offer.swapOk ? 'Swap should move the occupant to the vacated tile' : 'The occupant should move to the unplaced list');
+    assert(new RegExp(offer.swapOk?'Swapped with':'unplaced list').test(await page.locator('#status').innerText()), await page.locator('#status').innerText());
     const reserved = await page.evaluate(() => {
       const locked = [...state.assignments].filter(([id,key]) => key != null && state.locks.has(id));
       for (const [other, tkey] of locked) {
@@ -189,10 +201,21 @@ const P=require('./placement-planner.js');
     saves = app.saves;
     await dragHq(reserved.key, reserved.tkey);
     await page.waitForTimeout(200);
-    assert.equal(app.saves, saves, 'A refused drop must not save');
-    assert.equal(await page.locator('#dropChoice').isVisible(), false, 'A reserved tile cannot offer swap or the unplaced list');
-    assert((await page.locator('#status').innerText()).includes('locked'), await page.locator('#status').innerText());
-    assert.equal(assignments().get(reserved.id), reserved.key, 'A refused drop must leave the HQ in place');
+    const anchor = await page.evaluate(() => pendingDrop?.occupant != null && state.anchorMap?.has(pendingDrop.occupant) === true);
+    if (anchor) {
+      assert.equal(app.saves, saves, 'A refused drop must not save');
+      assert.equal(await page.locator('#dropChoice').isVisible(), false, 'An HQ already placed in game cannot be swapped or unplaced');
+      assert((await page.locator('#status').innerText()).includes('locked'), await page.locator('#status').innerText());
+      assert.equal(assignments().get(reserved.id), reserved.key, 'A refused drop must leave the HQ in place');
+    } else {
+      // A reserved tile is still someone's spot: the coordinator gets the same swap / unplaced choice.
+      assert.equal(app.saves, saves, 'Opening the drop choice must not save');
+      assert.equal(await page.locator('#dropChoice').isVisible(), true, 'A reserved tile offers swap or the unplaced list');
+      assert((await page.locator('#dropChoiceText').innerText()).includes(reserved.holderName));
+      await page.locator('#dropCancel').click();
+      await page.locator('#dropChoice').waitFor({state:'hidden'});
+      assert.equal(assignments().get(reserved.id), reserved.key, 'Cancelling leaves every HQ in place');
+    }
     // Narrow phone layout: no horizontal overflow, key controls and coordinates remain usable.
     const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     mobile.on('pageerror',e=>errors.push(e.message));

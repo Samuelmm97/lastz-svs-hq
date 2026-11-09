@@ -150,6 +150,10 @@
   }
   function checkPlacement(state, id, targetKey, options = {}) {
     const action = occupiedAction(options);
+    // A manual drop is the coordinator's decision: it may leave the alliance wedge and it may
+    // drop onto a reserved tile. `free` keeps the physics (footprints, blocked terrain, in-game
+    // HQs) but turns the wedge, reservation and teleport-gap rules into warnings.
+    const free = options.free === true;
     id=Number(id);
     if (!state.players.has(id)) throw Error('Choose a player first');
     if(state.players.get(id).placementEligible===false)throw Error('This identity is not confirmed in the current roster; choose the current player record');
@@ -157,9 +161,10 @@
     if (!target) throw Error('Choose a legal tile');
     if(isFieldAnchor(state,id)&&state.assignments.get(id)!==targetKey)throw Error('Already placed in game. Unlock this HQ before planning a move.');
     if(fieldObstacles(state).some(p=>distance(p,target)<3))throw Error('An observed in-game HQ occupies this space');
-    if (!allowsSite(state,state.players.get(id),target)) throw Error('This tile is outside the player’s alliance wedge');
+    if (!free && !allowsSite(state,state.players.get(id),target)) throw Error('This tile is outside the player’s alliance wedge');
     const occupant=playerAt(state,targetKey), prior=state.assignments.get(id);
-    if (occupant!==id && state.locks.has(occupant)) throw Error('That site is held by another locked player');
+    if (occupant!==id && state.locks.has(occupant) && (!free || isFieldAnchor(state,occupant)))
+      throw Error('That site is held by another locked player');
     const next=new Map(state.assignments);next.set(id,targetKey);
     if (occupant!=null && occupant!==id) {
       if (action==='unplace') {
@@ -169,7 +174,7 @@
       } else {
         if (action==='swap' && !prior) throw Error('That player has no tile to swap; move the occupant to waiting instead');
         next.set(occupant,prior);
-        if (prior && !allowsSite(state,state.players.get(occupant),state.sites.get(prior)))
+        if (prior && !free && !allowsSite(state,state.players.get(occupant),state.sites.get(prior)))
           throw Error('That swap would move the other player outside their wedge. Move them to waiting first.');
       }
     }
@@ -183,7 +188,7 @@
       }
     }
     assertPairZones(state,next);
-    for(const who of moved)if(!state.planningMode&&tightPlacement(state,who)){
+    for(const who of moved)if(!free&&!state.planningMode&&tightPlacement(state,who)){
       const openings=teleportOpenings({...state,assignments:next},state.players.get(who).section).filter(s=>s.insideFormation);
       if(openings.length){const error=Error('That move leaves an enemy teleport opening inside the formation');error.openings=openings;throw error;}
     }
@@ -422,7 +427,7 @@
       outside:outside.length,lockedOutside:outside.filter(p=>p.locked).length,
       grassOutside:outside.filter(p=>p.zone==='grass').length};
   }
-  function grassCluster(state, area, members, before, index, place) {
+  function grassCluster(state, area, members, before, index, place, pool) {
     const center=area.start+((area.end-area.start+2*Math.PI)%(2*Math.PI)||2*Math.PI)/2;
     const prior=p=>state.sites.get(before.get(p.id))||p;
     // Preserve the coordinator's current position order, including lower-power members.
@@ -432,8 +437,10 @@
     if(savedOrder.size)members.sort((a,b)=>(savedOrder.get(a.id)??Infinity)-(savedOrder.get(b.id)??Infinity));
     const order=[...(area.grassOrder||[]),...members.filter(p=>!savedOrder.has(p.id)).map(p=>p.id)];
     for(const s of Object.values(state.sections))if(s===area||(area.group&&s.group===area.group))s.grassOrder=order;
-    const candidates=new Map([...state.sites].filter(([,s])=>s.zone==='grass'&&(!area.grassOnly||inMudArea(s,area))));
-    for(let j=-119;j<=119;j++)for(let i=-119;i<=119;i++) {
+    const candidates=new Map();
+    for(const s of pool||[])if(s.zone==='grass'&&(!area.grassOnly||inMudArea(s,area)))candidates.set(siteKey(s),s);
+    for(const [key,s] of state.sites)if(s.zone==='grass'&&(!area.grassOnly||inMudArea(s,area)))candidates.set(key,s);
+    if(!pool)for(let j=-119;j<=119;j++)for(let i=-119;i<=119;i++) {
       const ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));if(ring<37||ring>119)continue;
       const s={x:500+i+Math.floor(j/2),y:500+j,ring,zone:'grass',angle:Math.atan2(i+j/2,-j)};
       if((!area.grassOnly||inMudArea(s,area))&&!state.blocked.has(siteKey(s))&&clearOfTurrets(s,state.turrets))candidates.set(siteKey(s),s);
@@ -447,10 +454,20 @@
       const trial=index.clone(),anchor=points.find(s=>trial.fits(s));if(!anchor)continue;
       points.sort((a,b)=>distance(a,anchor)-distance(b,anchor)||a.ring-b.ring||angularGap(a.angle,center)-angularGap(b.angle,center)||a.x-b.x);
       const chosen=[];
+      // Keep the cluster one connected lattice: a candidate must sit exactly four tiles from a
+      // point already chosen. Marking that frontier once per choice keeps the scan linear; the
+      // previous chosen.some(...) per candidate is the same rule at quadratic cost.
+      const linked=new Uint8Array(points.length);
       while(chosen.length<members.length) {
-        const s=points.find(s=>trial.fits(s)&&(!chosen.length||chosen.some(b=>distance(s,b)===4)));
-        if(!s)break;
-        chosen.push(s);trial.add(s);
+        let pick=-1;
+        for(let k=0;k<points.length;k++) {
+          const s=points[k];
+          if(chosen.length&&!linked[k])continue;
+          if(trial.fits(s)){pick=k;break;}
+        }
+        if(pick<0)break;
+        const s=points[pick];chosen.push(s);trial.add(s);
+        for(let k=0;k<points.length;k++)if(!linked[k]&&distance(s,points[k])===4)linked[k]=1;
       }
       const radius=Math.max(0,...chosen.map(s=>distance(s,anchor))),sum=chosen.reduce((n,s)=>n+distance(s,anchor),0);
       const score=(members.length-chosen.length)*1e8+radius*1e5+sum*10+anchor.ring;
@@ -506,7 +523,75 @@
     }catch(e){importDraft(state,snapshot);throw e;}
   }
 
-  // Free only this shared alliance group. Foreign HQs and all reservations are obstacles.
+  // Map-first quick action: repack ONLY the grass. Every mud HQ and every reserved/manual HQ stays
+  // exactly where it is and acts as an obstacle, so the coordinator's hand placement is honoured;
+  // unlocked grass and waiting players are packed into dense clusters inside their own wedge grass.
+  // Players outside the alliance groups (Other / unaligned) keep their current grass unless they
+  // are still waiting, which puts them at the back of the remaining grass.
+  function fillGrassOnly(state) {
+    const snapshot=exportDraft(state),before=new Map(state.assignments);
+    try {
+      const groups=new Map();
+      for(const [tag,area] of Object.entries(state.sections)) {
+        if(!area||tag==='Other')continue;
+        const key=area.group||tag;
+        if(!groups.has(key))groups.set(key,{tag,area,tags:new Set()});
+        groups.get(key).tags.add(tag);
+      }
+      const zoned=new Set();for(const group of groups.values())for(const tag of group.tags)zoned.add(tag);
+      const targets=[...state.players.values()].filter(p=>{
+        const key=before.get(p.id),site=key==null?null:state.sites.get(key);
+        if(p.placementEligible===false||state.locks.has(p.id)||isFieldAnchor(state,p.id))return false;
+        if(key!=null&&site?.zone!=='grass')return false;      // mud and unassigned survey spots stay
+        return key==null||zoned.has(p.section);                // only unplaced outsiders join the back fill
+      });
+      const next=new Map(before);for(const p of targets)next.set(p.id,null);
+      const index=occupancy([...next.values()].filter(Boolean).map(key=>state.sites.get(key)).concat(fieldObstacles(state)));
+      const place=(p,s)=>{next.set(p.id,defineSite(state,s.x,s.y));index.add(s);};
+      // One legal-grass tile list for every wedge; regenerating it per alliance is the slow part.
+      const grassPool=[];
+      for(let j=-119;j<=119;j++)for(let i=-119;i<=119;i++) {
+        const ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));if(ring<37||ring>119)continue;
+        const s={x:500+i+Math.floor(j/2),y:500+j,ring,zone:'grass',angle:Math.atan2(i+j/2,-j)};
+        if(!state.blocked.has(siteKey(s))&&clearOfTurrets(s,state.turrets))grassPool.push(s);
+      }
+      const packed=new Set();
+      for(const {area,tags} of groups.values()) {
+        const members=targets.filter(p=>!packed.has(p.id)&&tags.has(p.section));
+        if(!members.length)continue;
+        for(const p of members)packed.add(p.id);
+        // Drops members that could not be placed wherever the wedge/space ran out back into the
+        // waiting pool, so the back fill below can still try them.
+        grassCluster(state,area,members,before,index,place,grassPool);
+      }
+      const rest=targets.filter(p=>!packed.has(p.id)||next.get(p.id)==null);
+      if(rest.length) {
+        // Only a handful of players reach this branch. Take a small band of free tiles from the
+        // outermost rings instead of sorting the whole 40k-tile grass pool for every player.
+        const outer=[...grassPool].sort((a,b)=>b.ring-a.ring||a.angle-b.angle);
+        const free=[],need=Math.min(4000,Math.max(600,rest.length*40));
+        for(const s of outer){if(index.fits(s)){free.push(s);if(free.length>=need)break;}}
+        // Unaligned / prior-risk players fill last, from the outermost ring inwards.
+        rest.sort((a,b)=>Number(fallsBack(a))-Number(fallsBack(b))||a.priority-b.priority||b.hq-a.hq||a.id-b.id);
+        for(const p of rest) {
+          if(!free.length)break;
+          const key=before.get(p.id),prior=key==null?null:state.sites.get(key),own=state.sections[p.section];
+          const pool=own?.grassOnly?free.filter(s=>inMudArea(s,own)):free;
+          if(!pool.length)continue;
+          let pick=0,best=Infinity;
+          for(let k=0;k<pool.length;k++) {
+            const s=pool[k],score=(prior?distance(s,prior):0)*10+s.ring;
+            if(score<best){best=score;pick=k;}
+          }
+          const s=pool[pick],at=free.indexOf(s);place(p,s);if(at>=0)free.splice(at,1);
+        }
+      }
+      assertPairZones(state,next);state.assignments=next;
+      return {moved:targets.filter(p=>before.get(p.id)!==next.get(p.id)).length,
+        waiting:targets.filter(p=>next.get(p.id)==null).length,
+        lockedOutside:Object.keys(state.sections).reduce((n,tag)=>n+areaReport(state,tag).lockedOutside,0)};
+    }catch(e){importDraft(state,snapshot);throw e;}
+  }
   function arrangeArea(state, section, ordering=null) {
     const area=state.sections[section], tags=new Set(Object.keys(state.sections).filter(tag=>
       tag===section||(area.group&&state.sections[tag].group===area.group)));
@@ -818,6 +903,6 @@
   }
 
   return { create, siteKey, playerAt, current, rows, moveAndLock, inWedge, fill, rearReasons, isUnaligned, clearOfTurrets,
-           distance, coordinateSite, defineSite, checkPlacement, areaReport, teleportGaps, teleportOpenings, defenceReport,
-           clearForPlanning, validAllianceTag, addAlliance, removeAlliance, refreshAllianceMemberships, clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, arrangeAll, addPair, removePair, exportDraft, importDraft };
+           distance, coordinateSite, defineSite, checkPlacement, allowsSite, areaReport, teleportGaps, teleportOpenings, defenceReport,
+           clearForPlanning, validAllianceTag, addAlliance, removeAlliance, refreshAllianceMemberships, clear, unassign, setSection, pushBack, arrangeAlliance, arrangeGrass, fillGrassOnly, arrangeAll, addPair, removePair, exportDraft, importDraft };
 });

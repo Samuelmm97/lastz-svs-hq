@@ -295,7 +295,7 @@ function draw() {
   }
   if (drag && drag.hq != null && drag.moved && drag.tile) {
     const status = drag.status || (drag.error ? 'bad' : 'ok');
-    const tone = status === 'ok' ? '#7ee787' : status === 'gap' ? '#ffb347' : status === 'choice' ? '#8ab4ff' : '#f3858f';
+    const tone = status === 'ok' ? '#7ee787' : status === 'gap' ? '#ffb347' : status === 'warn' ? '#ffcf85' : status === 'choice' ? '#8ab4ff' : '#f3858f';
     const t = drag.tile, target = { x: t.x, y: t.y, zone: t.zone || 'grass' };
     const [tx, ty] = project(target), from = drag.origin && state.sites.get(drag.origin);
     if (from) {
@@ -525,7 +525,7 @@ function render() {
   let hint='Select a player, then choose a target tile.',valid=false;
   shownGaps=lastMoveGaps;
   if(chosen&&target) {
-    try {const check=P.checkPlacement(state,selectedId,targetKey);valid=true;
+    try {const check=P.checkPlacement(state,selectedId,targetKey,{free:true});valid=true;
       if(state.assignments.get(selectedId)!==targetKey)shownGaps=P.teleportGaps(state,state.assignments,check.next);
       hint=holder!=null&&holder!==selectedId ? `This swaps with ${state.players.get(holder).name} and reserves ${chosen.name}.` : `Ready to reserve this tile for ${chosen.name}.`;
     } catch(e){hint=e.message;if(e.openings)shownGaps=e.openings;}
@@ -541,7 +541,10 @@ function render() {
   $('defenceInfo').textContent=$('section').value?`${defence.gapFree?'PASS: no enemy HQ fits inside the formation.':`FAIL: ${defence.openings.length} landing centers in ${defence.holes?.length||0} connected openings.`} ${defence.vulnerable} HQ losses expose two or more non-overlapping enemy spots.`+($('simulateDestroyed').checked?(removal?` Removing ${removal.name}: ${removal.capacity===2?'at least 2':removal.capacity} new enemy HQ spaces.`:' Select a member to simulate their removal.'):''):'Choose an alliance to run the footprint test.';
   $('defenceInfo').classList.toggle('has-gap',!defence.gapFree);
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
-  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Drag a name from Players to place onto a tile, or select a name then tap a tile. Drag an HQ onto another tile to move it; drop on a held tile to swap or send the holder to the unplaced list. Drag empty space to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.':'Tap a tile to preview placement. Drag an HQ to move it; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.';
+  $('autoGrass').disabled=!editorKey||busy||!!layoutPreview||after;
+  $('mapPreview').hidden=!layoutPreview;
+  if(layoutPreview){$('mapPreviewText').textContent=layoutPreview.report||'';$('mapApply').disabled=!!layoutPreview.blocked;}
+  $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Drag a name from Players onto a tile, or select a name then tap a tile. Drag any HQ to move it anywhere, even outside its wedge; drop it on a held tile to swap or send the holder to the waiting list. Auto-fill grass packs the grass around your manual placements and leaves every mud HQ alone. Drag empty space to pan; scroll or pinch to zoom.':'Tap a tile to preview placement. Drag any HQ to move it anywhere, even outside its wedge; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
   for (const pair of state.pairs) {
@@ -812,6 +815,10 @@ function showDragChip(status,title,text){
   chip.style.left=`${Math.max(6,Math.min(box.width-w-6,x+16))}px`;
   chip.style.top=`${y+18+h>box.height-6?Math.max(6,y-h-18):y+18}px`;
 }
+function siteFromKey(key){
+  const [x,y]=key.split(',').map(Number),j=y-500,i=x-500-Math.floor(j/2),ring=Math.max(Math.abs(i),Math.abs(j),Math.abs(i+j));
+  return {x,y,ring,zone:ring>=19&&ring<=34?'mud':ring>=37&&ring<=119?'grass':null,angle:Math.atan2(i+j/2,-j)};
+}
 function dropFeedback(preview,error){
   if(error||!preview)return {status:'bad',title:'Not allowed here',text:error||'That tile cannot hold this HQ.'};
   const occupied=preview.occupant!=null&&preview.occupant!==preview.id;
@@ -823,11 +830,13 @@ function dropFeedback(preview,error){
   const best=bestDrop(preview);
   if(!best)return {status:'bad',title:'Not allowed here',text:preview.move?.error?.message||'That drop is not allowed.'};
   if(best.gaps.length)return {status:'gap',title:`Opens ${best.gaps.length} teleport-sized gap${best.gaps.length>1?'s':''}`,text:'Release to move anyway, or pick a tile that keeps the formation closed.'};
+  if(preview.mover&&!P.allowsSite(state,preview.mover,state.sites.get(preview.key)||siteFromKey(preview.key)))
+    return {status:'warn',title:'Outside the alliance wedge',text:'Release to place it manually; the wedge report will flag this HQ.'};
   return {status:'ok',title:'Release to move here',text:'No new teleport-sized gap.'};
 }
 function dropAttempt(id,key,action) {
   try {
-    const check=P.checkPlacement(state,id,key,action?{occupied:action}:undefined);
+    const check=P.checkPlacement(state,id,key,{...(action?{occupied:action}:{}),free:true});
     const gaps=state.assignments.get(id)===key?[]:P.teleportGaps(state,state.assignments,check.next);
     return {action,ok:true,gaps,error:null};
   } catch(e) { return {action,ok:false,gaps:e.openings||[],error:e}; }
@@ -887,12 +896,14 @@ async function commitDrop(action) {
   pendingDrop=null;$('dropChoice').hidden=true;hideDragChip();shownGaps=[];
   const result=await mutate(() => {
     const before=new Map(state.assignments);
-    const occupant=P.moveAndLock(state,preview.id,preview.key,action?{occupied:action}:undefined);
+    const occupant=P.moveAndLock(state,preview.id,preview.key,{...(action?{occupied:action}:{}),free:true});
     lastMoveGaps=P.teleportGaps(state,before);
     selectedId=preview.id;targetKey=preview.key;
     const holder=occupant!=null&&occupant!==preview.id?state.players.get(occupant).name:null;
-    return (action==='swap'?`Swapped with ${holder}`:action==='unplace'?`${holder} moved to the unplaced list`:`Dropped on ${preview.key}`)+
-      (lastMoveGaps.length?` \u00b7 ${lastMoveGaps.length} teleport-sized gap${lastMoveGaps.length>1?'s':''} opened; see the amber outlines`:' \u00b7 no new teleport-sized gap');
+    const moved=state.sites.get(preview.key),mover=state.players.get(preview.id);
+    const outside=moved&&mover&&!P.allowsSite(state,mover,moved)?' · outside the alliance wedge (manual)':'';
+    return (action==='swap'?`Swapped with ${holder}`:action==='unplace'?`${holder} moved to the unplaced list`:`Dropped on ${preview.key}`)+outside+
+      (lastMoveGaps.length?` · ${lastMoveGaps.length} teleport-sized gap${lastMoveGaps.length>1?'s':''} opened; see the amber outlines`:' · no new teleport-sized gap');
   });
   if(result===false)lastMoveGaps=previousGaps;
   render();
@@ -1157,6 +1168,7 @@ for(const button of document.querySelectorAll('[data-direction]'))button.onclick
 $('saveBoundary').onclick=()=>mutate(()=>{const b=bounds();P.setSection(state,$('section').value,b.start,b.end,areaRules());});
 function previewLayout(mode='alliance'){
   const all=mode==='all';
+  const grassAll=mode==='grass-all';
   if(!editorKey){message('Enter the shared editor key to preview changes.');return;}
   if(busy){message('A change is still saving.');return;}
   if(layoutPreview){message('Apply or cancel the current preview first.');return;}
@@ -1165,14 +1177,19 @@ function previewLayout(mode='alliance'){
     if($('swapPreview').checked)throw Error('Switch to staging view first');
     let report;
     if(all)report=P.arrangeAll(state,areaRules());
+    else if(grassAll)report=P.fillGrassOnly(state);
     else {const b=bounds();P.setSection(state,$('section').value,b.start,b.end,areaRules());report=mode==='grass'?P.arrangeGrass(state,$('section').value):P.arrangeAlliance(state,$('section').value);}
     layoutPreview={before,after:P.exportDraft(state),revision};
     const failed=Object.entries(state.sections).filter(([tag,a])=>!state.planningMode&&a.defencePacking&&P.teleportOpenings(state,tag).some(p=>p.insideFormation));
     layoutPreview.blocked=failed.length>0;$('applyLayout').disabled=layoutPreview.blocked;
-    $('layoutReport').textContent=`Preview: ${report.moved} players changed · ${report.waiting} waiting for room`+
+    layoutPreview.report=`Preview: ${report.moved} players changed · ${report.waiting} waiting for room`+
       (report.displacedGrass?` · ${report.displacedGrass} blocking grass HQs relocated into their own/shared areas`:'')+
       (report.lockedOutside?` · ${report.lockedOutside} reserved outside the wedge`:'')+
-      (all?'. All unlocked players rearranged using saved wedges and these spacing rules.':mode==='grass'?'. Grass grouped in saved order. All mud stays fixed; only blocking grass HQs from other groups may move.':'. Other alliances’ mud stays fixed; only blocking grass HQs may move.')+' Apply to save, or cancel.';
+      (all?'. All unlocked players rearranged using saved wedges and these spacing rules.':
+        grassAll?'. Grass packed in each alliance wedge; mud and reserved manual HQs did not move.':
+        mode==='grass'?'. Grass grouped in saved order. All mud stays fixed; only blocking grass HQs from other groups may move.':
+        '. Other alliances’ mud stays fixed; only blocking grass HQs may move.')+' Apply to save, or cancel.';
+    $('layoutReport').textContent=layoutPreview.report;
     $('layoutPreview').hidden=false;$('mapMode').textContent='UNSAVED LAYOUT PREVIEW';render();
     message(layoutPreview.blocked?'Cannot apply: an enemy HQ still fits inside the formation. Amber footprints show every opening.':'Preview only. Apply preview to save this layout.');
   }catch(e){P.importDraft(state,before);render();message(e.message);}
@@ -1180,14 +1197,18 @@ function previewLayout(mode='alliance'){
 $('arrangeAlliance').onclick=()=>previewLayout();
 $('arrangeAll').onclick=()=>previewLayout('all');
 $('arrangeGrass').onclick=()=>previewLayout('grass');
+$('autoGrass').onclick=()=>previewLayout('grass-all');
 $('cancelLayout').onclick=()=>{cancelPreview();syncBoundary();message('Preview canceled.');};
-$('applyLayout').onclick=()=>{
+const applyPreview=()=>{
   if(!layoutPreview)return;
   if(layoutPreview.blocked){message('Close every teleport opening before applying this layout.');return;}
   const after=layoutPreview.after,detail=layoutPreview.detail||'Alliance layout applied';
   if(!cancelPreview()){message('The roster changed. Preview this layout again before applying it.');return;}
   mutate(()=>{P.importDraft(state,after);return detail;});
 };
+$('applyLayout').onclick=applyPreview;
+$('mapApply').onclick=applyPreview;
+$('mapCancel').onclick=()=>{cancelPreview();syncBoundary();message('Preview canceled.');};
 for(const id of ['grassOnly','grassCompact','defencePacking','frontLayers','bodyGap','boundaryCenter','boundaryWidth','wedgeStart','wedgeEnd'])
   $(id).addEventListener('input',()=>{if(layoutPreview){cancelPreview();message('Preview canceled because the layout settings changed. Preview again to inspect the new settings.');}});
 $('simulateDestroyed').onchange=render;
@@ -1243,7 +1264,7 @@ $('lockPlayer').onclick = async () => {
   if ($('swapPreview').checked) throw Error('Switch to staging view first');
   if (selectedId == null || !targetKey) throw Error('Choose both a player and a site');
   const before=new Map(state.assignments);
-  P.moveAndLock(state, selectedId, targetKey);
+  P.moveAndLock(state, selectedId, targetKey, {free:true});
   lastMoveGaps=P.teleportGaps(state,before);
   return lastMoveGaps.length ? 'Placement reserved · teleport-sized gap detected; see amber outlines' : 'Placement reserved · no new teleport-sized gap';
   });
