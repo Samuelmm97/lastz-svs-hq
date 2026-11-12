@@ -19,6 +19,7 @@ let revision = 0, editorKey = '', busy = false, scale = 1, panX = 0, panY = 0, d
 let historyEntries = [], selectedHistory = null;
 let copyMessages = [], copyIndex = 0, copyFingerprint = '';
 let layoutPreview = null;
+let newerRevision = null;
 let pendingDrop = null;
 let rosterPlacing=false,rosterDragId=null;
 if(innerWidth<=800)$('mapRoster').open=false;
@@ -87,10 +88,26 @@ $('helmCorners').onclick=()=>{
 };
 function cancelPreview(){
   if(!layoutPreview)return true;
-  const preview=layoutPreview,compatible=preview.before.signature===state.signature;layoutPreview=null;
+  const preview=layoutPreview,compatible=preview.before.signature===state.signature;layoutPreview=null;newerRevision=null;
   if(compatible)P.importDraft(state,preview.before);
   $('layoutPreview').hidden=true;$('mapMode').textContent='Editor workspace';render();
   return compatible;
+}
+
+// A preview freezes the page: loadShared() refuses to run while one is open, so a
+// leader who leaves one sitting there keeps reading the roster it was built from.
+// Poll anyway and name the newer revision in the preview bar instead of silently
+// serving hours-old names.
+async function noteNewerRevision(){
+  if(!apiUrl)return;
+  try{
+    const r=await fetch(`${apiUrl}/api/placement`,{cache:'no-store',headers:globalThis.readHeaders?readHeaders():{}});
+    if(!r.ok)return;
+    const data=await r.json();
+    if(!data||data.revision===revision||newerRevision===data.revision)return;
+    newerRevision=data.revision;
+    render();message(`Shared plan moved to revision ${newerRevision} — apply or cancel this preview to load it.`);
+  }catch{}
 }
 
 function message(value) { $('status').textContent = value; }
@@ -543,7 +560,7 @@ function render() {
   $('lockPlayer').disabled=!valid||busy||!!layoutPreview||!editorKey||after;
   $('autoGrass').disabled=!editorKey||busy||!!layoutPreview||after;
   $('mapPreview').hidden=!layoutPreview;
-  if(layoutPreview){$('mapPreviewText').textContent=layoutPreview.report||'';$('mapApply').disabled=!!layoutPreview.blocked;}
+  if(layoutPreview){$('mapPreviewText').textContent=(layoutPreview.report||'')+(newerRevision?` · Newer shared revision ${newerRevision} — apply or cancel to load it`:'');$('mapApply').disabled=!!layoutPreview.blocked;}
   $('mapHelp').textContent=editMode ? ($('mapAction').value==='select'?'Drag a name from Players onto a tile, or select a name then tap a tile. Drag any HQ to move it anywhere, even outside its wedge; drop it on a held tile to swap or send the holder to the waiting list. Auto-fill grass packs the grass around your manual placements and leaves every mud HQ alone. Drag empty space to pan; scroll or pinch to zoom.':'Tap a tile to preview placement. Drag any HQ to move it anywhere, even outside its wedge; drop on a held tile to swap or unplace. Drag empty space to pan; scroll or pinch to zoom.') : 'Tap a player or search their name. Drag to pan; scroll or pinch to zoom. Click an alliance tag to show just that alliance.';
   $('pendingStrike').textContent = pendingStrike != null ? `Pending strike: ${state.players.get(pendingStrike).name}` : '';
   const pairs = $('pairs'); pairs.replaceChildren();
@@ -695,7 +712,7 @@ async function loadShared(force = false) {
       const next = P.create(plan);
       if (data.draft) P.importDraft(next, data.draft);
       if(sharedSource&&plan.meta.rosterIdentity!=='playerId')LastZSharedState.enrichState(next,sharedSource);
-      state = next; revision = data.revision;
+      state = next; revision = data.revision; newerRevision = null;
       if(plan.meta.rosterIdentity==='playerId')refreshAllianceRoster();
       lastMoveGaps=[];
       syncBoundary();
@@ -1377,7 +1394,17 @@ Promise.all([fetch('placement-plan.json').then(r=>{if(!r.ok)throw Error('Plan co
     if ($('editorKey').value) $('connectEditor').click();
     else $('accessPanel').open=true;
   }
-  setInterval(() => { if (!document.hidden && !busy) loadShared(); }, 10000);
+  // A background tab's timers are throttled and a hidden tab is skipped entirely, so
+  // also poll the moment the reader comes back to the page; a leader who returns to an
+  // open tab must not keep reading the roster it was loaded with.
+  const pollShared = () => {
+    if (busy) return;
+    if (layoutPreview) { noteNewerRevision(); return; }
+    loadShared();
+  };
+  setInterval(pollShared, 10000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) pollShared(); });
+  window.addEventListener('focus', pollShared);
   if(globalThis.PLACEMENT_SHARED_SOURCE_BASE)setInterval(async()=>{
     if(document.hidden||busy||layoutPreview)return;
     try{const source=await LastZSharedState.load(globalThis.PLACEMENT_SHARED_SOURCE_BASE);if(source.fingerprint&&source.fingerprint===sharedSource?.fingerprint)return;sharedSource=source;sharedSourceError=false;if(plan.meta.rosterIdentity!=='playerId')LastZSharedState.enrichState(state,source);$('snapshotNote').textContent=`Power: States 792–815 workbook · observed ${new Date(source.power.source.observedAt).toLocaleString()}. Positions: shared Field Atlas map observations. Proposed coordinates are separate.`;render();}
